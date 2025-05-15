@@ -35,7 +35,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-semibold mb-3">Create Once, Deploy Many</h3>
           <p className="text-[#65676B]">
-            Build your perfect ad creative once, then distribute it to as many campaigns and ad sets as you need without repetitive rebuilding.
+            Build your perfect ad creative once, then distribute it to as many campaigns and ad sets as you need without repetitive rebuilding. The way it should have always been, really.
           </p>
         </div>
         
