@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { MessageSquareDashed } from "lucide-react";
+import { Beaker, Layers } from "lucide-react";
 import { useState } from "react";
 
 export default function Header() {
@@ -23,28 +23,28 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <Link href="/">
-            <a className="flex items-center gap-2">
-              <MessageSquareDashed className="text-[#1877F2] h-6 w-6" />
-              <h1 className="text-xl font-semibold">AdCreator</h1>
-            </a>
+            <div className="flex items-center gap-2">
+              <Beaker className="text-[#1877F2] h-6 w-6" />
+              <h1 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">AdPotion</h1>
+            </div>
           </Link>
           
           <div className="flex items-center gap-4">
             {location.startsWith("/create") && (
               <div className="hidden md:flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <span className={`w-7 h-7 ${currentStep === 1 ? 'bg-[#1877F2] text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>1</span>
-                  <span className={`text-sm ${currentStep === 1 ? '' : 'text-[#65676B]'}`}>Design</span>
+                  <span className={`w-7 h-7 ${currentStep === 1 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>1</span>
+                  <span className={`text-sm ${currentStep === 1 ? 'font-medium' : 'text-[#65676B]'}`}>Design</span>
                 </div>
                 <div className="w-6 h-0.5 bg-[#E4E6EB]"></div>
                 <div className="flex items-center gap-1">
-                  <span className={`w-7 h-7 ${currentStep === 2 ? 'bg-[#1877F2] text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>2</span>
-                  <span className={`text-sm ${currentStep === 2 ? '' : 'text-[#65676B]'}`}>Target</span>
+                  <span className={`w-7 h-7 ${currentStep === 2 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>2</span>
+                  <span className={`text-sm ${currentStep === 2 ? 'font-medium' : 'text-[#65676B]'}`}>Distribute</span>
                 </div>
                 <div className="w-6 h-0.5 bg-[#E4E6EB]"></div>
                 <div className="flex items-center gap-1">
-                  <span className={`w-7 h-7 ${currentStep === 3 ? 'bg-[#1877F2] text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>3</span>
-                  <span className={`text-sm ${currentStep === 3 ? '' : 'text-[#65676B]'}`}>Publish</span>
+                  <span className={`w-7 h-7 ${currentStep === 3 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>3</span>
+                  <span className={`text-sm ${currentStep === 3 ? 'font-medium' : 'text-[#65676B]'}`}>Launch</span>
                 </div>
               </div>
             )}
@@ -52,21 +52,21 @@ export default function Header() {
             <div className="flex items-center gap-2">
               {!location.startsWith("/create") && (
                 <Link href="/create">
-                  <a className="bg-[#1877F2] text-white px-4 py-2 rounded-md hover:bg-blue-600 mr-2">
+                  <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-md hover:opacity-90 mr-2">
                     Create Ad
-                  </a>
+                  </button>
                 </Link>
               )}
               <Link href="/history">
-                <a className={`p-2 text-[#65676B] hover:bg-[#F0F2F5] rounded-full ${location === '/history' ? 'bg-[#F0F2F5]' : ''}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-history"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-                </a>
+                <button className={`p-2 text-[#65676B] hover:bg-[#F0F2F5] rounded-full ${location === '/history' ? 'bg-[#F0F2F5]' : ''}`}>
+                  <Layers className="h-5 w-5" />
+                </button>
               </Link>
               <button className="p-2 text-[#65676B] hover:bg-[#F0F2F5] rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
               </button>
-              <div className="h-8 w-8 rounded-full bg-[#F0F2F5] overflow-hidden">
-                <div className="h-full w-full bg-[#65676B] flex items-center justify-center text-white text-sm">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 overflow-hidden">
+                <div className="h-full w-full flex items-center justify-center text-white text-sm">
                   U
                 </div>
               </div>

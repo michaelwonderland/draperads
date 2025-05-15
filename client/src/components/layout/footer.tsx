@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { MessageSquareDashed } from "lucide-react";
+import { Beaker } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -7,26 +7,26 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center gap-2 mb-3 md:mb-0">
-            <MessageSquareDashed className="text-[#1877F2] h-5 w-5" />
-            <span className="text-[#1C1E21] font-medium">AdCreator</span>
+            <Beaker className="text-[#1877F2] h-5 w-5" />
+            <span className="font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">AdPotion</span>
           </div>
           <div className="flex gap-4 text-sm text-[#65676B]">
             <Link href="#">
-              <a className="hover:text-[#1877F2]">Help Center</a>
+              <span className="hover:text-[#1877F2]">Help Center</span>
             </Link>
             <Link href="#">
-              <a className="hover:text-[#1877F2]">Terms of Service</a>
+              <span className="hover:text-[#1877F2]">Terms of Service</span>
             </Link>
             <Link href="#">
-              <a className="hover:text-[#1877F2]">Privacy Policy</a>
+              <span className="hover:text-[#1877F2]">Privacy Policy</span>
             </Link>
             <Link href="#">
-              <a className="hover:text-[#1877F2]">Contact Us</a>
+              <span className="hover:text-[#1877F2]">Contact Us</span>
             </Link>
           </div>
         </div>
         <div className="mt-4 text-center text-xs text-[#65676B]">
-          © {new Date().getFullYear()} AdCreator. All rights reserved.
+          © {new Date().getFullYear()} AdPotion. All rights reserved.
         </div>
       </div>
     </footer>
