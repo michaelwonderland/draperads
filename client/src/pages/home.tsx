@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { RecentAds } from "@/components/ad-creator/recent-ads";
-import { Rocket, Layers, Zap, Beaker } from "lucide-react";
+import { Rocket, Layers, Zap, Briefcase } from "lucide-react";
 
 export default function Home() {
   return (
@@ -9,14 +9,14 @@ export default function Home() {
       <div className="mb-8">
         <div className="bg-white rounded-lg shadow-sm p-8 text-center">
           <div className="flex justify-center mb-4">
-            <Beaker className="h-12 w-12 text-[#1877F2]" />
+            <Briefcase className="h-12 w-12 text-[#1877F2]" />
           </div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
             Launch Ads 10x Faster
           </h1>
           <p className="text-lg text-[#65676B] mb-6 max-w-2xl mx-auto">
             Create standalone ad assets and deploy to multiple Meta Ad Sets with one click. 
-            AdPotion flips the Meta Ads upload process on its head - design once, distribute everywhere.
+            DraperAds flips the Meta Ads upload process on its head - design once, distribute everywhere.
           </p>
           <Link href="/create">
             <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-6 py-2 text-lg">
