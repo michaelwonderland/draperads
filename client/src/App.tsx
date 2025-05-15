@@ -12,8 +12,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/create" component={AdCreator} />
-      <Route path="/history" component={AdHistory} />
+      <Route path="/ad-creator" component={AdCreator} />
+      <Route path="/ad-history" component={AdHistory} />
       <Route component={NotFound} />
     </Switch>
   );

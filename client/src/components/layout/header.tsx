@@ -21,7 +21,7 @@ export default function Header() {
   // Determine current step based on location
   const getStepFromLocation = () => {
     // First step is design
-    if (location.startsWith("/create")) {
+    if (location.startsWith("/ad-creator")) {
       return step;
     }
     // Default to step 1
@@ -57,7 +57,7 @@ export default function Header() {
           </Link>
           
           <div className="flex items-center gap-4">
-            {location.startsWith("/create") && (
+            {location.startsWith("/ad-creator") && (
               <div className="hidden md:flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   <span className={`w-7 h-7 ${currentStep === 1 ? 'bg-[#f6242f] text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center`}>1</span>
