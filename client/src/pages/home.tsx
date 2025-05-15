@@ -12,11 +12,13 @@ export default function Home() {
             <Briefcase className="h-12 w-12 text-[#f6242f]" />
           </div>
           <h1 className="text-4xl font-bold mb-4 text-black">
-            Launch Ads <span className="text-[#f6242f]">10x Faster</span>
+            Upload Performance Ads: <span className="text-[#f6242f]">The Way It Should Be</span>
           </h1>
+          <h2 className="text-2xl font-semibold mb-4 text-black">Simple. Seamless. Solved.</h2>
           <p className="text-lg text-[#65676B] mb-6 max-w-2xl mx-auto">
-            Create standalone ad assets and deploy to multiple Meta Ad Sets with one click. 
-            DraperAds flips the Meta Ads upload process on its head - design once, distribute everywhere.
+            We imagined a simpler world where you create ads first, then distribute them to campaigns - 
+            not rebuilding the same creative for each ad set. Since ad platforms won't fix this 
+            fundamental workflow issue, we built DraperAds to do it for you.
           </p>
           <Link href="/create">
             <Button className="bg-[#f6242f] hover:opacity-90 text-white px-6 py-2 text-lg">
@@ -33,7 +35,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-semibold mb-3">Create Once, Deploy Many</h3>
           <p className="text-[#65676B]">
-            Design your ad creative once and deploy it to multiple ad sets without recreating it each time in Meta Ads Manager.
+            Build your perfect ad creative once, then distribute it to as many campaigns and ad sets as you need without repetitive rebuilding.
           </p>
         </div>
         
@@ -43,7 +45,7 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-semibold mb-3">10x Your Ad Output</h3>
           <p className="text-[#65676B]">
-            Stop wasting time in Meta Ads Manager. Create and launch campaigns in seconds, not hours, with our bulk deployment tool.
+            Stop wasting hours rebuilding the same ads. Our bulk deployment tool lets you target multiple audiences with the same creative in just seconds.
           </p>
         </div>
         
@@ -53,16 +55,16 @@ export default function Home() {
           </div>
           <h3 className="text-xl font-semibold mb-3">Boost ROAS</h3>
           <p className="text-[#65676B]">
-            Maximize your return on ad spend by easily testing the same creative across different audiences and placements.
+            Test identical creatives across different audiences without rebuilding each ad. Find your winning combinations faster with our simple, sensible workflow.
           </p>
         </div>
       </div>
       
       <div className="mb-12 bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB]">
-        <h2 className="text-2xl font-bold mb-4 text-center">Meta Ad Management is Broken</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">The Current Ad Creation Process is Backwards</h2>
         <p className="text-center text-[#65676B] mb-6 max-w-3xl mx-auto">
-          With Meta's current process, the same creative in different ad sets is treated as different ads. 
-          DraperAds lets you create standalone assets first, then distribute them to multiple ad sets efficiently.
+          Platforms like Meta force you to recreate the same ad for each campaign and ad set, wasting countless hours. 
+          DraperAds flips the process: create once, then deploy across multiple campaigns and ad sets with a single click.
         </p>
         <div className="flex justify-center">
           <Link href="/create">
