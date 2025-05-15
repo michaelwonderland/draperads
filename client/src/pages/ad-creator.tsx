@@ -32,7 +32,7 @@ export default function AdCreator() {
     description: "No design skills needed. Try it today!",
     cta: "sign_up",
     websiteUrl: "https://example.com/signup",
-    brandName: "AdPotion",
+    brandName: "DraperAds",
     brandLogoUrl: "",
     status: "draft"
   });
@@ -288,7 +288,7 @@ export default function AdCreator() {
                 <Button
                   onClick={handleNextStep}
                   disabled={currentStep === 1 && !adData.mediaUrl}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white"
+                  className="bg-[#f6242f] hover:opacity-90 text-white"
                 >
                   Next Step
                 </Button>
@@ -296,7 +296,7 @@ export default function AdCreator() {
                 <Button
                   onClick={handlePublish}
                   disabled={publishAdMutation.isPending || !adData.mediaUrl || targetingData.adSets.length === 0}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white"
+                  className="bg-[#f6242f] hover:opacity-90 text-white"
                 >
                   {publishAdMutation.isPending ? 
                     "Launching..." : 

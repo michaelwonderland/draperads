@@ -9,17 +9,17 @@ export default function Home() {
       <div className="mb-8">
         <div className="bg-white rounded-lg shadow-sm p-8 text-center">
           <div className="flex justify-center mb-4">
-            <Briefcase className="h-12 w-12 text-[#1877F2]" />
+            <Briefcase className="h-12 w-12 text-[#f6242f]" />
           </div>
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-            Launch Ads 10x Faster
+          <h1 className="text-4xl font-bold mb-4 text-black">
+            Launch Ads <span className="text-[#f6242f]">10x Faster</span>
           </h1>
           <p className="text-lg text-[#65676B] mb-6 max-w-2xl mx-auto">
             Create standalone ad assets and deploy to multiple Meta Ad Sets with one click. 
             DraperAds flips the Meta Ads upload process on its head - design once, distribute everywhere.
           </p>
           <Link href="/create">
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white px-6 py-2 text-lg">
+            <Button className="bg-[#f6242f] hover:opacity-90 text-white px-6 py-2 text-lg">
               Create New Ad
             </Button>
           </Link>
@@ -27,8 +27,8 @@ export default function Home() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB] hover:border-blue-400 transition-colors">
-          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white mb-4">
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB] hover:border-[#f6242f] transition-colors">
+          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-[#f6242f] text-white mb-4">
             <Layers className="h-6 w-6" />
           </div>
           <h3 className="text-xl font-semibold mb-3">Create Once, Deploy Many</h3>
@@ -37,8 +37,8 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB] hover:border-blue-400 transition-colors">
-          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white mb-4">
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB] hover:border-[#f6242f] transition-colors">
+          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-[#f6242f] text-white mb-4">
             <Zap className="h-6 w-6" />
           </div>
           <h3 className="text-xl font-semibold mb-3">10x Your Ad Output</h3>
@@ -47,8 +47,8 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB] hover:border-blue-400 transition-colors">
-          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white mb-4">
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-[#E4E6EB] hover:border-[#f6242f] transition-colors">
+          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-[#f6242f] text-white mb-4">
             <Rocket className="h-6 w-6" />
           </div>
           <h3 className="text-xl font-semibold mb-3">Boost ROAS</h3>
@@ -62,12 +62,12 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-4 text-center">Meta Ad Management is Broken</h2>
         <p className="text-center text-[#65676B] mb-6 max-w-3xl mx-auto">
           With Meta's current process, the same creative in different ad sets is treated as different ads. 
-          AdPotion lets you create standalone assets first, then distribute them to multiple ad sets efficiently.
+          DraperAds lets you create standalone assets first, then distribute them to multiple ad sets efficiently.
         </p>
         <div className="flex justify-center">
           <Link href="/create">
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white">
-              Try AdPotion Now
+            <Button className="bg-[#f6242f] hover:opacity-90 text-white">
+              Try DraperAds Now
             </Button>
           </Link>
         </div>
