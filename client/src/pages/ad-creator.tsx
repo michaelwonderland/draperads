@@ -9,6 +9,8 @@ import { AdTextForm } from "@/components/ad-creator/ad-text-form";
 import { BrandSettings } from "@/components/ad-creator/brand-settings";
 import { AdTargeting } from "@/components/ad-creator/ad-targeting";
 import { AdPreview } from "@/components/ad-creator/ad-preview";
+import { AuthDialog } from "@/components/auth/auth-dialog";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 
 interface AdSetConfig {
@@ -21,6 +23,8 @@ export default function AdCreator() {
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   
   // Ad content state
@@ -139,6 +143,13 @@ export default function AdCreator() {
   
   // Publish ad
   const handlePublish = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated && !authLoading) {
+      // Show auth dialog if not authenticated
+      setShowAuthDialog(true);
+      return;
+    }
+    
     // First save the ad if it's not saved yet
     if (!createAdMutation.data) {
       const response = await createAdMutation.mutateAsync();
@@ -148,6 +159,11 @@ export default function AdCreator() {
       const adData = createAdMutation.data;
       publishAdMutation.mutate(adData.id);
     }
+  };
+  
+  // Close auth dialog
+  const handleCloseAuthDialog = () => {
+    setShowAuthDialog(false);
   };
 
   // Handle next step
@@ -166,6 +182,9 @@ export default function AdCreator() {
   
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* Auth Dialog */}
+      <AuthDialog isOpen={showAuthDialog} onClose={handleCloseAuthDialog} />
+      
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
         <div className="lg:w-7/12">
