@@ -1,62 +1,86 @@
-import React from 'react';
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Briefcase } from 'lucide-react';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess?: () => void;
+  message?: string;
 }
 
-export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
+export function AuthDialog({
+  isOpen,
+  onClose,
+  onLoginSuccess,
+  message = "You need to be logged in to publish ads"
+}: AuthDialogProps) {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  // If user is authenticated, close the dialog and call onLoginSuccess
+  if (isAuthenticated && isOpen) {
+    onClose();
+    onLoginSuccess?.();
+    return null;
+  }
+
+  // Handle login button click
   const handleLogin = () => {
-    // Redirect to Replit auth endpoint
-    window.location.href = '/api/login';
+    setIsLoggingIn(true);
+    // Redirect to login API endpoint
+    window.location.href = "/api/login";
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#f6242f]">
-            <Briefcase className="h-6 w-6 text-white" />
-          </div>
-          <DialogTitle className="text-center text-xl">Create an account to publish your ad</DialogTitle>
-          <DialogDescription className="text-center">
-            You're almost done! Sign up or log in to publish your ad to multiple ad sets with one click.
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-[#f6242f] to-black bg-clip-text text-transparent">
+            Join DraperAds
+          </DialogTitle>
+          <DialogDescription className="pt-4 text-lg">
+            {message}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col space-y-4 px-4 py-2">
-          <div className="text-center text-sm text-gray-500">
-            <p>Create an account to:</p>
-            <ul className="mt-2 list-disc pl-5 text-left">
-              <li>Save your ad creatives for future use</li>
-              <li>Publish to multiple ad sets with one click</li>
-              <li>Track ad performance across campaigns</li>
-            </ul>
+        <div className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <Button 
+              onClick={handleLogin}
+              disabled={isLoggingIn}
+              className="w-full bg-[#f6242f] hover:bg-[#e11e29] text-white"
+            >
+              {isLoggingIn ? "Redirecting..." : "Log in with Replit"}
+            </Button>
+            <div className="text-center text-sm text-gray-500">
+              By logging in, you agree to our{" "}
+              <a href="#" className="underline">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="#" className="underline">
+                Privacy Policy
+              </a>
+            </div>
+          </div>
+          <div className="flex items-center justify-center">
+            <div className="border-t w-full"></div>
+          </div>
+          <div className="text-center text-sm">
+            <p>
+              DraperAds - The way it should have always been, really.
+            </p>
           </div>
         </div>
-        <DialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button 
-            className="bg-[#f6242f] hover:opacity-90 text-white" 
-            onClick={handleLogin}
-          >
-            Sign in to continue
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

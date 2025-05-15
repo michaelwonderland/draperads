@@ -92,17 +92,33 @@ export default function AdCreator() {
         return apiRequest('POST', '/api/publish', publishData);
       });
       
-      return Promise.all(promises);
+      // Process responses
+      try {
+        const responses = await Promise.all(promises);
+        const results = await Promise.all(responses.map(res => res.json()));
+        return results;
+      } catch (error: any) {
+        // Handle 401 unauthorized errors (user not logged in)
+        if (error.response && error.response.status === 401) {
+          throw new Error("Authentication required");
+        }
+        throw error;
+      }
     },
-    onSuccess: async () => {
+    onSuccess: async (results) => {
       toast({
         title: "Success",
         description: `Your ad has been published to ${targetingData.adSets.length} ad sets.`,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/ads'] });
-      navigate('/history');
+      navigate('/ad-history');
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      // If it's an authentication error, we already show the auth dialog
+      if (error.message === "Authentication required") {
+        return;
+      }
+      
       toast({
         title: "Error",
         description: `Failed to publish ad: ${error.message}`,
@@ -151,19 +167,39 @@ export default function AdCreator() {
     }
     
     // First save the ad if it's not saved yet
-    if (!createAdMutation.data) {
-      const response = await createAdMutation.mutateAsync();
-      const adData = await response.json();
-      publishAdMutation.mutate(adData.id);
-    } else {
-      const adData = createAdMutation.data;
-      publishAdMutation.mutate(adData.id);
+    try {
+      let adId;
+      if (!createAdMutation.data) {
+        const response = await createAdMutation.mutateAsync();
+        const savedAd = await response.json();
+        adId = savedAd.id;
+      } else {
+        adId = createAdMutation.data.id;
+      }
+      
+      if (adId) {
+        publishAdMutation.mutate(adId);
+      } else {
+        throw new Error("Failed to get ad ID");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Failed to save ad: ${error.message}`,
+        variant: "destructive",
+      });
     }
   };
   
   // Close auth dialog
   const handleCloseAuthDialog = () => {
     setShowAuthDialog(false);
+  };
+  
+  // Handle successful login
+  const handleLoginSuccess = () => {
+    // Continue with ad publishing
+    handlePublish();
   };
 
   // Handle next step
@@ -183,7 +219,12 @@ export default function AdCreator() {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Auth Dialog */}
-      <AuthDialog isOpen={showAuthDialog} onClose={handleCloseAuthDialog} />
+      <AuthDialog 
+        isOpen={showAuthDialog} 
+        onClose={handleCloseAuthDialog}
+        onLoginSuccess={handleLoginSuccess}
+        message="You need to sign in to publish your ad to Meta Ad Sets"
+      />
       
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
