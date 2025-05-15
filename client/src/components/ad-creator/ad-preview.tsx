@@ -44,7 +44,7 @@ export function AdPreview({
             type="button"
             variant="ghost"
             size="icon"
-            className={viewMode === 'mobile' ? 'text-[#1877F2] bg-blue-50' : 'text-[#65676B]'}
+            className={viewMode === 'mobile' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
             onClick={() => setViewMode('mobile')}
           >
             <SmartphoneIcon className="h-5 w-5" />
@@ -53,7 +53,7 @@ export function AdPreview({
             type="button"
             variant="ghost"
             size="icon"
-            className={viewMode === 'desktop' ? 'text-[#1877F2] bg-blue-50' : 'text-[#65676B]'}
+            className={viewMode === 'desktop' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
             onClick={() => setViewMode('desktop')}
           >
             <MonitorIcon className="h-5 w-5" />
@@ -121,7 +121,7 @@ export function AdPreview({
             <p className="text-xs text-[#65676B] uppercase tracking-wide">{brandName.toLowerCase()}.com</p>
             <h3 className="font-medium">{headline}</h3>
             {description && <p className="text-sm text-[#65676B]">{description}</p>}
-            <button className="mt-2 bg-[#1877F2] text-white text-center text-sm font-medium py-1.5 w-full rounded">
+            <button className="mt-2 bg-[#f6242f] text-white text-center text-sm font-medium py-1.5 w-full rounded">
               {getCtaText(cta)}
             </button>
           </div>
@@ -156,7 +156,7 @@ export function AdPreview({
               <span className="text-sm font-medium">8/10</span>
             </div>
             <div className="h-2 bg-[#F0F2F5] rounded-full overflow-hidden">
-              <div className="h-full bg-[#1877F2] w-4/5 rounded-full"></div>
+              <div className="h-full bg-[#f6242f] w-4/5 rounded-full"></div>
             </div>
           </div>
           

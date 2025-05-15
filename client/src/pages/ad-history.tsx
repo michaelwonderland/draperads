@@ -44,7 +44,7 @@ export default function AdHistory() {
       case 'active':
         return <Badge className="bg-[#42B72A] text-white border-none">Active</Badge>;
       case 'draft':
-        return <Badge className="bg-[#1877F2] text-white border-none">Draft</Badge>;
+        return <Badge className="bg-[#f6242f] text-white border-none">Draft</Badge>;
       case 'published':
         return <Badge className="bg-[#00B5E2] text-white border-none">Published</Badge>;
       case 'completed':
@@ -79,7 +79,7 @@ export default function AdHistory() {
             className="w-full md:w-64"
           />
           <Link href="/create">
-            <Button className="bg-[#1877F2] hover:bg-blue-600 whitespace-nowrap">
+            <Button className="bg-[#f6242f] hover:opacity-90 whitespace-nowrap">
               Create New Ad
             </Button>
           </Link>
