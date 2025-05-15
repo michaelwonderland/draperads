@@ -104,8 +104,26 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    // If an existing user with this ID exists, update it
+    if (insertUser.id && this.users.has(insertUser.id)) {
+      const updatedUser: User = {
+        ...this.users.get(insertUser.id)!,
+        ...insertUser,
+        updatedAt: new Date()
+      };
+      this.users.set(updatedUser.id, updatedUser);
+      return updatedUser;
+    }
+    
+    // Otherwise create a new user
+    const id = insertUser.id || this.currentUserId++;
+    const now = new Date();
+    const user: User = { 
+      ...insertUser, 
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
     this.users.set(id, user);
     return user;
   }

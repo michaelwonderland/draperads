@@ -24,13 +24,17 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  email: true,
-  firstName: true,
-  lastName: true,
-  profileImageUrl: true,
-});
+export const insertUserSchema = createInsertSchema(users)
+  .pick({
+    username: true,
+    email: true,
+    firstName: true,
+    lastName: true,
+    profileImageUrl: true,
+  })
+  .extend({
+    id: z.number().optional(),
+  });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
