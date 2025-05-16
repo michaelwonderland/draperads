@@ -40,6 +40,7 @@ interface AdAccount {
 interface Campaign {
   id: string;
   name: string;
+  status?: string; // 'ACTIVE', 'PAUSED', etc.
 }
 
 interface AdSet {
@@ -136,9 +137,9 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   }> = {
     'account_1': {
       campaigns: [
-        { id: 'c1_1', name: 'Summer Sale 2025' },
-        { id: 'c1_2', name: 'Product Launch: Eco Series' },
-        { id: 'c1_3', name: 'Brand Awareness Q2' }
+        { id: 'c1_1', name: 'Summer Sale 2025', status: 'ACTIVE' },
+        { id: 'c1_2', name: 'Product Launch: Eco Series', status: 'ACTIVE' },
+        { id: 'c1_3', name: 'Brand Awareness Q2', status: 'PAUSED' }
       ],
       adSets: [
         { id: 'as1_1', name: 'Young Adults 18-24', campaignId: 'c1_1' },
@@ -158,9 +159,9 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     },
     'account_2': {
       campaigns: [
-        { id: 'c2_1', name: 'Winter Holiday Special' },
-        { id: 'c2_2', name: 'Lead Generation - Enterprise' },
-        { id: 'c2_3', name: 'Social Media Contest' }
+        { id: 'c2_1', name: 'Winter Holiday Special', status: 'PAUSED' },
+        { id: 'c2_2', name: 'Lead Generation - Enterprise', status: 'ACTIVE' },
+        { id: 'c2_3', name: 'Social Media Contest', status: 'ACTIVE' }
       ],
       adSets: [
         { id: 'as2_1', name: 'Holiday Shoppers', campaignId: 'c2_1' },
@@ -206,6 +207,9 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     }
   });
 
+  // Add state for active campaign filter
+  const [showActiveCampaignsOnly, setShowActiveCampaignsOnly] = useState(false);
+  
   // For conversion to old format
   const convertToOldFormat = (data: AdTargetingFormData) => {
     return {
