@@ -503,7 +503,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">Distribution Settings</h2>
       <p className="text-sm text-[#65676B] mb-6">
-        Choose where to deploy the ad you just created.
+        Connect your Meta account to select campaigns and ad sets.
       </p>
       
       <div className="space-y-6">
