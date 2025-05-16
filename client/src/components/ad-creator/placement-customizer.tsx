@@ -38,10 +38,7 @@ export function PlacementCustomizer({
     rightColumn: mediaUrl
   });
 
-  // Only show if media is uploaded
-  if (!mediaUrl) {
-    return null;
-  }
+  // Always show the toggle, but only show placement options if enabled AND media is uploaded
 
   const placements: Placement[] = [
     {
@@ -77,7 +74,7 @@ export function PlacementCustomizer({
         />
       </div>
 
-      {enabled && (
+      {enabled && mediaUrl && (
         <div className="space-y-4">
           <div className="text-xs text-gray-500 mb-2">
             Your ad can appear differently across placement types.

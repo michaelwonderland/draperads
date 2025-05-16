@@ -61,10 +61,10 @@ export default function AdCreator() {
   // Create ad mutation
   const createAdMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', '/api/ads', adData);
+      const response = await apiRequest('POST', '/api/ads', adData);
+      return await response.json();
     },
-    onSuccess: async (response) => {
-      const ad = await response.json();
+    onSuccess: (ad) => {
       toast({
         title: "Success",
         description: "Your ad creative has been saved as a draft.",
@@ -179,9 +179,9 @@ export default function AdCreator() {
     try {
       let adId;
       if (!createAdMutation.data) {
-        const response = await createAdMutation.mutateAsync();
-        const savedAd = await response.json();
-        adId = savedAd.id;
+        // This will already be the parsed JSON result since we modified the mutation function
+        const adResult = await createAdMutation.mutateAsync();
+        adId = adResult.id;
       } else {
         adId = createAdMutation.data.id;
       }
@@ -268,11 +268,7 @@ export default function AdCreator() {
                   onToggleCustomization={(enabled) => setAdData(prev => ({ ...prev, customizePlacements: enabled }))}
                 />
                 
-                {/* Template Selector */}
-                <TemplateSelector 
-                  onTemplateSelect={handleTemplateSelect}
-                  selectedTemplateId={adData.templateId}
-                />
+                {/* Template Selector - Removed as it's now combined with the Ad Type */}
               </div>
               
               <div className="border-t pt-8 mb-8">
