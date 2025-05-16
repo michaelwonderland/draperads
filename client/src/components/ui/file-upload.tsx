@@ -130,14 +130,16 @@ export function FileUpload({
         {isVideo ? (
           <video 
             src={uploadedFileUrl} 
-            className="w-full h-auto rounded-md" 
+            className="rounded-md" 
             controls 
+            style={{ transform: 'scale(0.5)', transformOrigin: 'top left', maxWidth: '200%' }}
           />
         ) : (
           <img 
             src={uploadedFileUrl} 
             alt="Uploaded media preview" 
-            className="w-full h-auto rounded-md" 
+            className="rounded-md"
+            style={{ transform: 'scale(0.5)', transformOrigin: 'top left', maxWidth: '200%' }}
           />
         )}
         <button 

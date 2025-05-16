@@ -159,30 +159,6 @@ export function PlacementCustomizer({
         </div>
       )}
 
-      {/* Scaled preview - always shown when media is uploaded */}
-      {mediaUrl && (
-        <div className="mb-4 border rounded-md p-2 bg-gray-50">
-          <p className="text-xs text-gray-500 mb-2">Media Preview (50% scale)</p>
-          <div className="flex justify-center">
-            {isVideo ? (
-              <video
-                src={mediaUrl}
-                controls
-                className="max-w-full"
-                style={{ maxHeight: '200px', width: 'auto', transform: 'scale(0.5)', transformOrigin: 'top left' }}
-              />
-            ) : (
-              <img
-                src={mediaUrl}
-                alt="Media preview"
-                className="max-w-full"
-                style={{ maxHeight: '200px', width: 'auto', transform: 'scale(0.5)', transformOrigin: 'top left' }}
-              />
-            )}
-          </div>
-        </div>
-      )}
-
       {enabled && mediaUrl && (
         <div className="space-y-4">
           <div className="text-xs text-gray-500 mb-2">
