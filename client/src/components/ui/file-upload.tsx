@@ -126,20 +126,18 @@ export function FileUpload({
     const isVideo = uploadedFileUrl.match(/\.(mp4|webm|ogg|mov)$/i);
     
     return (
-      <div className="relative mt-4">
+      <div className="relative mt-4 max-h-[300px] overflow-hidden">
         {isVideo ? (
           <video 
             src={uploadedFileUrl} 
-            className="rounded-md" 
+            className="rounded-md w-full h-auto object-contain max-h-[300px]" 
             controls 
-            style={{ transform: 'scale(0.5)', transformOrigin: 'top left', maxWidth: '200%' }}
           />
         ) : (
           <img 
             src={uploadedFileUrl} 
             alt="Uploaded media preview" 
-            className="rounded-md"
-            style={{ transform: 'scale(0.5)', transformOrigin: 'top left', maxWidth: '200%' }}
+            className="rounded-md w-full h-auto object-contain max-h-[300px]"
           />
         )}
         <button 
