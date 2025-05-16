@@ -53,9 +53,9 @@ export default function Home() {
           <div className="flex items-center justify-center h-12 w-12 rounded-full bg-[#f6242f] text-white mb-4">
             <Rocket className="h-6 w-6" />
           </div>
-          <h3 className="text-xl font-semibold mb-3">Boost ROAS</h3>
+          <h3 className="text-xl font-semibold mb-3">Shift Time & Focus to Ad Ideation</h3>
           <p className="text-[#65676B]">
-            Test identical creatives across different audiences without rebuilding each ad. Find your winning combinations faster with our simple, sensible workflow.
+            Your expertise is too valuable to spend on repetitive tasks. Free up your mental energy for what truly matters - creative strategy and campaign innovation.
           </p>
         </div>
       </div>
