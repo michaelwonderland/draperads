@@ -212,9 +212,15 @@ export function PlacementCustomizer({
                         </div>
                         <div className="flex-1">
                           <h4 className="text-xs font-medium text-left">{placement.name}</h4>
-                          <div className="text-xs text-gray-500 mt-1 flex items-center">
-                            <Maximize2 className="h-3 w-3 mr-1 inline" />
-                            {placement.dimensions}
+                          <div className="text-xs text-gray-500 mt-1 flex flex-col gap-1">
+                            <div className="flex items-center">
+                              <Maximize2 className="h-3 w-3 mr-1 inline" />
+                              Current: {mediaDimensions ? formatDimensions(mediaDimensions.width, mediaDimensions.height) : 'No media'}
+                            </div>
+                            <div className="flex items-center">
+                              <Maximize2 className="h-3 w-3 mr-1 inline" />
+                              Recommended: {placement.dimensions}
+                            </div>
                           </div>
                         </div>
                       </div>
