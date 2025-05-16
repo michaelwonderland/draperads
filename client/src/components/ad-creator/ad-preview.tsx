@@ -206,18 +206,14 @@ export function AdPreview({
               </div>
             </div>
             
-            {/* Stories Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 to-transparent">
-              <div className="text-white mb-4">
-                <h3 className="font-semibold text-lg">{headline}</h3>
-                {description && <p className="text-sm text-white/90">{description}</p>}
-                <p className="text-sm mt-1">{primaryText}</p>
-              </div>
-              
-              {/* CTA Button */}
-              <div className="flex items-center justify-center mt-4">
-                <button className="bg-white text-black font-medium py-2 px-12 rounded-full flex items-center gap-2">
-                  <ExternalLinkIcon className="h-4 w-4" />
+            {/* Stories Content - Matching exact Meta format from screenshot */}
+            <div className="absolute bottom-8 left-0 right-0 px-4">
+              <div className="flex items-center justify-center">
+                <button className="bg-white text-black font-serif text-lg py-1.5 px-4 rounded-full flex items-center gap-1.5">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#4895ef]">
+                    <path d="M7.33333 11.3333C9.54448 11.3333 11.3333 9.54448 11.3333 7.33333C11.3333 5.12219 9.54448 3.33333 7.33333 3.33333C5.12219 3.33333 3.33333 5.12219 3.33333 7.33333C3.33333 9.54448 5.12219 11.3333 7.33333 11.3333Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12.6667 12.6667L10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                   {getCtaText(cta)}
                 </button>
               </div>
