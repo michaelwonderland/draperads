@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -346,6 +346,9 @@ export default function AdCreator() {
     }));
   };
   
+  // Use a ref to debounce saving changes
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Handle targeting changes 
   const handleTargetingChange = (values: TargetingData) => {
     // Store brand identity (Facebook Page & Instagram Account) in Ad Data too
@@ -371,17 +374,22 @@ export default function AdCreator() {
     // First update the state
     setTargetingData(newTargetingData);
     
-    // Then trigger immediate save in the background
-    // We'll use setTimeout to run this after the state updates
-    setTimeout(() => {
-      console.log("Auto-saving targeting changes:", newTargetingData);
+    // Cancel previous timeout if it exists
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Debounce save operation to prevent rapid API calls
+    saveTimeoutRef.current = setTimeout(() => {
+      console.log("Auto-saving targeting changes (debounced)");
       // We don't await this since it's a background save
       try {
         createAdMutation.mutate();
       } catch (error) {
         console.error("Background save of targeting data failed:", error);
       }
-    }, 0);
+      saveTimeoutRef.current = null;
+    }, 1000); // Debounce for 1 second
   };
   
   // Handle save draft button

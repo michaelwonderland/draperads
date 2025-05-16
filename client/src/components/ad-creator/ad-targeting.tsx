@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Select,
@@ -232,13 +232,32 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     };
   };
 
+  // Use a ref to debounce changes
+  const changeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Sync changes to parent component with memoized data to avoid infinite renders
   useEffect(() => {
-    const oldFormatData = convertToOldFormat(formData);
-    onChange(oldFormatData);
+    // Cancel previous timeout
+    if (changeTimeoutRef.current) {
+      clearTimeout(changeTimeoutRef.current);
+    }
     
-    // Log what's being sent to parent for debugging
-    console.log("Sending updated targeting data to parent:", oldFormatData);
+    // Add a small debounce to avoid too many calls
+    changeTimeoutRef.current = setTimeout(() => {
+      const oldFormatData = convertToOldFormat(formData);
+      onChange(oldFormatData);
+      
+      // Log what's being sent to parent for debugging
+      console.log("Sending updated targeting data to parent:", oldFormatData);
+      changeTimeoutRef.current = null;
+    }, 300);
+    
+    // Cleanup on unmount
+    return () => {
+      if (changeTimeoutRef.current) {
+        clearTimeout(changeTimeoutRef.current);
+      }
+    };
   }, [
     formData.adAccountId, 
     // Track the full array contents not just length
