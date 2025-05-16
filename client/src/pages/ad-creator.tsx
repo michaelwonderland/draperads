@@ -474,35 +474,60 @@ export default function AdCreator() {
                             </Button>
                           </>
                         ) : (
-                          <Button
-                            onClick={() => {
-                              handleAdTextChange({
-                                primaryText: aiSuggestions.suggestedPrimaryText,
-                                headline: aiSuggestions.suggestedHeadline,
-                                description: aiSuggestions.suggestedDescription,
-                                cta: aiSuggestions.suggestedCta,
-                                websiteUrl: adData.websiteUrl
-                              });
-                              
-                              setAdData(prev => ({
-                                ...prev,
-                                hasAppliedAiSuggestions: true
-                              }));
-                              
-                              toast({
-                                title: "AI suggestions applied",
-                                description: "The ad copy has been updated with AI-generated suggestions.",
-                              });
-                            }}
-                            type="button"
-                            variant="outline"
-                            className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1"
-                          >
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                              <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-                            </svg>
-                            Restore AI suggestions
-                          </Button>
+                          <>
+                            <Button
+                              onClick={() => {
+                                handleAdTextChange({
+                                  primaryText: aiSuggestions.suggestedPrimaryText,
+                                  headline: aiSuggestions.suggestedHeadline,
+                                  description: aiSuggestions.suggestedDescription,
+                                  cta: aiSuggestions.suggestedCta,
+                                  websiteUrl: adData.websiteUrl
+                                });
+                                
+                                setAdData(prev => ({
+                                  ...prev,
+                                  hasAppliedAiSuggestions: true
+                                }));
+                                
+                                toast({
+                                  title: "AI suggestions applied",
+                                  description: "The ad copy has been updated with AI-generated suggestions.",
+                                });
+                              }}
+                              type="button"
+                              variant="outline"
+                              className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1"
+                            >
+                              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
+                                <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                              </svg>
+                              Restore AI suggestions
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setAdData(prev => ({
+                                  ...prev,
+                                  primaryText: "",
+                                  headline: "",
+                                  description: "",
+                                  cta: "learn_more",
+                                  hasAppliedAiSuggestions: false
+                                }));
+                                
+                                toast({
+                                  title: "Text cleared",
+                                  description: "All ad copy has been cleared.",
+                                });
+                              }}
+                              type="button"
+                              variant="outline"
+                              className="border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1"
+                              size="sm"
+                            >
+                              Clear
+                            </Button>
+                          </>
                         )}
                       </div>
                     )}
