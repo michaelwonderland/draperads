@@ -15,7 +15,7 @@ import { PlacementCustomizer } from "@/components/ad-creator/placement-customize
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 interface AdSetConfig {
   id: string;
@@ -218,27 +218,36 @@ export default function AdCreator() {
     suggestedDescription: string;
     suggestedCta: string;
   }) => {
-    setAiSuggestions(suggestions);
+    // Start generating suggestions
+    setGeneratingSuggestions(true);
     
-    // Immediately apply the suggestions to the ad text
-    handleAdTextChange({
-      primaryText: suggestions.suggestedPrimaryText,
-      headline: suggestions.suggestedHeadline,
-      description: suggestions.suggestedDescription,
-      cta: suggestions.suggestedCta,
-      websiteUrl: adData.websiteUrl
-    });
-    
-    // Update the hasAppliedAiSuggestions flag
-    setAdData(prev => ({
-      ...prev,
-      hasAppliedAiSuggestions: true
-    }));
-    
-    toast({
-      title: "AI Suggestions Applied",
-      description: "Ad copy has been updated based on your image",
-    });
+    // Store the suggestions but don't apply them immediately
+    setTimeout(() => {
+      setAiSuggestions(suggestions);
+      setGeneratingSuggestions(false);
+      
+      // Don't auto-apply suggestions immediately, let user click the button
+      // Old behavior was to auto-apply:
+      /*
+      handleAdTextChange({
+        primaryText: suggestions.suggestedPrimaryText,
+        headline: suggestions.suggestedHeadline,
+        description: suggestions.suggestedDescription,
+        cta: suggestions.suggestedCta,
+        websiteUrl: adData.websiteUrl
+      });
+      
+      setAdData(prev => ({
+        ...prev,
+        hasAppliedAiSuggestions: true
+      }));
+      
+      toast({
+        title: "AI Suggestions Applied",
+        description: "Ad copy has been updated based on your image",
+      });
+      */
+    }, 2000); // Show generating for 2 seconds to make it more visible
   };
   
   // Handle template selection
