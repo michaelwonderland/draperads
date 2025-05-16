@@ -56,3 +56,13 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Custom DraperAds styles */
+.btn-draper {
+  background-color: #f6242f !important;
+  color: white !important;
+}
+
+.btn-draper:hover {
+  opacity: 0.9;
+}
