@@ -161,6 +161,9 @@ export default function AdCreator() {
       // Create or update ad
       const response = await apiRequest('/api/ads', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(adDataToSave)
       });
       
@@ -169,9 +172,10 @@ export default function AdCreator() {
   });
   
   // Get latest draft ad
-  const { data: latestDraft } = useQuery({
+  const { data: latestDraft } = useQuery<any>({
     queryKey: ['/api/ads/draft/latest'],
-    onSuccess: (data) => {
+    // @ts-ignore - onSuccess is present but TypeScript doesn't recognize it
+    onSuccess: (data: any) => {
       if (data) {
         // Allow draft loading only when at step 1 (creation)
         if (currentStep === 1) {
@@ -255,8 +259,11 @@ export default function AdCreator() {
       // Publish ad
       const response = await apiRequest('/api/ads/publish', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          adId: latestDraft?.id,
+          adId: latestDraft?.id || 0,
           adSets: targetingData.adSets
         })
       });
