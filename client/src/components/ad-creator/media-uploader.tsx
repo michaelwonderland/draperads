@@ -25,7 +25,6 @@ export function MediaUploader({
   const [error, setError] = useState<string | null>(null);
   const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
   const [suggestionsAvailable, setSuggestionsAvailable] = useState(false);
-
   const handleFileSelect = (file: File) => {
     setMediaFile(file);
     setSuggestionsAvailable(false);

@@ -49,8 +49,6 @@ export default function AdCreator() {
     suggestedCta: string;
   } | null>(null);
   
-  const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
-  
   // Load latest draft when available
   useEffect(() => {
     if (latestDraft && !isDraftLoading) {
@@ -218,36 +216,27 @@ export default function AdCreator() {
     suggestedDescription: string;
     suggestedCta: string;
   }) => {
-    // Start generating suggestions
-    setGeneratingSuggestions(true);
+    setAiSuggestions(suggestions);
     
-    // Store the suggestions but don't apply them immediately
-    setTimeout(() => {
-      setAiSuggestions(suggestions);
-      setGeneratingSuggestions(false);
-      
-      // Don't auto-apply suggestions immediately, let user click the button
-      // Old behavior was to auto-apply:
-      /*
-      handleAdTextChange({
-        primaryText: suggestions.suggestedPrimaryText,
-        headline: suggestions.suggestedHeadline,
-        description: suggestions.suggestedDescription,
-        cta: suggestions.suggestedCta,
-        websiteUrl: adData.websiteUrl
-      });
-      
-      setAdData(prev => ({
-        ...prev,
-        hasAppliedAiSuggestions: true
-      }));
-      
-      toast({
-        title: "AI Suggestions Applied",
-        description: "Ad copy has been updated based on your image",
-      });
-      */
-    }, 2000); // Show generating for 2 seconds to make it more visible
+    // Immediately apply the suggestions to the ad text
+    handleAdTextChange({
+      primaryText: suggestions.suggestedPrimaryText,
+      headline: suggestions.suggestedHeadline,
+      description: suggestions.suggestedDescription,
+      cta: suggestions.suggestedCta,
+      websiteUrl: adData.websiteUrl
+    });
+    
+    // Update the hasAppliedAiSuggestions flag
+    setAdData(prev => ({
+      ...prev,
+      hasAppliedAiSuggestions: true
+    }));
+    
+    toast({
+      title: "AI Suggestions Applied",
+      description: "Ad copy has been updated based on your image",
+    });
   };
   
   // Handle template selection
@@ -409,19 +398,12 @@ export default function AdCreator() {
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-medium">Ad Copy</h3>
                   
-                  <div className="h-9 flex items-center gap-3">
-                    {generatingSuggestions && (
-                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 flex items-center gap-1 h-9 px-3">
-                        <Sparkles className="h-3 w-3 mr-1" /> 
-                        Generating AI suggestions...
-                      </Badge>
-                    )}
-                    
-                    {!generatingSuggestions && aiSuggestions && (
+                  <div className="flex items-center gap-3">
+                    {aiSuggestions && (
                       <div className="flex items-center gap-3">
                         {adData.hasAppliedAiSuggestions ? (
                           <>
-                            <Badge variant="outline" className="bg-green-50 text-green-700 flex items-center gap-1 h-9 px-3">
+                            <Badge variant="outline" className="bg-green-50 text-green-700 flex items-center gap-1">
                               <CheckCircle2 className="h-3 w-3" /> 
                               AI suggestions applied
                             </Badge>
@@ -472,7 +454,7 @@ export default function AdCreator() {
                             }}
                             type="button"
                             variant="outline"
-                            className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1 h-9 px-3"
+                            className="bg-red-50 text-[#f6242f] hover:bg-red-100 border-red-200 flex items-center gap-1"
                           >
                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
                               <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
