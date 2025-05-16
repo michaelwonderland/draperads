@@ -99,6 +99,13 @@ interface AdTargetingProps {
 export function AdTargeting({ onChange, defaultValues, onConnectionChange, isConnected: externalIsConnected }: AdTargetingProps) {
   const [isConnected, setIsConnected] = useState(externalIsConnected || false);
   
+  // Sync with external isConnected state
+  useEffect(() => {
+    if (externalIsConnected !== undefined && externalIsConnected !== isConnected) {
+      setIsConnected(externalIsConnected);
+    }
+  }, [externalIsConnected]);
+  
   // Pass connection state to parent component
   useEffect(() => {
     if (onConnectionChange) {
@@ -229,7 +236,11 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
       facebookPageId: data.facebookPageId,
       instagramAccountId: data.instagramAccountId,
       facebookPageName,
-      instagramAccountName
+      instagramAccountName,
+      // Include advantage plus enhancements for better persistence
+      allowMultiAdvertiserAds: data.allowMultiAdvertiserAds,
+      enableFlexibleMedia: data.enableFlexibleMedia,
+      advantagePlusEnhancements: data.advantagePlusEnhancements
     };
   };
 

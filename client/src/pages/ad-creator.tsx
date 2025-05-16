@@ -54,6 +54,22 @@ interface TargetingData {
   instagramAccountId?: string;
   facebookPageName?: string;
   instagramAccountName?: string;
+  // Add additional properties for better data persistence
+  allowMultiAdvertiserAds?: boolean;
+  enableFlexibleMedia?: boolean;
+  advantagePlusEnhancements?: {
+    translateText?: boolean;
+    addOverlays?: boolean;
+    addCatalogItems?: boolean;
+    visualTouchUps?: boolean;
+    music?: boolean;
+    animation3d?: boolean;
+    textImprovements?: boolean;
+    storeLocations?: boolean;
+    enhanceCta?: boolean;
+    addSiteLinks?: boolean;
+    imageAnimation?: boolean;
+  };
 }
 
 interface AiSuggestions {
@@ -507,11 +523,18 @@ export default function AdCreator() {
                         .map(adSet => adSet.campaignId)
                     )
                   ).map(campaignId => {
-                    // Convert campaign ID to name
-                    let campaignName = "Campaign";
-                    if (campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
-                    if (campaignId === "campaign2") campaignName = "Summer Sale 2025"; 
-                    if (campaignId === "campaign3") campaignName = "Brand Awareness Q1";
+                    // Convert campaign ID to name based on actual mapping in ad-targeting.tsx
+                    let campaignName = "Campaign " + campaignId;
+                    
+                    // Account 1 campaigns
+                    if (campaignId === "c1_1") campaignName = "Summer Sale 2025";
+                    if (campaignId === "c1_2") campaignName = "Product Launch: Eco Series";
+                    if (campaignId === "c1_3") campaignName = "Brand Awareness Q2";
+                    
+                    // Account 2 campaigns
+                    if (campaignId === "c2_1") campaignName = "Winter Holiday Special";
+                    if (campaignId === "c2_2") campaignName = "Lead Generation - Enterprise";
+                    if (campaignId === "c2_3") campaignName = "Social Media Contest";
                     
                     return {
                       id: campaignId || "",
