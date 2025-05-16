@@ -178,7 +178,7 @@ export function FileUpload({
           </Button>
           {error && <p className="text-destructive text-xs mt-2">{error}</p>}
           <p className="text-xs text-muted-foreground mt-3">
-            Recommended: 1200 x 628 pixels. JPG, PNG, or MP4.
+            Recommended: 1x1, 4x5 or 9x16. JPG, PNG (max 30MB), MP4, MOV, GIF (max 4GB)
           </p>
           <input
             type="file"
