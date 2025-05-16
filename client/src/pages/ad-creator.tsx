@@ -807,7 +807,50 @@ export default function AdCreator() {
           {currentStep === 2 && (
             <AdTargeting 
               onChange={handleTargetingChange} 
-              defaultValues={targetingData} 
+              defaultValues={{
+                adAccountId: targetingData.adAccountId,
+                selectedCampaigns: targetingData.adSets
+                  .filter(adSet => adSet.campaignId)
+                  .map(adSet => {
+                    // Find unique campaigns from ad sets
+                    const campaignId = adSet.campaignId || "";
+                    // Convert to the format AdTargetingFormData expects
+                    return { 
+                      id: campaignId, 
+                      name: "Campaign " + campaignId,
+                      status: "ACTIVE" 
+                    };
+                  })
+                  .filter((campaign, index, self) => 
+                    // Remove duplicates
+                    index === self.findIndex(c => c.id === campaign.id)
+                  ),
+                selectedAdSets: targetingData.adSets.map(adSet => ({
+                  id: adSet.id,
+                  name: adSet.name,
+                  campaignId: adSet.campaignId || "",
+                  status: "ACTIVE"
+                })),
+                facebookPageId: targetingData.facebookPageId || "",
+                instagramAccountId: targetingData.instagramAccountId || "",
+                allowMultiAdvertiserAds: targetingData.allowMultiAdvertiserAds === true,
+                enableFlexibleMedia: targetingData.enableFlexibleMedia === true,
+                // Use default values to avoid undefined properties
+                advantagePlusEnhancements: {
+                  translateText: false,
+                  addOverlays: false,
+                  addCatalogItems: false,
+                  visualTouchUps: false,
+                  music: false,
+                  animation3d: false,
+                  textImprovements: false,
+                  storeLocations: false,
+                  enhanceCta: false,
+                  addSiteLinks: false,
+                  imageAnimation: false,
+                  ...targetingData.advantagePlusEnhancements
+                }
+              }}
               onConnectionChange={setIsMetaConnected} 
               isConnected={isMetaConnected}
             />
