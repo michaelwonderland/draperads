@@ -509,7 +509,11 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                         >
                           <Checkbox
                             checked={formData.selectedCampaigns.some(c => c.id === campaign.id)}
-                            className="h-4 w-4 text-[#1877F2] rounded border-[#CED0D4]"
+                            className="h-4 w-4 text-[#1877F2] rounded border-[#CED0D4]" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleCampaign(campaign);
+                            }}
                           />
                           <span>{campaign.name}</span>
                         </div>
@@ -597,6 +601,10 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                           <Checkbox
                             checked={formData.selectedAdSets.some(a => a.id === adSet.id)}
                             className="h-4 w-4 text-[#1877F2] rounded border-[#CED0D4]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleAdSet(adSet);
+                            }}
                           />
                           <div className="flex-1">
                             <div>{adSet.name}</div>
