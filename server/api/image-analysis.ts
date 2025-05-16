@@ -33,17 +33,16 @@ export async function analyzeImage(filePath: string): Promise<{
           content: [
             {
               type: 'text',
-              text: `You are an expert Facebook/Instagram ad copywriter specializing in creating engaging, conversion-focused ad copy. 
-              Analyze this image and create high-performing Meta ad copy based on what you see.
-              
+              text: `Based on the uploaded file shown below, write corresponding ad copy using 2025 Meta Ads best practices for the product or service shown.
+
               Output only a JSON object with the following fields:
               - suggestedHeadline: A short, attention-grabbing headline (max 40 characters)
-              - suggestedPrimaryText: Compelling main ad text (2-3 sentences)
-              - suggestedDescription: A brief description expanding on the offer (1 sentence)
-              - suggestedCta: A suggested CTA from these options only: "learn_more", "sign_up", "shop_now", "download", "get_offer"
+              - suggestedPrimaryText: Compelling main ad text (2-3 sentences) following Meta's 2025 best practices
+              - suggestedDescription: A brief description expanding on the product/service (1 sentence)
+              - suggestedCta: Select the most relevant call-to-action from these options only: "learn_more", "sign_up", "shop_now", "download", "get_offer"
               
-              Be specific to the image content. If it's a product, highlight key features/benefits. If it's a lifestyle image, focus on the emotional appeal.
-              Do not include any additional text besides the JSON output.`
+              Focus on the specific product/service shown in the image. Write in a direct, engaging style that highlights key benefits and creates urgency.
+              Output ONLY the JSON object with no additional text or commentary.`
             },
             {
               type: 'image',
