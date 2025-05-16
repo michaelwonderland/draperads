@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { AdPreview } from "./ad-preview";
-import { CheckCircle2, ArrowRight, Facebook, Instagram } from "lucide-react";
+import { CheckCircle2, ArrowRight, Facebook, Instagram, ChevronLeft, Eye, EyeOff } from "lucide-react";
 
 interface AdSummaryProps {
   adData: {
@@ -41,7 +41,11 @@ interface AdSummaryProps {
 
 export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSummaryProps) {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showEmailSignup, setShowEmailSignup] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   
   // Format names properly
@@ -55,25 +59,28 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
     return types[type] || type;
   };
   
-  const formatAdFormat = (format: string) => {
-    const formats: Record<string, string> = {
-      'image': 'Image Ad',
-      'video': 'Video Ad',
-      'carousel': 'Carousel Ad',
-      'collection': 'Collection Ad'
-    };
-    return formats[format] || format;
+  const handleContinueWithGoogle = () => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onComplete(email);
+      toast({
+        title: "Account created with Google!",
+        description: "Your DraperAds account has been created and your ad is being processed.",
+      });
+      setIsSubmitting(false);
+    }, 1500);
   };
   
-  const formatCTA = (cta: string) => {
-    const ctas: Record<string, string> = {
-      'learn_more': 'Learn More',
-      'sign_up': 'Sign Up',
-      'shop_now': 'Shop Now',
-      'download': 'Download',
-      'get_offer': 'Get Offer'
-    };
-    return ctas[cta] || cta;
+  const handleContinueWithFacebook = () => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onComplete(email);
+      toast({
+        title: "Account created with Facebook!",
+        description: "Your DraperAds account has been created and your ad is being processed.",
+      });
+      setIsSubmitting(false);
+    }, 1500);
   };
   
   const handleCreateAccount = () => {
@@ -90,6 +97,24 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
       toast({
         title: "Invalid email",
         description: "Please enter a valid email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (showEmailSignup && !name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your name to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (showEmailSignup && !password.trim()) {
+      toast({
+        title: "Password required",
+        description: "Please enter a password to continue.",
         variant: "destructive"
       });
       return;
@@ -112,19 +137,15 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Your Ad Is Ready To Launch!</h1>
-          <p className="text-gray-600">
-            Review your distribution details below and create your DraperAds account to publish
-          </p>
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold mb-2">Your Ad Is Ready For Launch</h1>
         </div>
         
-        <div className="flex flex-col gap-8 mb-6">
-          {/* Ad Preview - Smaller (50% of original size) */}
-          <div className="mx-auto w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">Ad Preview</h2>
-            <div className="border rounded-lg overflow-hidden mx-auto transform scale-75 origin-top">
+        <div className="flex flex-col md:flex-row gap-6 mb-6">
+          {/* Left Column - Ad Preview */}
+          <div className="md:w-1/2">
+            <div className="border rounded-lg overflow-hidden mx-auto transform scale-75 origin-top mb-6">
               <AdPreview
                 brandName={adData.brandName}
                 mediaUrl={adData.mediaUrl}
@@ -139,156 +160,182 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                 customizedPlacements={adData.customizePlacements}
               />
             </div>
-          </div>
-          
-          {/* Distribution Details - Clear listing of selected items */}
-          <div className="w-full max-w-lg mx-auto">
-            <h2 className="text-xl font-semibold mb-4 text-center">Distribution Details</h2>
+            
+            {/* Distribution Details - Simplified */}
             <div className="bg-gray-50 p-5 rounded-lg border border-gray-100">
-              {/* Meta Account Info */}
-              <div className="mb-5 pb-5 border-b border-gray-200">
-                <h3 className="text-base font-medium mb-3">Meta Ad Account</h3>
-                <div className="flex items-center">
-                  <div className="rounded-full bg-blue-100 p-2 mr-3">
-                    <Facebook className="h-5 w-5 text-blue-600" />
+              <h2 className="text-lg font-semibold mb-4">Distribution Details</h2>
+              
+              {/* Meta Account */}
+              <div className="mb-4">
+                <div className="flex items-center mb-2">
+                  <div className="rounded-full bg-blue-100 p-1.5 mr-2">
+                    <Facebook className="h-4 w-4 text-blue-600" />
                   </div>
-                  <div>
-                    <p className="font-medium">{targetingData.adAccountId ? "Connected" : "Not Connected"}</p>
-                    {targetingData.adAccountId && (
-                      <p className="text-sm text-gray-500">Account ID: {targetingData.adAccountId}</p>
-                    )}
-                  </div>
+                  <h3 className="text-sm font-medium">Meta Ad Account</h3>
                 </div>
+                <p className="text-sm pl-8">
+                  {targetingData.adAccountId ? `Connected (ID: ${targetingData.adAccountId})` : "Not Connected"}
+                </p>
               </div>
-                
-              {/* Brand Identity */}
-              <div className="mb-5 pb-5 border-b border-gray-200">
-                <h3 className="text-base font-medium mb-3">Brand Identity</h3>
-                <div className="space-y-3">
-                  {/* Facebook Page */}
-                  <div className="flex items-center">
-                    <div className="rounded-full bg-blue-100 p-2 mr-3">
-                      <Facebook className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        {targetingData.facebookPageName || adData.facebookPage || "No Facebook Page Selected"}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Instagram Account */}
-                  <div className="flex items-center">
-                    <div className="rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-2 mr-3">
-                      <Instagram className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        {targetingData.instagramAccountName || adData.instagramAccount || "No Instagram Account Selected"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-                
+              
               {/* Campaign */}
-              <div className="mb-5 pb-5 border-b border-gray-200">
-                <h3 className="text-base font-medium mb-3">Campaign</h3>
-                <Badge variant="outline" className="bg-white border-blue-200 text-blue-800 px-3 py-1">
+              <div className="mb-4">
+                <h3 className="text-sm font-medium mb-2">Campaign</h3>
+                <Badge variant="outline" className="bg-white border-blue-200 text-blue-800 ml-0">
                   {formatAdType(targetingData.campaignObjective || adData.adType)} Campaign
                 </Badge>
               </div>
-                
-              {/* Ad Sets - Detailed list */}
+              
+              {/* Ad Sets - Compact list */}
               <div>
-                <h3 className="text-base font-medium mb-3">Ad Sets</h3>
+                <h3 className="text-sm font-medium mb-2">Ad Sets</h3>
                 {targetingData.adSets && targetingData.adSets.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {targetingData.adSets.map((adSet: any, index: number) => (
-                      <div key={index} className="flex items-center bg-white p-3 rounded-md border border-gray-200">
-                        <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
-                        <span>{adSet.name}</span>
-                        {adSet.audience && (
-                          <span className="ml-auto text-xs text-gray-500">{adSet.audience}</span>
-                        )}
+                      <div key={index} className="flex items-center py-1">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mr-2 flex-shrink-0" />
+                        <span className="text-sm truncate">{adSet.name}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
-                    <p>No ad sets selected. Please go back and select at least one ad set.</p>
-                  </div>
+                  <p className="text-sm text-yellow-600">No ad sets selected</p>
                 )}
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Account Creation Notice */}
-        <div className="max-w-lg mx-auto mb-4">
-          <div className="bg-[#FFF8F8] border border-[#FFCDD2] rounded-lg p-6 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-[#f6242f]"></div>
-            
-            <div className="flex items-start">
-              <div className="bg-[#FFEBEE] p-2 rounded-full mr-4">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 8V12" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 16H12.01" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
+          
+          {/* Right Column - Account Creation */}
+          <div className="md:w-1/2">
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-xl font-semibold mb-4 text-center">Create an Account to Deploy Your Ad</h2>
               
-              <div>
-                <h3 className="font-bold text-[#f6242f] text-lg mb-1">Account Required</h3>
-                <p className="text-gray-700">
-                  You need a DraperAds account to deploy this ad to Meta. Create your account below to continue.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Account Creation Form */}
-        <div className="max-w-lg mx-auto">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-2">Create Your DraperAds Account</h2>
-            <p className="text-gray-600 mb-6">
-              Enter your email to create your account and start tracking your ad performance across all Meta platforms
-            </p>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="email" className="font-medium">Email address</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="you@example.com" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
+              {!showEmailSignup ? (
+                <div className="space-y-4">
+                  {/* Google Sign Up */}
+                  <Button 
+                    onClick={handleContinueWithGoogle}
+                    variant="outline" 
+                    className="w-full py-6 flex justify-center items-center"
+                    disabled={isSubmitting}
+                  >
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="h-6 w-6 mr-3" />
+                    <span className="text-base">Continue with Google</span>
+                  </Button>
+                  
+                  {/* Facebook Sign Up */}
+                  <Button 
+                    onClick={handleContinueWithFacebook}
+                    variant="outline" 
+                    className="w-full py-6 flex justify-center items-center"
+                    disabled={isSubmitting}
+                  >
+                    <Facebook className="h-6 w-6 mr-3 text-blue-600" />
+                    <span className="text-base">Continue with Facebook</span>
+                  </Button>
+                  
+                  {/* Email Sign Up */}
+                  <Button
+                    onClick={() => setShowEmailSignup(true)}
+                    variant="link"
+                    className="w-full text-indigo-600 hover:text-indigo-800 text-base py-3"
+                    disabled={isSubmitting}
+                  >
+                    Continue with Email
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Name Input */}
+                  <div>
+                    <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                    <div className="relative">
+                      <Input 
+                        id="name" 
+                        type="text" 
+                        placeholder="Enter your name..." 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="mt-1 pr-10"
+                      />
+                      {name && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400"
+                          onClick={() => setName("")}
+                        >
+                          <span className="sr-only">Clear</span>
+                          <span className="text-[#f6242f]">⌫</span>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Email Input */}
+                  <div>
+                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="Enter your email address..." 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  
+                  {/* Password Input */}
+                  <div>
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <div className="relative">
+                      <Input 
+                        id="password" 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Enter a secure password..." 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="mt-1 pr-10"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={handleCreateAccount}
+                    className="w-full mt-6 py-6 bg-indigo-600 hover:bg-indigo-700 text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Creating Account..." : "Continue"}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setShowEmailSignup(false)}
+                    variant="link"
+                    className="flex items-center justify-center w-full text-gray-600 hover:text-gray-800"
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Back to social login
+                  </Button>
+                </div>
+              )}
               
-              <div className="flex gap-3 mt-8">
+              {/* Bottom navigation */}
+              <div className="mt-8 pt-4 border-t border-gray-200">
                 <Button
                   onClick={onBack}
                   variant="outline"
-                  className="flex-1"
+                  className="w-full"
                 >
-                  Back
-                </Button>
-                <Button
-                  onClick={handleCreateAccount}
-                  className="flex-1 bg-[#f6242f] hover:opacity-90 text-white"
-                  disabled={isSubmitting || targetingData.adSets.length === 0}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center">Creating Account...</span>
-                  ) : (
-                    <span className="flex items-center">
-                      Create Account & Deploy Ad <ArrowRight className="ml-2 h-4 w-4" />
-                    </span>
-                  )}
+                  Back to targeting
                 </Button>
               </div>
             </div>
