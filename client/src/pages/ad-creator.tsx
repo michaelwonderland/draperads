@@ -198,177 +198,116 @@ export default function AdCreator() {
   });
   
   // Get latest draft ad
-  const { data: latestDraft } = useQuery<any>({
-    queryKey: ['/api/ads/draft/latest'],
-    // @ts-ignore - onSuccess is present but TypeScript doesn't recognize it
-    onSuccess: (data: any) => {
-      if (data) {
-        // Allow draft loading only when at step 1 (creation)
-        if (currentStep === 1) {
-          // Populate ad data from draft
-          setAdData({
-            templateId: data.templateId || 1,
-            adType: data.adType || "conversions",
-            adFormat: data.adFormat || "single-image",
-            mediaUrl: data.mediaUrl || "",
-            primaryText: data.primaryText || "",
-            headline: data.headline || "",
-            description: data.description || "",
-            cta: data.cta || "learn_more",
-            websiteUrl: data.websiteUrl || "https://example.com",
-            brandName: data.brandName || "DraperAds",
-            status: data.status || "draft",
-            customizePlacements: data.customizePlacements || false,
-            facebookPage: data.facebookPage || "",
-            instagramAccount: data.instagramAccount || "",
-            hasAppliedAiSuggestions: data.hasAppliedAiSuggestions || false
-          });
-          
-          // If we have targeting data from the draft, use it
-          if (data.targetingAdAccountId || data.targetingAdSets) {
-            // Parse complex objects if they exist
-            let parsedAdSets = [];
-            try {
-              if (data.targetingAdSets) {
-                parsedAdSets = JSON.parse(data.targetingAdSets);
-              }
-            } catch (e) {
-              console.error("Failed to parse targetingAdSets JSON:", e);
-            }
-            
-            let parsedPlacements = ["facebook", "instagram"];
-            try {
-              if (data.targetingPlacements) {
-                parsedPlacements = JSON.parse(data.targetingPlacements);
-              }
-            } catch (e) {
-              console.error("Failed to parse targetingPlacements JSON:", e);
-            }
-            
-            setTargetingData({
-              adAccountId: data.targetingAdAccountId || "",
-              campaignObjective: data.targetingCampaignObjective || "traffic",
-              placements: parsedPlacements,
-              adSets: parsedAdSets.length > 0 ? parsedAdSets : [{ id: "set1", name: "Main Audience", audience: "Broad - 25-54 age range" }],
-              facebookPageId: data.targetingFacebookPageId || "",
-              facebookPageName: data.targetingFacebookPageName || "",
-              instagramAccountId: data.targetingInstagramAccountId || "",
-              instagramAccountName: data.targetingInstagramAccountName || ""
-            });
-            
-            // Set Facebook Page and Instagram Account from targeting data to ensure UI state is synced
-            setAdData(prev => ({
-              ...prev,
-              facebookPage: data.targetingFacebookPageName || "",
-              instagramAccount: data.targetingInstagramAccountName || ""
-            }));
-          }
-        }
-      }
-    }
+  const { data: draftAd, isLoading: isLoadingDraft } = useQuery({
+    queryKey: ['/api/ads/draft/latest'], 
+    staleTime: Infinity // Don't refetch automatically
   });
   
-  // Get ad accounts
-  const { data: adAccounts } = useQuery({
-    queryKey: ['/api/ad-accounts'],
-  });
-  
-  // Publish ad
-  const publishAdMutation = useMutation({
-    mutationFn: async () => {
-      // Check if user is authenticated
-      if (!isAuthenticated) {
-        setShowAuthDialog(true);
-        throw new Error("Authentication required");
-      }
-      
-      // Publish ad
-      // Safely extract ID from latestDraft
-      const adId = typeof latestDraft === 'object' && latestDraft !== null && 'id' in latestDraft 
-        ? latestDraft.id 
-        : 0;
-        
-      const response = await apiRequest('/api/ads/publish', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          adId: adId,
-          adSets: targetingData.adSets
-        })
-      });
-      
-      return response;
-    },
-    onSuccess: async (results) => {
-      toast({
-        title: "Success",
-        description: `Your ad has been published to ${targetingData.adSets.length} ad sets.`,
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/ads'] });
-      navigate('/ad-history');
-    },
-    onError: (error: any) => {
-      // If it's an authentication error, we already show the auth dialog
-      if (error.message === "Authentication required") {
-        return;
-      }
-      
-      toast({
-        title: "Error",
-        description: `Failed to publish ad: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  });
-  
-  // Handle media upload
-  const handleMediaUpload = (mediaUrl: string) => {
-    setAdData(prev => ({ ...prev, mediaUrl }));
-  };
-  
-  // Handle AI-generated suggestions
-  const handleSuggestionsGenerated = (suggestions: {
-    suggestedHeadline: string;
-    suggestedPrimaryText: string;
-    suggestedDescription: string;
-    suggestedCta: string;
-  }) => {
-    // Start generating suggestions
-    setGeneratingSuggestions(true);
-    
-    // Simulate a short delay to show the generating indicator
-    setTimeout(() => {
-      setAiSuggestions(suggestions);
-      setGeneratingSuggestions(false);
-      
-      // Immediately apply the suggestions to the ad text
-      handleAdTextChange({
-        primaryText: suggestions.suggestedPrimaryText,
-        headline: suggestions.suggestedHeadline,
-        description: suggestions.suggestedDescription || "",
-        cta: suggestions.suggestedCta,
-        websiteUrl: adData.websiteUrl
-      });
-      
-      setAdData(prev => ({
-        ...prev,
-        hasAppliedAiSuggestions: true
+  // Initialize from draft ad data when available
+  useEffect(() => {
+    if (draftAd && !isLoadingDraft) {
+      // Base ad data
+      setAdData(prevData => ({
+        ...prevData,
+        ...draftAd,
+        // Prioritize some values from previous state if they exist
+        mediaUrl: draftAd.mediaUrl || prevData.mediaUrl,
+        primaryText: draftAd.primaryText || prevData.primaryText,
+        headline: draftAd.headline || prevData.headline,
+        description: draftAd.description || prevData.description,
+        websiteUrl: draftAd.websiteUrl || prevData.websiteUrl,
+        brandName: draftAd.brandName || prevData.brandName,
+        adType: draftAd.adType || prevData.adType,
+        adFormat: draftAd.adFormat || prevData.adFormat,
+        customizePlacements: draftAd.customizePlacements || prevData.customizePlacements,
       }));
-    }, 1000);
+      
+      // Complex targeting data requires more careful handling
+      try {
+        // Start with a base object
+        const updatedTargetingData: Partial<TargetingData> = {
+          adAccountId: draftAd.targetingAdAccountId || targetingData.adAccountId,
+          campaignObjective: draftAd.targetingCampaignObjective || targetingData.campaignObjective,
+          facebookPageId: draftAd.targetingFacebookPageId || targetingData.facebookPageId,
+          facebookPageName: draftAd.targetingFacebookPageName || targetingData.facebookPageName,
+          instagramAccountId: draftAd.targetingInstagramAccountId || targetingData.instagramAccountId,
+          instagramAccountName: draftAd.targetingInstagramAccountName || targetingData.instagramAccountName,
+          // Parse complex fields if they exist
+          adSets: draftAd.targetingAdSets 
+            ? JSON.parse(draftAd.targetingAdSets)
+            : targetingData.adSets,
+          placements: draftAd.targetingPlacements
+            ? JSON.parse(draftAd.targetingPlacements)
+            : targetingData.placements
+        };
+        
+        setTargetingData(prevTargeting => ({
+          ...prevTargeting,
+          ...updatedTargetingData
+        }));
+      } catch (e) {
+        // If there's an error parsing the JSON, just use the default data
+        console.error("Error parsing targeting data:", e);
+      }
+    }
+  }, [draftAd, isLoadingDraft]);
+  
+  // Debounce timer for saving changes
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Auto-save changes with debouncing
+  useEffect(() => {
+    // Clear any existing timer
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+    
+    // Skip initial render
+    if (!adData.mediaUrl && !adData.primaryText) {
+      return;
+    }
+    
+    // Set a new timer
+    saveTimerRef.current = setTimeout(() => {
+      console.log("Auto-saving ad data...");
+      createAdMutation.mutate();
+    }, 2000); // 2 second debounce
+    
+    // Clean up on unmount
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [adData, targetingData]);
+  
+  // Set step in localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('adCreatorStep', currentStep.toString());
+    
+    // Auto-save when moving between steps
+    if (adData.mediaUrl || adData.primaryText) {
+      createAdMutation.mutate();
+    }
+  }, [currentStep]);
+  
+  // Methods to handle progression between steps
+  const handleNextStep = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
   };
   
-  // Handle ad text changes
-  const handleAdTextChange = (values: {
-    primaryText: string;
-    headline: string;
-    description?: string;
-    cta: string;
-    websiteUrl: string;
-  }) => {
-    setAdData(prev => ({
-      ...prev,
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+  
+  // Handlers for updates to different aspects of the ad
+  const handleAdTextChange = (values: any) => {
+    setAdData(prevData => ({
+      ...prevData,
       primaryText: values.primaryText,
       headline: values.headline,
       description: values.description || "",
@@ -377,253 +316,155 @@ export default function AdCreator() {
     }));
   };
   
-  // Use a ref to debounce saving changes
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Handle targeting changes 
   const handleTargetingChange = (values: TargetingData) => {
-    // Store brand identity (Facebook Page & Instagram Account) in Ad Data too
-    // so they appear in the preview without requiring format conversion
-    setAdData(prev => ({
-      ...prev,
-      facebookPage: values.facebookPageName || "",
-      instagramAccount: values.instagramAccountName || ""
-    }));
+    // Clear any existing debounce timer for targeting changes
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
     
-    // Clone the input to avoid direct mutation
+    // Update the state with the new targeting data
     const newTargetingData: TargetingData = {
-      adAccountId: values.adAccountId,
-      campaignObjective: values.campaignObjective,
-      placements: values.placements, 
-      adSets: [...values.adSets], // Important to deep clone the array
-      facebookPageId: values.facebookPageId,
-      facebookPageName: values.facebookPageName,
-      instagramAccountId: values.instagramAccountId,
-      instagramAccountName: values.instagramAccountName
+      ...targetingData,
+      ...values,
+      // Ensure adSets is properly set - either from the values or from existing state
+      adSets: values.adSets || targetingData.adSets,
+      // Handle specific object properties that might not be included in the update
+      advantagePlusEnhancements: {
+        ...targetingData.advantagePlusEnhancements,
+        ...(values.advantagePlusEnhancements || {})
+      }
     };
     
-    // First update the state
+    // Update state
     setTargetingData(newTargetingData);
     
-    // Cancel previous timeout if it exists
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
+    // Update Facebook/Instagram account in ad data
+    setAdData(prev => ({
+      ...prev,
+      facebookPage: values.facebookPageName || prev.facebookPage,
+      instagramAccount: values.instagramAccountName || prev.instagramAccount
+    }));
+    
+    // Set a new debounce timer for auto-saving
+    saveTimerRef.current = setTimeout(() => {
+      console.log("Auto-saving targeting data...");
+      createAdMutation.mutate();
+    }, 1000); // 1 second debounce for targeting changes
+  };
+  
+  const handleMediaUpload = (mediaUrl: string) => {
+    setAdData(prevData => ({
+      ...prevData,
+      mediaUrl
+    }));
+    
+    // Also update the media in placementMedia.feeds
+    setPlacementMedia(prev => ({
+      ...prev,
+      feeds: mediaUrl
+    }));
+  };
+  
+  const handleSuggestionsGenerated = (suggestions: AiSuggestions) => {
+    setAiSuggestions(suggestions);
+    setGeneratingSuggestions(false);
+  };
+  
+  // Function to publish ad when Meta is connected
+  const handlePublishAd = async () => {
+    if (!isAuthenticated) {
+      setShowAuthDialog(true);
+      return;
     }
     
-    // Debounce save operation to prevent rapid API calls
-    saveTimeoutRef.current = setTimeout(() => {
-      console.log("Auto-saving targeting changes (debounced)");
-      // We don't await this since it's a background save
-      try {
-        createAdMutation.mutate();
-      } catch (error) {
-        console.error("Background save of targeting data failed:", error);
-      }
-      saveTimeoutRef.current = null;
-    }, 1000); // Debounce for 1 second
-  };
-  
-  // Handle save draft button
-  const handleSaveDraft = () => {
-    createAdMutation.mutate();
-    toast({
-      title: "Success",
-      description: "Your ad draft has been saved.",
-    });
-  };
-  
-  // Handle auth dialog close
-  const handleCloseAuthDialog = () => {
-    setShowAuthDialog(false);
-  };
-  
-  // Handle login success
-  const handleLoginSuccess = () => {
-    // Continue with ad publishing
-    handlePublish();
-  };
-  
-  // Handle next step
-  const handleNextStep = async () => {
-    if (currentStep < 3) {
-      // First, ensure all data is saved - especially when going from Step 2 to Step 3
-      if (currentStep === 2) {
-        try {
-          // Await the mutation to ensure targeting data is fully saved before proceeding
-          // This is critical to ensure all selections are securely stored
-          await createAdMutation.mutateAsync();
-          
-          console.log("Successfully saved all targeting data before proceeding to Step 3");
-        } catch (error) {
-          console.error("Error saving targeting data:", error);
-          // Show error toast but still proceed to next step
-          toast({
-            title: "Warning",
-            description: "There was an issue saving your targeting selections. Your changes might not be preserved.",
-            variant: "destructive",
-          });
-        }
-      } else {
-        // For other steps, save in the background without blocking
-        try {
-          createAdMutation.mutate();
-        } catch (error) {
-          console.log("Background save attempt will continue in the background");
-        }
-      }
+    // Create temporary ad first
+    await createAdMutation.mutateAsync();
+    
+    // Call publish endpoint
+    try {
+      const response = await apiRequest('/api/ads/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          adId: draftAd?.id,
+          // Add targeting info for publishing
+          adFormat: adData.adFormat,
+          customizePlacements: adData.customizePlacements,
+          targetingData: {
+            adAccountId: targetingData.adAccountId,
+            campaignObjective: targetingData.campaignObjective,
+            placements: targetingData.placements,
+            adSets: targetingData.adSets,
+            facebookPageId: targetingData.facebookPageId,
+            instagramAccountId: targetingData.instagramAccountId
+          }
+        })
+      });
       
-      // Now proceed to next step
-      const newStep = currentStep + 1;
-      setCurrentStep(newStep);
+      toast({
+        title: "Ad published successfully!",
+        description: "Your ad has been sent to Meta for review.",
+        duration: 5000
+      });
       
-      // Update localStorage to sync with header
-      localStorage.setItem('adCreatorStep', newStep.toString());
+      // Reset the ad creator
+      // localStorage.removeItem('adCreatorStep');
+      // localStorage.removeItem('adData');
+      // localStorage.removeItem('targetingData');
+      
+      // Navigate to the ad history page
+      navigate('/ad-history');
+      
+    } catch (error) {
+      console.error("Error publishing ad:", error);
+      toast({
+        title: "Error publishing ad",
+        description: "There was a problem publishing your ad. Please try again.",
+        variant: "destructive",
+        duration: 5000
+      });
     }
   };
   
-  // Handle previous step
-  const handlePrevStep = () => {
-    if (currentStep > 1) {
-      const newStep = currentStep - 1;
-      setCurrentStep(newStep);
-      
-      // Update localStorage to sync with header
-      localStorage.setItem('adCreatorStep', newStep.toString());
-    }
-  };
-  
-  // Handle publish
-  const handlePublish = () => {
-    publishAdMutation.mutate();
-  };
-  
-  // Determine if we should show the launch button
-  const showLaunchButton = currentStep === 3;
-
-  // Render Step 3 layout with Distribution Summary & Ad Preview
-  if (currentStep === 3) {
-    return (
-      <div className="container mx-auto px-4 py-6">
-        {/* Auth Dialog */}
-        <AuthDialog 
-          isOpen={showAuthDialog} 
-          onClose={handleCloseAuthDialog}
-          onLoginSuccess={handleLoginSuccess}
-          message="You need to sign in to publish your ad to Meta Ad Sets"
-        />
+  return (
+    <div className="container mx-auto py-8 px-4">
+      {/* Steps Indicator */}
+      <div className="flex justify-between mb-8 relative">
+        <div className="absolute h-1 bg-gray-200 top-4 left-0 right-0 -z-10"></div>
         
-        {/* Step 3 with Distribution Summary and Ad Preview */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Column - Distribution Summary */}
-          <div className="lg:w-1/2">
-            <div className="bg-gray-100 rounded-lg p-6 mb-6">
-              <AdSummary 
-                adName={`Ad for ${adData.brandName}`}
-                onAdNameChange={(name) => {
-                  // Update ad name if needed
-                  console.log("Ad name updated:", name);
-                  // Could save this to state/db if needed
-                }}
-                adAccountName={targetingData.adAccountId ? 
-                  (targetingData.adAccountId === "account_1" ? "Meta Ads Account (Main)" : 
-                  targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
-                  targetingData.adAccountId) : 
-                  undefined}
-                campaigns={
-                  // Get unique campaigns
-                  Array.from(
-                    new Set(
-                      targetingData.adSets
-                        .filter(adSet => adSet.campaignId)
-                        .map(adSet => adSet.campaignId)
-                    )
-                  ).map(campaignId => {
-                    // Convert campaign ID to name based on actual mapping in ad-targeting.tsx
-                    let campaignName = "Campaign " + campaignId;
-                    
-                    // Account 1 campaigns
-                    if (campaignId === "c1_1") campaignName = "Summer Sale 2025";
-                    if (campaignId === "c1_2") campaignName = "Product Launch: Eco Series";
-                    if (campaignId === "c1_3") campaignName = "Brand Awareness Q2";
-                    
-                    // Account 2 campaigns
-                    if (campaignId === "c2_1") campaignName = "Winter Holiday Special";
-                    if (campaignId === "c2_2") campaignName = "Lead Generation - Enterprise";
-                    if (campaignId === "c2_3") campaignName = "Social Media Contest";
-                    
-                    return {
-                      id: campaignId || "",
-                      name: campaignName
-                    };
-                  })
-                }
-                adSets={targetingData.adSets.map(adSet => ({
-                  id: adSet.id,
-                  name: adSet.name,
-                  campaignId: adSet.campaignId
-                }))}
-                facebookPage={adData.facebookPage}
-                instagramAccount={adData.instagramAccount}
-                allowMultiAdvertiserAds={targetingData.allowMultiAdvertiserAds}
-                enableFlexibleMedia={targetingData.enableFlexibleMedia}
-                advantagePlusEnhancements={targetingData.advantagePlusEnhancements}
-              />
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex justify-between">
-              <Button
-                variant="outline"
-                onClick={handlePrevStep}
-              >
-                Back
-              </Button>
-              
-              <Button
-                onClick={handlePublish}
-                disabled={publishAdMutation.isPending || !adData.mediaUrl || targetingData.adSets.length === 0}
-                className="bg-[#f6242f] hover:opacity-90 text-white"
-              >
-                {publishAdMutation.isPending ? 
-                  "Launching..." : 
-                  `Launch to ${targetingData.adSets.length} Ad Set${targetingData.adSets.length !== 1 ? 's' : ''}`
-                }
-              </Button>
-            </div>
+        <div 
+          className={`flex flex-col items-center cursor-pointer ${currentStep >= 1 ? "font-bold text-[#f6242f]" : ""}`}
+          onClick={() => setCurrentStep(1)}
+        >
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? "bg-[#f6242f] text-white" : "bg-gray-200 text-gray-500"}`}>
+            1
           </div>
-          
-          {/* Right Column - Ad Preview */}
-          <div className="lg:w-1/2">
-            <AdPreview
-              brandName={adData.brandName}
-              mediaUrl={adData.mediaUrl}
-              primaryText={adData.primaryText}
-              websiteUrl={adData.websiteUrl}
-              headline={adData.headline}
-              description={adData.description}
-              cta={adData.cta}
-              storiesMediaUrl={placementMedia.stories}
-              customizedPlacements={adData.customizePlacements}
-              facebookPage={adData.facebookPage}
-              instagramAccount={adData.instagramAccount}
-            />
+          <div className="mt-2 text-sm">Design</div>
+        </div>
+        
+        <div 
+          className={`flex flex-col items-center cursor-pointer ${currentStep >= 2 ? "font-bold text-[#f6242f]" : ""}`}
+          onClick={() => currentStep > 1 ? setCurrentStep(2) : null}
+        >
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? "bg-[#f6242f] text-white" : "bg-gray-200 text-gray-500"}`}>
+            2
           </div>
+          <div className="mt-2 text-sm">Targeting</div>
+        </div>
+        
+        <div 
+          className={`flex flex-col items-center cursor-pointer ${currentStep >= 3 ? "font-bold text-[#f6242f]" : ""}`}
+          onClick={() => currentStep > 2 ? setCurrentStep(3) : null}
+        >
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? "bg-[#f6242f] text-white" : "bg-gray-200 text-gray-500"}`}>
+            3
+          </div>
+          <div className="mt-2 text-sm">Launch</div>
         </div>
       </div>
-    );
-  }
-  
-  // Regular two-column layout for steps 1 and 2
-  return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Auth Dialog */}
-      <AuthDialog 
-        isOpen={showAuthDialog} 
-        onClose={handleCloseAuthDialog}
-        onLoginSuccess={handleLoginSuccess}
-        message="You need to sign in to publish your ad to Meta Ad Sets"
-      />
-
+      
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
         <div className="lg:w-7/12">
@@ -673,7 +514,74 @@ export default function AdCreator() {
                 
                 {/* Ad Copy Section */}
                 <div className="mb-8 border-t pt-6">
-                  <h3 className="text-lg font-medium mb-6">Ad Copy</h3>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-medium">Ad Copy</h3>
+                    
+                    {/* AI Badge Indication */}
+                    {adData.mediaUrl && !generatingSuggestions && aiSuggestions && adData.hasAppliedAiSuggestions && (
+                      <div className="bg-green-50 px-3 py-1.5 rounded-md flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-green-600" />
+                        <span className="text-sm text-green-700">AI-Generated Copy Applied</span>
+                        <Button
+                          onClick={() => {
+                            setAdData(prev => ({
+                              ...prev,
+                              primaryText: "",
+                              headline: "",
+                              description: "",
+                              cta: "learn_more",
+                              hasAppliedAiSuggestions: false
+                            }));
+                            
+                            toast({
+                              title: "Text cleared",
+                              description: "AI suggestions have been removed.",
+                            });
+                          }}
+                          type="button"
+                          variant="outline"
+                          className="border-gray-200 text-gray-700 hover:bg-gray-100 h-7 ml-2"
+                          size="sm"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {adData.mediaUrl && !generatingSuggestions && aiSuggestions && !adData.hasAppliedAiSuggestions && (
+                      <div className="bg-yellow-50 px-3 py-1.5 rounded-md flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-sm text-amber-700">AI Suggestions Available</span>
+                        <Button
+                          onClick={() => {
+                            handleAdTextChange({
+                              primaryText: aiSuggestions.suggestedPrimaryText,
+                              headline: aiSuggestions.suggestedHeadline,
+                              description: aiSuggestions.suggestedDescription,
+                              cta: aiSuggestions.suggestedCta,
+                              websiteUrl: adData.websiteUrl
+                            });
+                            
+                            setAdData(prev => ({
+                              ...prev,
+                              hasAppliedAiSuggestions: true
+                            }));
+                            
+                            toast({
+                              title: "AI suggestions applied",
+                              description: "The ad copy has been updated with AI-generated suggestions.",
+                            });
+                          }}
+                          type="button"
+                          variant="outline"
+                          className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 h-7 ml-2"
+                          size="sm"
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Ad Text Form */}
                   <AdTextForm 
@@ -701,114 +609,6 @@ export default function AdCreator() {
                     brandName={adData.brandName}
                   />
                 </div>
-                
-                {/* AI Suggestions */}
-                {adData.mediaUrl && !generatingSuggestions && aiSuggestions && (
-                  <div className="mb-6 border-t pt-6">
-                    <div className={`flex items-start justify-between gap-4 mb-3 p-4 rounded-md ${adData.hasAppliedAiSuggestions ? 'bg-green-50' : 'bg-yellow-50'}`}>
-                      <div className="flex items-start gap-2">
-                        <span className={`p-1.5 rounded-md ${adData.hasAppliedAiSuggestions ? 'bg-green-100' : 'bg-yellow-100'}`}>
-                          <Sparkles className={`h-4 w-4 ${adData.hasAppliedAiSuggestions ? 'text-green-600' : 'text-amber-600'}`} />
-                        </span>
-                        <div>
-                          <h3 className="text-sm font-medium mb-0.5">
-                            {adData.hasAppliedAiSuggestions ? 'AI-Generated Copy Applied' : 'AI-Suggested Ad Copy'}
-                          </h3>
-                          <p className="text-xs text-gray-500">
-                            {adData.hasAppliedAiSuggestions 
-                              ? 'Your ad is using AI-generated copy based on your image' 
-                              : 'Generated based on your image'}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        {adData.hasAppliedAiSuggestions ? (
-                          <>
-                            <Button
-                              onClick={() => {
-                                setAdData(prev => ({
-                                  ...prev,
-                                  primaryText: "",
-                                  headline: "",
-                                  description: "",
-                                  cta: "learn_more",
-                                  hasAppliedAiSuggestions: false
-                                }));
-                                
-                                toast({
-                                  title: "Text cleared",
-                                  description: "AI suggestions have been removed.",
-                                });
-                              }}
-                              type="button"
-                              variant="outline"
-                              className="border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1"
-                              size="sm"
-                            >
-                              Clear
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              onClick={() => {
-                                handleAdTextChange({
-                                  primaryText: aiSuggestions.suggestedPrimaryText,
-                                  headline: aiSuggestions.suggestedHeadline,
-                                  description: aiSuggestions.suggestedDescription,
-                                  cta: aiSuggestions.suggestedCta,
-                                  websiteUrl: adData.websiteUrl
-                                });
-                                
-                                setAdData(prev => ({
-                                  ...prev,
-                                  hasAppliedAiSuggestions: true
-                                }));
-                                
-                                toast({
-                                  title: "AI suggestions applied",
-                                  description: "The ad copy has been updated with AI-generated suggestions.",
-                                });
-                              }}
-                              type="button"
-                              variant="outline"
-                              className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1"
-                            >
-                              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                                <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-                              </svg>
-                              Apply AI suggestions
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                setAdData(prev => ({
-                                  ...prev,
-                                  primaryText: "",
-                                  headline: "",
-                                  description: "",
-                                  cta: "learn_more",
-                                  hasAppliedAiSuggestions: false
-                                }));
-                                
-                                toast({
-                                  title: "Text cleared",
-                                  description: "AI suggestions have been removed.",
-                                });
-                              }}
-                              type="button"
-                              variant="outline"
-                              className="border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1"
-                              size="sm"
-                            >
-                              Clear
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -830,11 +630,7 @@ export default function AdCreator() {
                       name: "Campaign " + campaignId,
                       status: "ACTIVE" 
                     };
-                  })
-                  .filter((campaign, index, self) => 
-                    // Remove duplicates
-                    index === self.findIndex(c => c.id === campaign.id)
-                  ),
+                  }),
                 selectedAdSets: targetingData.adSets.map(adSet => ({
                   id: adSet.id,
                   name: adSet.name,
@@ -843,10 +639,9 @@ export default function AdCreator() {
                 })),
                 facebookPageId: targetingData.facebookPageId || "",
                 instagramAccountId: targetingData.instagramAccountId || "",
-                allowMultiAdvertiserAds: targetingData.allowMultiAdvertiserAds === true,
-                enableFlexibleMedia: targetingData.enableFlexibleMedia === true,
-                // Use default values to avoid undefined properties
-                advantagePlusEnhancements: {
+                allowMultiAdvertiserAds: targetingData.allowMultiAdvertiserAds || false,
+                enableFlexibleMedia: targetingData.enableFlexibleMedia || false,
+                advantagePlusEnhancements: targetingData.advantagePlusEnhancements || {
                   translateText: false,
                   addOverlays: false,
                   addCatalogItems: false,
@@ -857,81 +652,163 @@ export default function AdCreator() {
                   storeLocations: false,
                   enhanceCta: false,
                   addSiteLinks: false,
-                  imageAnimation: false,
-                  ...targetingData.advantagePlusEnhancements
+                  imageAnimation: false
                 }
               }}
-              onConnectionChange={setIsMetaConnected} 
+              onConnectionChange={(isConnected) => {
+                setIsMetaConnected(isConnected);
+              }}
               isConnected={isMetaConnected}
             />
           )}
-
-          {/* Action Buttons */}
-          <div className="flex justify-between">
-            {currentStep === 1 ? (
+          
+          {/* Launch - Step 3 */}
+          {currentStep === 3 && (
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-semibold mb-6">Launch Your Ad</h2>
+              
+              <div className="mb-4">
+                <div className="grid lg:grid-cols-1">
+                  {/* Ad Summary */}
+                  <div className="bg-gray-50 p-6 rounded-md">
+                    <AdSummary 
+                      adName="New Conversion Ad"
+                      onAdNameChange={(name) => {
+                        console.log("Ad name changed:", name);
+                      }}
+                      adAccountName={`${targetingData.adAccountId}`}
+                      campaigns={targetingData.adSets
+                        .filter(adSet => adSet.campaignId)
+                        .map(adSet => {
+                          // Find unique campaigns from ad sets
+                          const campaignId = adSet.campaignId || "";
+                          // Convert to the format AdTargetingFormData expects
+                          return { 
+                            id: campaignId, 
+                            name: "Campaign " + campaignId,
+                          };
+                        })}
+                      adSets={targetingData.adSets.map(adSet => ({
+                        id: adSet.id,
+                        name: adSet.name,
+                        campaignId: adSet.campaignId
+                      }))}
+                      facebookPage={targetingData.facebookPageName || ""}
+                      instagramAccount={targetingData.instagramAccountName || ""}
+                      allowMultiAdvertiserAds={targetingData.allowMultiAdvertiserAds}
+                      enableFlexibleMedia={targetingData.enableFlexibleMedia}
+                      advantagePlusEnhancements={targetingData.advantagePlusEnhancements}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    Once you click "Publish to Meta," your ad will be reviewed according to Meta's advertising policies.
+                  </div>
+                  <Button
+                    onClick={handlePublishAd}
+                    disabled={!isMetaConnected || createAdMutation.isPending}
+                    className={`w-full sm:w-auto ${!isMetaConnected ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : 'bg-[#f6242f] hover:bg-red-600'}`}
+                  >
+                    Publish to Meta
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Navigation buttons */}
+          <div className="flex justify-between mt-8">
+            {currentStep > 1 ? (
               <Button
-                variant="outline"
-                onClick={handleSaveDraft}
-                disabled={createAdMutation.isPending}
-              >
-                {createAdMutation.isPending ? "Saving..." : "Save Draft"}
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
                 onClick={handlePrevStep}
+                variant="outline"
+                className="flex gap-2 items-center"
               >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.84182 3.13514C9.04327 3.32401 9.05348 3.64042 8.86462 3.84188L5.43521 7.49991L8.86462 11.1579C9.05348 11.3594 9.04327 11.6758 8.84182 11.8647C8.64036 12.0535 8.32394 12.0433 8.13508 11.8419L4.38508 7.84188C4.20477 7.64955 4.20477 7.35027 4.38508 7.15794L8.13508 3.15794C8.32394 2.95648 8.64036 2.94628 8.84182 3.13514Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                </svg>
                 Back
               </Button>
+            ) : (
+              <div></div> // Empty div for flexbox spacing
             )}
             
-            <div>
+            {currentStep < 3 ? (
               <Button
                 onClick={handleNextStep}
-                disabled={
-                  currentStep === 1 && !adData.mediaUrl ||
-                  (currentStep === 2 && (
-                    !isMetaConnected ||
-                    !targetingData.adAccountId || 
-                    targetingData.adSets.length === 0 || 
-                    !targetingData.facebookPageId
-                  ))
-                }
-                className={`${
-                  (currentStep === 1 && !adData.mediaUrl) || 
-                  (currentStep === 2 && (
-                    !isMetaConnected ||
-                    !targetingData.adAccountId || 
-                    targetingData.adSets.length === 0 || 
-                    !targetingData.facebookPageId
-                  )) ? 
-                  "bg-[#f6242f]/50 hover:bg-[#f6242f]/50 cursor-not-allowed" : 
-                  "bg-[#f6242f] hover:opacity-90"
-                } text-white`}
+                className="flex gap-2 items-center bg-[#f6242f] hover:bg-red-600 text-white"
               >
-                {currentStep === 1 ? "Create Ad" : "Launch"}
+                {currentStep === 1 ? "Continue to Targeting" : "Continue to Launch"}
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.1584 3.13514C5.95694 3.32401 5.94673 3.64042 6.13559 3.84188L9.565 7.49991L6.13559 11.1579C5.94673 11.3594 5.95694 11.6758 6.1584 11.8647C6.35986 12.0535 6.67627 12.0433 6.86514 11.8419L10.6151 7.84188C10.7954 7.64955 10.7954 7.35027 10.6151 7.15794L6.86514 3.15794C6.67627 2.95648 6.35986 2.94628 6.1584 3.13514Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                </svg>
               </Button>
-            </div>
+            ) : (
+              <div></div> // Empty div for flexbox spacing
+            )}
           </div>
         </div>
         
         {/* Preview Panel */}
         <div className="lg:w-5/12">
-          <AdPreview
-            brandName={adData.brandName}
-            mediaUrl={adData.mediaUrl}
-            primaryText={adData.primaryText}
-            websiteUrl={adData.websiteUrl}
-            headline={adData.headline}
-            description={adData.description}
-            cta={adData.cta}
-            storiesMediaUrl={placementMedia.stories}
-            customizedPlacements={adData.customizePlacements}
-            facebookPage={adData.facebookPage}
-            instagramAccount={adData.instagramAccount}
-          />
+          {/* Preview Card */}
+          <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+            <h3 className="text-lg font-medium mb-4">Ad Preview</h3>
+            
+            <AdPreview
+              brandName={adData.brandName}
+              mediaUrl={adData.customizePlacements ? 
+                (currentStep === 1 ? placementMedia.feeds : placementMedia.feeds) : 
+                adData.mediaUrl
+              }
+              storiesMediaUrl={adData.customizePlacements ? placementMedia.stories : undefined}
+              primaryText={adData.primaryText}
+              headline={adData.headline}
+              description={adData.description}
+              cta={adData.cta}
+              websiteUrl={adData.websiteUrl}
+              customizedPlacements={adData.customizePlacements}
+              facebookPage={targetingData.facebookPageName}
+              instagramAccount={targetingData.instagramAccountName}
+            />
+            
+            {aiSuggestions && generatingSuggestions && (
+              <div className="mt-4 p-3 bg-amber-50 rounded-md flex items-center gap-2 text-amber-700 text-sm">
+                <Sparkles className="h-4 w-4" />
+                <span>AI is analyzing your image to generate text suggestions...</span>
+              </div>
+            )}
+            
+            {/* Save indicator */}
+            {createAdMutation.isPending && (
+              <div className="mt-4 text-sm text-gray-500 flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-[#f6242f]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Saving changes...</span>
+              </div>
+            )}
+            
+            {createAdMutation.isSuccess && !createAdMutation.isPending && (
+              <div className="mt-4 text-sm text-green-600 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>All changes saved</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      
+      {/* Auth Dialog */}
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog}
+      />
     </div>
   );
 }

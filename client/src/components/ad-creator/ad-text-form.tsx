@@ -57,7 +57,7 @@ export function AdTextForm({ onSubmit, defaultValues }: AdTextFormProps) {
 
   const watchPrimaryText = form.watch("primaryText", "");
   const watchHeadline = form.watch("headline", "");
-  const watchDescription = form.watch("description", "");
+  const watchDescription = form.watch("description", "") || "";
   
   // Update form when defaultValues change (like when AI suggestions are applied)
   useEffect(() => {
@@ -94,7 +94,6 @@ export function AdTextForm({ onSubmit, defaultValues }: AdTextFormProps) {
 
   return (
     <div className="mb-8">
-      <h3 className="text-base font-medium mb-2">Ad Text</h3>
       <Form {...form}>
         <form className="space-y-4" onChange={() => onSubmit(form.getValues())}>
           <FormField
