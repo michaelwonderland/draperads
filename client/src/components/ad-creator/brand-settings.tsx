@@ -29,7 +29,7 @@ export function BrandSettings({ onBrandChange, brandName = "DraperAds" }: BrandS
           onChange={handleNameChange}
         />
         <p className="text-xs text-gray-500 mt-1">
-          This name will appear in your ad. Meta Page and Instagram Account options will appear after login.
+          For previewing purposes only - actual Facebook Page and Instagram Account will appear on the next step
         </p>
       </div>
     </div>
