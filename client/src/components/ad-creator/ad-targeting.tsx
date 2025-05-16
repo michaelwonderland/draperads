@@ -65,7 +65,9 @@ interface AdTargetingFormData {
   selectedCampaigns: Campaign[];
   selectedAdSets: AdSet[];
   facebookPageId: string;
+  facebookPageName?: string;
   instagramAccountId: string;
+  instagramAccountName?: string;
   allowMultiAdvertiserAds: boolean;
   enableFlexibleMedia: boolean;
   advantagePlusEnhancements: {
@@ -334,11 +336,25 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   };
 
   const handleFacebookPageChange = (value: string) => {
-    setFormData(prev => ({ ...prev, facebookPageId: value }));
+    // Find the corresponding page name for the selected ID
+    const selectedPage = getAccountFacebookPages().find(page => page.id === value);
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      facebookPageId: value,
+      facebookPageName: selectedPage?.name || "" 
+    }));
   };
 
   const handleInstagramAccountChange = (value: string) => {
-    setFormData(prev => ({ ...prev, instagramAccountId: value }));
+    // Find the corresponding account name for the selected ID
+    const selectedAccount = getAccountInstagramAccounts().find(account => account.id === value);
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      instagramAccountId: value,
+      instagramAccountName: selectedAccount?.name || ""
+    }));
   };
 
   const handleToggleEnhancement = (key: keyof AdTargetingFormData['advantagePlusEnhancements']) => {
