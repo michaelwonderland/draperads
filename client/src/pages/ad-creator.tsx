@@ -79,6 +79,8 @@ export default function AdCreator() {
     customizePlacements: false, // Whether to use different creatives for different placements
     facebookPage: "",
     instagramAccount: "",
+    facebookPageId: "",
+    instagramAccountId: "",
     hasAppliedAiSuggestions: false // Track whether AI suggestions are applied
   });
   
@@ -172,8 +174,10 @@ export default function AdCreator() {
         brandName: latestDraft.brandName || "DraperAds",
         status: latestDraft.status || "draft",
         customizePlacements: false,
-        facebookPage: "",
-        instagramAccount: "",
+        facebookPage: latestDraft.facebookPage || "",
+        instagramAccount: latestDraft.instagramAccount || "",
+        facebookPageId: latestDraft.facebookPageId || "",
+        instagramAccountId: latestDraft.instagramAccountId || "",
         hasAppliedAiSuggestions: false
       });
       
@@ -254,13 +258,18 @@ export default function AdCreator() {
   const handleTargetingChange = (values: any) => {
     setTargetingData(values);
     
-    // Use the Facebook page and Instagram account names directly from the targeting data
-    if (values.facebookPageName || values.instagramAccountName) {
-      setAdData(prev => ({
-        ...prev,
-        facebookPage: values.facebookPageName || "",
-        instagramAccount: values.instagramAccountName || ""
-      }));
+    // Store both Facebook and Instagram IDs and names to ensure they persit between steps
+    setAdData(prev => ({
+      ...prev,
+      facebookPage: values.facebookPageName || prev.facebookPage || "",
+      instagramAccount: values.instagramAccountName || prev.instagramAccount || "",
+      facebookPageId: values.facebookPageId || prev.facebookPageId || "",
+      instagramAccountId: values.instagramAccountId || prev.instagramAccountId || ""
+    }));
+    
+    // Update the Meta connection status based on ad account selection
+    if (values.adAccountId) {
+      setIsMetaConnected(true);
     }
   };
   

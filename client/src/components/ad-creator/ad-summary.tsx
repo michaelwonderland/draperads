@@ -21,6 +21,8 @@ interface AdSummaryProps {
     brandName: string;
     facebookPage?: string;
     instagramAccount?: string;
+    facebookPageId?: string;
+    instagramAccountId?: string;
     storiesMediaUrl?: string;
     customizePlacements?: boolean;
   };
@@ -114,15 +116,15 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Your Ad Is Ready To Launch!</h1>
           <p className="text-gray-600">
-            Review your ad details below and create your DraperAds account to publish
+            Review your distribution details below and create your DraperAds account to publish
           </p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-6 mb-6">
-          {/* Ad Preview - Wider */}
-          <div className="md:w-2/5">
-            <h2 className="text-xl font-semibold mb-4">Ad Preview</h2>
-            <div className="border rounded-lg overflow-hidden mx-auto">
+        <div className="flex flex-col gap-8 mb-6">
+          {/* Ad Preview - Smaller (50% of original size) */}
+          <div className="mx-auto w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4 text-center">Ad Preview</h2>
+            <div className="border rounded-lg overflow-hidden mx-auto transform scale-75 origin-top">
               <AdPreview
                 brandName={adData.brandName}
                 mediaUrl={adData.mediaUrl}
@@ -139,44 +141,92 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
             </div>
           </div>
           
-          {/* Distribution Details - Simpler */}
-          <div className="md:w-3/5">
-            <h2 className="text-xl font-semibold mb-4">Distribution Details</h2>
-            <div className="bg-gray-50 p-5 rounded-lg border border-gray-100 mb-6">
-              <div className="space-y-4">                
-                {/* Campaigns */}
-                <div>
-                  <h3 className="text-base font-medium mb-2">Campaigns</h3>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant="outline" className="bg-gray-100">
-                      {formatAdType(targetingData.campaignObjective || adData.adType)} Campaign
-                    </Badge>
+          {/* Distribution Details - Clear listing of selected items */}
+          <div className="w-full max-w-lg mx-auto">
+            <h2 className="text-xl font-semibold mb-4 text-center">Distribution Details</h2>
+            <div className="bg-gray-50 p-5 rounded-lg border border-gray-100">
+              {/* Meta Account Info */}
+              <div className="mb-5 pb-5 border-b border-gray-200">
+                <h3 className="text-base font-medium mb-3">Meta Ad Account</h3>
+                <div className="flex items-center">
+                  <div className="rounded-full bg-blue-100 p-2 mr-3">
+                    <Facebook className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{targetingData.adAccountId ? "Connected" : "Not Connected"}</p>
+                    {targetingData.adAccountId && (
+                      <p className="text-sm text-gray-500">Account ID: {targetingData.adAccountId}</p>
+                    )}
                   </div>
                 </div>
+              </div>
                 
-                {/* Ad Sets */}
-                <div>
-                  <h3 className="text-base font-medium mb-2">Ad Sets</h3>
-                  {targetingData.adSets && targetingData.adSets.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
-                      {targetingData.adSets.map((adSet: any, index: number) => (
-                        <Badge key={index} variant="outline" className="bg-gray-100">
-                          {adSet.name}
-                        </Badge>
-                      ))}
+              {/* Brand Identity */}
+              <div className="mb-5 pb-5 border-b border-gray-200">
+                <h3 className="text-base font-medium mb-3">Brand Identity</h3>
+                <div className="space-y-3">
+                  {/* Facebook Page */}
+                  <div className="flex items-center">
+                    <div className="rounded-full bg-blue-100 p-2 mr-3">
+                      <Facebook className="h-4 w-4 text-blue-600" />
                     </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm">No ad sets selected</p>
-                  )}
+                    <div>
+                      <p className="font-medium">
+                        {targetingData.facebookPageName || adData.facebookPage || "No Facebook Page Selected"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Instagram Account */}
+                  <div className="flex items-center">
+                    <div className="rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-2 mr-3">
+                      <Instagram className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {targetingData.instagramAccountName || adData.instagramAccount || "No Instagram Account Selected"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
+              </div>
+                
+              {/* Campaign */}
+              <div className="mb-5 pb-5 border-b border-gray-200">
+                <h3 className="text-base font-medium mb-3">Campaign</h3>
+                <Badge variant="outline" className="bg-white border-blue-200 text-blue-800 px-3 py-1">
+                  {formatAdType(targetingData.campaignObjective || adData.adType)} Campaign
+                </Badge>
+              </div>
+                
+              {/* Ad Sets - Detailed list */}
+              <div>
+                <h3 className="text-base font-medium mb-3">Ad Sets</h3>
+                {targetingData.adSets && targetingData.adSets.length > 0 ? (
+                  <div className="space-y-2">
+                    {targetingData.adSets.map((adSet: any, index: number) => (
+                      <div key={index} className="flex items-center bg-white p-3 rounded-md border border-gray-200">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
+                        <span>{adSet.name}</span>
+                        {adSet.audience && (
+                          <span className="ml-auto text-xs text-gray-500">{adSet.audience}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                    <p>No ad sets selected. Please go back and select at least one ad set.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
         
-        {/* Account Creation */}
-        <div className="max-w-lg mx-auto">
-          <div className="bg-[#FFF8F8] border border-[#FFCDD2] rounded-lg p-6 mb-6 relative overflow-hidden">
+        {/* Account Creation Notice */}
+        <div className="max-w-lg mx-auto mb-4">
+          <div className="bg-[#FFF8F8] border border-[#FFCDD2] rounded-lg p-6 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-[#f6242f]"></div>
             
             <div className="flex items-start">
@@ -196,7 +246,10 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
               </div>
             </div>
           </div>
-          
+        </div>
+        
+        {/* Account Creation Form */}
+        <div className="max-w-lg mx-auto">
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-2">Create Your DraperAds Account</h2>
             <p className="text-gray-600 mb-6">
@@ -227,7 +280,7 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                 <Button
                   onClick={handleCreateAccount}
                   className="flex-1 bg-[#f6242f] hover:opacity-90 text-white"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || targetingData.adSets.length === 0}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center">Creating Account...</span>
