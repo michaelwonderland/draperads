@@ -503,7 +503,7 @@ export default function AdCreator() {
                   disabled={currentStep === 1 && !adData.mediaUrl}
                   className="bg-[#f6242f] hover:opacity-90 text-white"
                 >
-                  Next Step
+                  Create Ad
                 </Button>
               ) : (
                 <Button
