@@ -5,6 +5,8 @@ import {
   ads, type Ad, type InsertAd, type UpdateAdStatus,
   adSets, type AdSet, type InsertAdSet
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -38,206 +40,168 @@ export interface IStorage {
   updateAdSetMetaId(id: number, metaAdSetId: string): Promise<AdSet | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private templates: Map<number, Template>;
-  private adAccounts: Map<number, AdAccount>;
-  private ads: Map<number, Ad>;
-  private adSets: Map<number, AdSet>;
-  
-  private currentUserId: number;
-  private currentTemplateId: number;
-  private currentAdAccountId: number;
-  private currentAdId: number;
-  private currentAdSetId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.templates = new Map();
-    this.adAccounts = new Map();
-    this.ads = new Map();
-    this.adSets = new Map();
-    
-    this.currentUserId = 1;
-    this.currentTemplateId = 1;
-    this.currentAdAccountId = 1;
-    this.currentAdId = 1;
-    this.currentAdSetId = 1;
-    
-    // Initialize with default templates
-    this.createTemplate({
-      name: "Standard Ad",
-      imageUrl: "https://images.unsplash.com/photo-1611926653458-09294b3142bf",
-    });
-    
-    this.createTemplate({
-      name: "Carousel",
-      imageUrl: "https://images.unsplash.com/photo-1557838923-2985c318be48",
-    });
-    
-    this.createTemplate({
-      name: "Collection",
-      imageUrl: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a",
-    });
-    
-    // Initialize with default ad accounts
-    this.createAdAccount({
-      accountId: "1234567890",
-      name: "Main Business Account",
-    });
-    
-    this.createAdAccount({
-      accountId: "0987654321",
-      name: "Secondary Account",
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // If an existing user with this ID exists, update it
-    if (insertUser.id && this.users.has(insertUser.id)) {
-      const updatedUser: User = {
-        ...this.users.get(insertUser.id)!,
-        ...insertUser,
-        updatedAt: new Date()
-      };
-      this.users.set(updatedUser.id, updatedUser);
-      return updatedUser;
-    }
-    
-    // Otherwise create a new user
-    const id = insertUser.id || this.currentUserId++;
-    const now = new Date();
-    const user: User = { 
-      ...insertUser, 
-      id,
-      createdAt: now,
-      updatedAt: now
-    };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
   
   // Template operations
   async getTemplates(): Promise<Template[]> {
-    return Array.from(this.templates.values());
+    return db.select().from(templates);
   }
   
   async getTemplate(id: number): Promise<Template | undefined> {
-    return this.templates.get(id);
+    const [template] = await db.select().from(templates).where(eq(templates.id, id));
+    return template;
   }
   
   async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
-    const id = this.currentTemplateId++;
-    const template: Template = { ...insertTemplate, id };
-    this.templates.set(id, template);
+    const [template] = await db.insert(templates).values(insertTemplate).returning();
     return template;
   }
   
   // Ad Account operations
   async getAdAccounts(): Promise<AdAccount[]> {
-    return Array.from(this.adAccounts.values());
+    return db.select().from(adAccounts);
   }
   
   async getAdAccount(id: number): Promise<AdAccount | undefined> {
-    return this.adAccounts.get(id);
+    const [adAccount] = await db.select().from(adAccounts).where(eq(adAccounts.id, id));
+    return adAccount;
   }
   
   async createAdAccount(insertAdAccount: InsertAdAccount): Promise<AdAccount> {
-    const id = this.currentAdAccountId++;
-    const adAccount: AdAccount = { ...insertAdAccount, id };
-    this.adAccounts.set(id, adAccount);
+    const [adAccount] = await db.insert(adAccounts).values(insertAdAccount).returning();
     return adAccount;
   }
   
   // Ad operations
   async getAds(): Promise<Ad[]> {
-    return Array.from(this.ads.values());
+    return db.select().from(ads);
   }
   
   async getAd(id: number): Promise<Ad | undefined> {
-    return this.ads.get(id);
+    const [ad] = await db.select().from(ads).where(eq(ads.id, id));
+    return ad;
   }
   
   async createAd(insertAd: InsertAd): Promise<Ad> {
-    const id = this.currentAdId++;
-    const createdAt = new Date();
-    const ad: Ad = { 
-      ...insertAd, 
-      id, 
-      createdAt, 
-      publishedAt: null, 
-      metaAdId: null,
-      statistics: {}
-    };
-    this.ads.set(id, ad);
+    const [ad] = await db
+      .insert(ads)
+      .values({
+        ...insertAd,
+        status: insertAd.status || "draft",
+        statistics: {}
+      })
+      .returning();
     return ad;
   }
   
   async updateAdStatus(updateData: UpdateAdStatus): Promise<Ad | undefined> {
-    const ad = await this.getAd(updateData.id);
-    if (!ad) return undefined;
-    
-    const updatedAd: Ad = { 
-      ...ad, 
-      status: updateData.status,
-      publishedAt: updateData.status === 'published' ? new Date() : ad.publishedAt
-    };
-    
-    this.ads.set(updateData.id, updatedAd);
-    return updatedAd;
+    const [ad] = await db
+      .update(ads)
+      .set({
+        status: updateData.status,
+        publishedAt: updateData.status === 'published' ? new Date() : undefined
+      })
+      .where(eq(ads.id, updateData.id))
+      .returning();
+    return ad;
   }
   
   async updateAdMetaId(id: number, metaAdId: string): Promise<Ad | undefined> {
-    const ad = await this.getAd(id);
-    if (!ad) return undefined;
-    
-    const updatedAd: Ad = { ...ad, metaAdId };
-    this.ads.set(id, updatedAd);
-    return updatedAd;
+    const [ad] = await db
+      .update(ads)
+      .set({ metaAdId })
+      .where(eq(ads.id, id))
+      .returning();
+    return ad;
   }
   
   // Ad Set operations
   async getAdSets(): Promise<AdSet[]> {
-    return Array.from(this.adSets.values());
+    return db.select().from(adSets);
   }
   
   async getAdSetsByAdId(adId: number): Promise<AdSet[]> {
-    return Array.from(this.adSets.values()).filter(adSet => adSet.adId === adId);
+    return db.select().from(adSets).where(eq(adSets.adId, adId));
   }
   
   async createAdSet(insertAdSet: InsertAdSet): Promise<AdSet> {
-    const id = this.currentAdSetId++;
-    const createdAt = new Date();
-    const adSet: AdSet = { 
-      ...insertAdSet, 
-      id, 
-      createdAt, 
-      publishedAt: null,
-      metaAdSetId: null
-    };
-    this.adSets.set(id, adSet);
+    const [adSet] = await db
+      .insert(adSets)
+      .values(insertAdSet)
+      .returning();
     return adSet;
   }
   
   async updateAdSetMetaId(id: number, metaAdSetId: string): Promise<AdSet | undefined> {
-    const adSet = this.adSets.get(id);
-    if (!adSet) return undefined;
-    
-    const updatedAdSet: AdSet = { ...adSet, metaAdSetId };
-    this.adSets.set(id, updatedAdSet);
-    return updatedAdSet;
+    const [adSet] = await db
+      .update(adSets)
+      .set({ metaAdSetId })
+      .where(eq(adSets.id, id))
+      .returning();
+    return adSet;
   }
 }
 
-export const storage = new MemStorage();
+// Initialize sample data function
+async function initializeSampleData() {
+  try {
+    // Check if templates exist
+    const templatesList = await db.select().from(templates);
+    if (templatesList.length === 0) {
+      await db.insert(templates).values([
+        {
+          name: "Standard Ad",
+          imageUrl: "https://images.unsplash.com/photo-1611926653458-09294b3142bf",
+        },
+        {
+          name: "Carousel",
+          imageUrl: "https://images.unsplash.com/photo-1557838923-2985c318be48",
+        },
+        {
+          name: "Collection",
+          imageUrl: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a",
+        }
+      ]);
+    }
+    
+    // Check if ad accounts exist
+    const accountsList = await db.select().from(adAccounts);
+    if (accountsList.length === 0) {
+      await db.insert(adAccounts).values([
+        {
+          accountId: "1234567890",
+          name: "Main Business Account",
+        },
+        {
+          accountId: "0987654321",
+          name: "Secondary Account",
+        }
+      ]);
+    }
+    
+    console.log("Sample data initialized successfully");
+  } catch (error) {
+    console.error("Error initializing sample data:", error);
+  }
+}
+
+// Initialize data and export storage instance
+setTimeout(() => {
+  initializeSampleData().catch(console.error);
+}, 1000);
+export const storage = new DatabaseStorage();
