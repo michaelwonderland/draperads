@@ -120,47 +120,49 @@ export function AdPreview({
       )}
       
       {viewMode === 'feed' ? (
-        // Facebook Feed Preview - With fixed width for compact mode
-        <div className={`border border-[#E4E6EB] rounded-lg overflow-hidden ${compact ? 'mx-auto' : ''}`} style={compact ? {maxWidth: "380px"} : {}}>
+        // Facebook Feed Preview - With fixed width for compact mode (matched to screenshot)
+        <div className={`border border-[#E4E6EB] rounded-xl overflow-hidden ${compact ? 'mx-auto' : ''}`} style={compact ? {maxWidth: "380px"} : {}}>
           {/* Header */}
-          <div className="p-3 border-b border-[#E4E6EB]">
+          <div className="p-4 border-b border-[#E4E6EB] bg-white">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <div className={`${compact ? 'h-8 w-8' : 'h-10 w-10'} rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm`}>
+              <div className="flex items-center gap-3">
+                <div className={`h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm`}>
                   {(viewMode === 'feed' && facebookPage) 
                     ? facebookPage.charAt(0).toUpperCase()
                     : brandName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-base font-normal">
                     {viewMode === 'feed' 
                       ? (facebookPage || brandName) 
                       : (instagramAccount || brandName)}
                   </p>
-                  <p className="text-xs text-[#65676B] flex items-center gap-1">
-                    Sponsored · <GlobeIcon className="h-3 w-3" />
-                  </p>
+                  <div className="flex items-center gap-1 text-[#65676B]">
+                    <span className="text-sm">Sponsored</span>
+                    <span>·</span>
+                    <GlobeIcon className="h-4 w-4" />
+                  </div>
                 </div>
               </div>
               <div>
-                <MoreHorizontalIcon className="text-[#65676B] h-5 w-5" />
+                <MoreHorizontalIcon className="text-[#65676B] h-6 w-6" />
               </div>
             </div>
           </div>
           
-          {/* Feed Ad Content */}
-          <div>
+          {/* Ad Content */}
+          <div className="bg-white">
             {/* Primary Text with "See more" functionality */}
-            <div className="relative">
+            <div className="relative mx-4 my-4">
               <p 
                 ref={textRef}
-                className={`p-3 text-sm ${!showFullText && 'max-h-[4.5em] overflow-hidden'}`}
+                className={`text-base leading-tight ${!showFullText && 'max-h-[4.5em] overflow-hidden'}`}
               >
                 {primaryText}
               </p>
               
               {textOverflows && !showFullText && (
-                <div className="absolute bottom-0 right-0 pl-8 pr-3 pb-1 pt-2 text-right bg-gradient-to-l from-white via-white to-transparent">
+                <div className="absolute bottom-0 right-0 pl-12 text-right bg-gradient-to-l from-white via-white to-transparent">
                   <button 
                     onClick={() => setShowFullText(true)}
                     className="text-sm text-gray-500 hover:text-gray-700"
@@ -171,52 +173,74 @@ export function AdPreview({
               )}
             </div>
             
-            <div>
+            {/* Ad creative section - matched to screenshot */}
+            <div className="w-full mx-auto overflow-hidden">
               {mediaUrl ? (
-                mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-                  <video
-                    src={mediaUrl}
-                    controls
-                    className="w-full h-auto max-h-[250px] object-cover"
-                  />
-                ) : (
-                  <img
-                    src={mediaUrl}
-                    alt="Ad content"
-                    className="w-full h-auto max-h-[250px] object-cover"
-                  />
-                )
+                <div className="relative bg-white flex flex-col">
+                  <div className="py-4 px-4 flex flex-col">
+                    <h2 className="text-[26px] font-bold leading-tight">
+                      {headline}
+                    </h2>
+                    {description && (
+                      <div className="mt-2 text-base">
+                        {description}
+                        {description.includes("technique") && (
+                          <div className="mt-1">by Rebecca</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Media image */}
+                  {mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                    <video
+                      src={mediaUrl}
+                      controls
+                      className="w-full h-auto"
+                    />
+                  ) : (
+                    <img
+                      src={mediaUrl}
+                      alt="Ad content"
+                      className="w-full h-auto"
+                    />
+                  )}
+                  
+                  {/* CTA section */}
+                  <div className="p-4">
+                    <p className="text-sm text-[#65676B] uppercase mb-1">{extractDomain(websiteUrl)}</p>
+                    <h3 className="text-[18px] font-medium text-black mb-1">{headline}</h3>
+                    <p className="text-sm text-[#65676B] mb-4">
+                      {description?.substring(0, 100) || "Ancient hair removal technique using only natural ingredients for smoother, less irritated skin."}
+                    </p>
+                    <div className="flex justify-end">
+                      <button className="bg-[#F3F4F6] text-black text-center text-sm font-medium py-2 px-4 rounded-md">
+                        {getCtaText(cta)}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div className="w-full h-48 bg-[#F0F2F5] flex items-center justify-center text-[#65676B]">
                   <p>No media uploaded</p>
                 </div>
               )}
             </div>
-            <div className="p-3">
-              <p className="text-xs text-[#65676B] uppercase tracking-wide">{extractDomain(websiteUrl)}</p>
-              <h3 className="font-medium">{headline}</h3>
-              {description && <p className="text-sm text-[#65676B]">{description}</p>}
-              <div className="flex justify-end mt-2">
-                <button className="bg-[#F0F2F5] text-black text-center text-sm font-medium py-1.5 px-4 rounded">
-                  {getCtaText(cta)}
-                </button>
-              </div>
-            </div>
           </div>
           
           {/* Engagement */}
-          <div className="p-3 border-t border-[#E4E6EB]">
+          <div className="py-2 px-4 border-t border-[#E4E6EB] bg-white">
             <div className="flex justify-between text-sm text-[#65676B]">
-              <div className="flex items-center gap-1">
-                <ThumbsUpIcon className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <ThumbsUpIcon className="h-5 w-5" />
                 <span>Like</span>
               </div>
-              <div className="flex items-center gap-1">
-                <MessageCircleIcon className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <MessageCircleIcon className="h-5 w-5" />
                 <span>Comment</span>
               </div>
-              <div className="flex items-center gap-1">
-                <ShareIcon className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <ShareIcon className="h-5 w-5" />
                 <span>Share</span>
               </div>
             </div>
