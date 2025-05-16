@@ -812,127 +812,134 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
         
         {/* Advantage+ Settings */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-medium">Advantage+ Creative Enhancements</h3>
-            <div className="text-sm text-gray-500 font-medium">
-              {getActiveEnhancementsCount()} out of 11
-              {getActiveEnhancementsCount() > 0 && (
-                <Badge className="ml-2 bg-[#f6242f] text-white">{getActiveEnhancementsCount()}</Badge>
-              )}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 border rounded-md p-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="translate-text"
-                checked={formData.advantagePlusEnhancements.translateText}
-                onCheckedChange={() => handleToggleEnhancement('translateText')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="translate-text" className="cursor-pointer text-sm">Translate text</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="add-overlays"
-                checked={formData.advantagePlusEnhancements.addOverlays}
-                onCheckedChange={() => handleToggleEnhancement('addOverlays')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="add-overlays" className="cursor-pointer text-sm">Add overlays</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="add-catalog-items"
-                checked={formData.advantagePlusEnhancements.addCatalogItems}
-                onCheckedChange={() => handleToggleEnhancement('addCatalogItems')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="add-catalog-items" className="cursor-pointer text-sm">Add catalog items</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="visual-touch-ups"
-                checked={formData.advantagePlusEnhancements.visualTouchUps}
-                onCheckedChange={() => handleToggleEnhancement('visualTouchUps')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="visual-touch-ups" className="cursor-pointer text-sm">Visual touch-ups</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="music"
-                checked={formData.advantagePlusEnhancements.music}
-                onCheckedChange={() => handleToggleEnhancement('music')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="music" className="cursor-pointer text-sm">Add music</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="animation-3d"
-                checked={formData.advantagePlusEnhancements.animation3d}
-                onCheckedChange={() => handleToggleEnhancement('animation3d')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="animation-3d" className="cursor-pointer text-sm">3D animation</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="text-improvements"
-                checked={formData.advantagePlusEnhancements.textImprovements}
-                onCheckedChange={() => handleToggleEnhancement('textImprovements')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="text-improvements" className="cursor-pointer text-sm">Text improvements</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="store-locations"
-                checked={formData.advantagePlusEnhancements.storeLocations}
-                onCheckedChange={() => handleToggleEnhancement('storeLocations')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="store-locations" className="cursor-pointer text-sm">Add store locations</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="enhance-cta"
-                checked={formData.advantagePlusEnhancements.enhanceCta}
-                onCheckedChange={() => handleToggleEnhancement('enhanceCta')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="enhance-cta" className="cursor-pointer text-sm">Enhance CTA</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="add-site-links"
-                checked={formData.advantagePlusEnhancements.addSiteLinks}
-                onCheckedChange={() => handleToggleEnhancement('addSiteLinks')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="add-site-links" className="cursor-pointer text-sm">Add site links</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="image-animation"
-                checked={formData.advantagePlusEnhancements.imageAnimation}
-                onCheckedChange={() => handleToggleEnhancement('imageAnimation')}
-                className="rounded text-[#f6242f]"
-              />
-              <Label htmlFor="image-animation" className="cursor-pointer text-sm">Image animation</Label>
-            </div>
-          </div>
+          <Accordion type="single" collapsible className="w-full border rounded-md overflow-hidden">
+            <AccordionItem value="advantage-plus" className="border-none">
+              <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 hover:no-underline">
+                <div className="flex items-center justify-between w-full">
+                  <h3 className="text-base font-medium">Advantage+ Creative Enhancements</h3>
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 font-medium">
+                    <span>{getActiveEnhancementsCount()} out of 11</span>
+                    {getActiveEnhancementsCount() > 0 && (
+                      <Badge className="bg-[#f6242f] text-white">{getActiveEnhancementsCount()}</Badge>
+                    )}
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-0 py-0 pb-0">
+                <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 border-t">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="translate-text"
+                      checked={formData.advantagePlusEnhancements.translateText}
+                      onCheckedChange={() => handleToggleEnhancement('translateText')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="translate-text" className="cursor-pointer text-sm">Translate text</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="add-overlays"
+                      checked={formData.advantagePlusEnhancements.addOverlays}
+                      onCheckedChange={() => handleToggleEnhancement('addOverlays')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="add-overlays" className="cursor-pointer text-sm">Add overlays</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="add-catalog-items"
+                      checked={formData.advantagePlusEnhancements.addCatalogItems}
+                      onCheckedChange={() => handleToggleEnhancement('addCatalogItems')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="add-catalog-items" className="cursor-pointer text-sm">Add catalog items</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="visual-touch-ups"
+                      checked={formData.advantagePlusEnhancements.visualTouchUps}
+                      onCheckedChange={() => handleToggleEnhancement('visualTouchUps')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="visual-touch-ups" className="cursor-pointer text-sm">Visual touch-ups</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="music"
+                      checked={formData.advantagePlusEnhancements.music}
+                      onCheckedChange={() => handleToggleEnhancement('music')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="music" className="cursor-pointer text-sm">Add music</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="animation-3d"
+                      checked={formData.advantagePlusEnhancements.animation3d}
+                      onCheckedChange={() => handleToggleEnhancement('animation3d')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="animation-3d" className="cursor-pointer text-sm">3D animation</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="text-improvements"
+                      checked={formData.advantagePlusEnhancements.textImprovements}
+                      onCheckedChange={() => handleToggleEnhancement('textImprovements')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="text-improvements" className="cursor-pointer text-sm">Text improvements</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="store-locations"
+                      checked={formData.advantagePlusEnhancements.storeLocations}
+                      onCheckedChange={() => handleToggleEnhancement('storeLocations')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="store-locations" className="cursor-pointer text-sm">Add store locations</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="enhance-cta"
+                      checked={formData.advantagePlusEnhancements.enhanceCta}
+                      onCheckedChange={() => handleToggleEnhancement('enhanceCta')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="enhance-cta" className="cursor-pointer text-sm">Enhance CTA</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="add-site-links"
+                      checked={formData.advantagePlusEnhancements.addSiteLinks}
+                      onCheckedChange={() => handleToggleEnhancement('addSiteLinks')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="add-site-links" className="cursor-pointer text-sm">Add site links</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="image-animation"
+                      checked={formData.advantagePlusEnhancements.imageAnimation}
+                      onCheckedChange={() => handleToggleEnhancement('imageAnimation')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="image-animation" className="cursor-pointer text-sm">Image animation</Label>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
     </div>
