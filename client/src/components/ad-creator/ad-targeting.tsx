@@ -16,6 +16,14 @@ import { X, Search, Plus, Check, Facebook, Instagram } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 import {
   Accordion,
   AccordionContent,
@@ -453,79 +461,97 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
           <Label className="text-sm font-medium mb-1">Campaigns</Label>
           <div className="relative">
             <div
-              className={`border rounded-md p-2 min-h-[42px] flex flex-wrap gap-2 cursor-pointer ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400 pointer-events-none' : ''}`}
-              onClick={() => {
-                if (isConnected) {
-                  setShowCampaignDropdown(true);
-                }
-              }}
-              data-campaign-dropdown
+              className={`border rounded-md p-2 flex flex-col ${!isConnected || !formData.adAccountId ? 'bg-gray-50 pointer-events-none opacity-60' : ''}`}
             >
-              {isConnected && formData.selectedCampaigns.length > 0 ? (
-                formData.selectedCampaigns.map(campaign => (
-                  <Badge key={campaign.id} variant="secondary" className="flex items-center gap-1 bg-[#F0F2F5] hover:bg-[#E4E6EB]">
+              {/* Search box */}
+              <div className="mb-2 relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder={isConnected && formData.adAccountId 
+                    ? "Search campaigns..." 
+                    : "Connect Meta and select account first"}
+                  className="pl-8 bg-white"
+                  value={searchCampaign}
+                  onChange={(e) => setSearchCampaign(e.target.value)}
+                  disabled={!isConnected || !formData.adAccountId}
+                />
+              </div>
+              
+              {/* Select All */}
+              {isConnected && formData.adAccountId && getAccountCampaigns().length > 0 && (
+                <div className="flex items-center mb-2 px-1">
+                  <Checkbox 
+                    id="select-all-campaigns"
+                    checked={formData.selectedCampaigns.length === getAccountCampaigns().length && getAccountCampaigns().length > 0}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        // Select all campaigns
+                        setFormData(prev => ({
+                          ...prev,
+                          selectedCampaigns: [...getAccountCampaigns()]
+                        }));
+                      } else {
+                        // Deselect all campaigns
+                        setFormData(prev => ({
+                          ...prev,
+                          selectedCampaigns: []
+                        }));
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
+                  />
+                  <Label htmlFor="select-all-campaigns" className="ml-2 text-sm font-medium">
+                    Select All
+                  </Label>
+                </div>
+              )}
+                
+              {/* Separator */}
+              {isConnected && formData.adAccountId && getAccountCampaigns().length > 0 && (
+                <Separator className="mb-2" />
+              )}
+              
+              {/* Campaign list */}
+              <ScrollArea className="h-48 w-full pr-4">
+                {filteredCampaigns.length > 0 ? (
+                  <div className="space-y-1">
+                    {filteredCampaigns.map(campaign => (
+                      <div
+                        key={campaign.id}
+                        className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer"
+                        onClick={() => handleToggleCampaign(campaign)}
+                      >
+                        <Checkbox
+                          checked={formData.selectedCampaigns.some(c => c.id === campaign.id)}
+                          className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
+                          onCheckedChange={() => handleToggleCampaign(campaign)}
+                        />
+                        <span className="text-sm">{campaign.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    {!isConnected || !formData.adAccountId ? 
+                      "Please connect to Meta and select an account" : 
+                      "No campaigns found"}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+            
+            {/* Selected campaigns badges */}
+            {formData.selectedCampaigns.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {formData.selectedCampaigns.map(campaign => (
+                  <Badge key={campaign.id} variant="secondary" className="bg-[#f1f1f1] text-black">
                     {campaign.name}
                     <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveCampaign(campaign.id);
-                      }}
+                      className="h-3 w-3 ml-1 cursor-pointer"
+                      onClick={() => handleRemoveCampaign(campaign.id)}
                     />
                   </Badge>
-                ))
-              ) : (
-                <span className="text-[#65676B] text-sm">
-                  {isConnected ? "Select campaigns" : "Connect Meta to access campaigns"}
-                </span>
-              )}
-            </div>
-
-            {showCampaignDropdown && isConnected && (
-              <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
-                <div className="p-2 border-b">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#65676B]" />
-                    <Input
-                      placeholder="Search campaigns"
-                      className="pl-8"
-                      value={searchCampaign}
-                      onChange={(e) => setSearchCampaign(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                </div>
-                <ScrollArea className="h-60">
-                  <div className="p-2">
-                    {filteredCampaigns.length > 0 ? (
-                      filteredCampaigns.map(campaign => (
-                        <div
-                          key={campaign.id}
-                          className="flex items-center gap-2 p-2 hover:bg-[#F7F8FA] rounded-md cursor-pointer"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            handleToggleCampaign(campaign);
-                          }}
-                        >
-                          <Checkbox
-                            checked={formData.selectedCampaigns.some(c => c.id === campaign.id)}
-                            className="h-4 w-4 text-[#1877F2] rounded border-[#CED0D4]" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleCampaign(campaign);
-                            }}
-                          />
-                          <span>{campaign.name}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-[#65676B]">
-                        No campaigns found
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-                {/* Done button removed - dropdown closes automatically when clicking outside */}
+                ))}
               </div>
             )}
           </div>
