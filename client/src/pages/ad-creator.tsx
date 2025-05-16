@@ -530,6 +530,8 @@ export default function AdCreator() {
             headline={adData.headline}
             description={adData.description}
             cta={adData.cta}
+            storiesMediaUrl={placementMedia.stories}
+            customizedPlacements={adData.customizePlacements}
           />
         </div>
       </div>
