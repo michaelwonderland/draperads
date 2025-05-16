@@ -315,7 +315,7 @@ export function AdTargeting({ onChange, defaultValues }: AdTargetingProps) {
             <div className="flex-1">
               <h3 className="text-base font-medium">Connect Your Meta Account</h3>
               <p className="text-sm text-[#65676B]">
-                Connecting your Meta account unlocks access to your campaigns and ad sets.
+                Meta Page and Instagram Account options will appear after login.
               </p>
             </div>
             <Button 
@@ -573,7 +573,7 @@ export function AdTargeting({ onChange, defaultValues }: AdTargetingProps) {
               disabled={!isConnected}
             >
               <SelectTrigger id="facebook_page" className={`w-full ${!isConnected ? 'bg-gray-50 text-gray-400' : ''}`}>
-                <SelectValue placeholder={isConnected ? "Select a Facebook page" : "Connect Meta to access Facebook pages"} />
+                <SelectValue placeholder={isConnected ? "Select a Facebook page" : "For preview purposes only. Facebook Page options will appear after login"} />
               </SelectTrigger>
               <SelectContent>
                 {mockFacebookPages.map(page => (
@@ -595,7 +595,7 @@ export function AdTargeting({ onChange, defaultValues }: AdTargetingProps) {
               disabled={!isConnected}
             >
               <SelectTrigger id="instagram_account" className={`w-full ${!isConnected ? 'bg-gray-50 text-gray-400' : ''}`}>
-                <SelectValue placeholder={isConnected ? "Select an Instagram account" : "Connect Meta to access Instagram accounts"} />
+                <SelectValue placeholder={isConnected ? "Select an Instagram account" : "For preview purposes only. Instagram Account options will appear after login"} />
               </SelectTrigger>
               <SelectContent>
                 {mockInstagramAccounts.map(account => (
