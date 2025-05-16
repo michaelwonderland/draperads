@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { RecentAds } from "@/components/ad-creator/recent-ads";
 import { Rocket, Layers, Zap, Briefcase } from "lucide-react";
 
 export default function Home() {
@@ -74,8 +73,6 @@ export default function Home() {
           </Link>
         </div>
       </div>
-      
-      <RecentAds />
     </div>
   );
 }
