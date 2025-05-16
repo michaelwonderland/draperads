@@ -94,7 +94,7 @@ export function AdTextForm({ onSubmit, defaultValues }: AdTextFormProps) {
                   />
                 </FormControl>
                 <div className="flex justify-between mt-1">
-                  <span className="text-xs text-[#65676B]">Use {'{first_name}'} to personalize</span>
+                  <span></span>
                   <span className="text-xs text-[#65676B]">{watchPrimaryText.length}/125</span>
                 </div>
                 <FormMessage />

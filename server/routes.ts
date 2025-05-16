@@ -136,8 +136,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (req.file.mimetype.startsWith('image/')) {
         try {
-          const { analyzeImage } = require('./api/image-analysis');
-          suggestions = await analyzeImage(fullPath);
+          // Use dynamic import instead of require
+          const imageAnalysis = await import('./api/image-analysis');
+          suggestions = await imageAnalysis.analyzeImage(fullPath);
         } catch (analyzeError) {
           console.error('Error analyzing image:', analyzeError);
           // Continue without suggestions if analysis fails

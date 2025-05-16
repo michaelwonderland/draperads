@@ -96,14 +96,7 @@ export function MediaUploader({
         <p className="text-destructive text-sm mt-2">{error}</p>
       )}
       
-      {value && !value.match(/\.(mp4|webm|ogg)$/i) && (
-        <div className="mt-2 text-sm text-muted-foreground">
-          <p className="flex items-center gap-1">
-            <AlertCircle className="h-3 w-3" /> 
-            For best results with AI-powered ad copy suggestions, use clear images that showcase your product or service
-          </p>
-        </div>
-      )}
+
     </div>
   );
 }

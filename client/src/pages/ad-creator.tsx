@@ -153,9 +153,18 @@ export default function AdCreator() {
   }) => {
     setAiSuggestions(suggestions);
     
+    // Immediately apply the suggestions to the ad text
+    handleAdTextChange({
+      primaryText: suggestions.suggestedPrimaryText,
+      headline: suggestions.suggestedHeadline,
+      description: suggestions.suggestedDescription,
+      cta: suggestions.suggestedCta,
+      websiteUrl: adData.websiteUrl
+    });
+    
     toast({
-      title: "AI Suggestions Ready",
-      description: "We've generated ad copy based on your image!",
+      title: "AI Text Applied",
+      description: "Ad copy has been updated based on your image",
     });
   };
   
