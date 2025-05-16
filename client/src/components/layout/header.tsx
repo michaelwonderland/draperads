@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Briefcase, Layers, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   DropdownMenu,
@@ -26,7 +26,27 @@ export default function Header() {
     return 1;
   };
   
-  const currentStep = getCurrentStep();
+  // Add useEffect to update when localStorage changes
+  useEffect(() => {
+    const checkForUpdates = () => {
+      const storedStep = localStorage.getItem('adCreatorStep');
+      if (storedStep) {
+        setStep(parseInt(storedStep, 10));
+      }
+    };
+    
+    // Check immediately
+    checkForUpdates();
+    
+    // Set up an interval to check periodically
+    const intervalId = setInterval(checkForUpdates, 200);
+    
+    // Clean up
+    return () => clearInterval(intervalId);
+  }, []);
+  
+  const [step, setStep] = useState(getCurrentStep());
+  const currentStep = step;
   
   // Handle login button click
   const handleLogin = () => {

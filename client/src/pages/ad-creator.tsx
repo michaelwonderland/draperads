@@ -659,14 +659,7 @@ export default function AdCreator() {
               </Button>
             )}
             <div className="flex gap-3">
-              {currentStep < 3 ? (
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/')}
-                >
-                  Cancel
-                </Button>
-              ) : null}
+
               {currentStep < 3 ? (
                 <Button
                   onClick={handleNextStep}
