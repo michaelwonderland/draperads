@@ -72,15 +72,6 @@ export function MediaUploader({
             </Badge>
           </div>
         )}
-        
-        {suggestionsAvailable && !generatingSuggestions && (
-          <div className="flex items-center">
-            <Badge variant="outline" className="bg-green-50 text-green-700 flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3" /> 
-              AI suggestions ready
-            </Badge>
-          </div>
-        )}
       </div>
       
       <FileUpload
