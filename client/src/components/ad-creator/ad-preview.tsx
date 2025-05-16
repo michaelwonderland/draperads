@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   ThumbsUpIcon, 
@@ -25,6 +25,8 @@ interface AdPreviewProps {
   // Brand identity
   facebookPage?: string;
   instagramAccount?: string;
+  // For compact display in summary
+  compact?: boolean;
 }
 
 export function AdPreview({
@@ -38,9 +40,29 @@ export function AdPreview({
   storiesMediaUrl,
   customizedPlacements = false,
   facebookPage,
-  instagramAccount
+  instagramAccount,
+  compact = false
 }: AdPreviewProps) {
   const [viewMode, setViewMode] = useState<'feed' | 'stories'>('feed');
+  const [showFullText, setShowFullText] = useState(false);
+  const [textOverflows, setTextOverflows] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  
+  // Check if text overflows on mount and on text/container change
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (textRef.current) {
+        const isOverflowing = textRef.current.scrollHeight > textRef.current.clientHeight;
+        setTextOverflows(isOverflowing);
+      }
+    };
+    
+    checkOverflow();
+    
+    // Recheck on window resize
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [primaryText, compact, viewMode]);
 
   // Convert CTA code to display text
   const getCtaText = (ctaCode: string): string => {
@@ -68,36 +90,38 @@ export function AdPreview({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-6 sticky top-20">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Ad Preview</h2>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className={viewMode === 'feed' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
-            onClick={() => setViewMode('feed')}
-          >
-            <FacebookIcon className="h-4 w-4 mr-1.5" />
-            Feed
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className={viewMode === 'stories' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
-            onClick={() => setViewMode('stories')}
-          >
-            <InstagramIcon className="h-4 w-4 mr-1.5" />
-            Stories
-          </Button>
+    <div className={`bg-white rounded-lg shadow-sm ${compact ? 'p-0' : 'p-6 mb-6 sticky top-20'}`}>
+      {!compact && (
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Ad Preview</h2>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={viewMode === 'feed' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
+              onClick={() => setViewMode('feed')}
+            >
+              <FacebookIcon className="h-4 w-4 mr-1.5" />
+              Feed
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={viewMode === 'stories' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
+              onClick={() => setViewMode('stories')}
+            >
+              <InstagramIcon className="h-4 w-4 mr-1.5" />
+              Stories
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
       
       {viewMode === 'feed' ? (
         // Facebook Feed Preview
-        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-6">
+        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-0">
           {/* Header */}
           <div className="p-3 border-b border-[#E4E6EB]">
             <div className="flex justify-between items-center">
@@ -126,20 +150,40 @@ export function AdPreview({
           
           {/* Feed Ad Content */}
           <div>
-            <p className="p-3 text-sm">{primaryText}</p>
+            {/* Primary Text with "See more" functionality */}
+            <div className="relative">
+              <p 
+                ref={textRef}
+                className={`p-3 text-sm ${!showFullText && 'max-h-[4.5em] overflow-hidden'}`}
+              >
+                {primaryText}
+              </p>
+              
+              {textOverflows && !showFullText && (
+                <div className="absolute bottom-0 right-0 pl-8 pr-3 pb-1 pt-2 text-right bg-gradient-to-l from-white via-white to-transparent">
+                  <button 
+                    onClick={() => setShowFullText(true)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    ...See more
+                  </button>
+                </div>
+              )}
+            </div>
+            
             <div className="relative">
               {mediaUrl ? (
                 mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
                   <video
                     src={mediaUrl}
                     controls
-                    className="w-full h-auto"
+                    className="w-full h-auto max-h-[300px] object-cover"
                   />
                 ) : (
                   <img
                     src={mediaUrl}
                     alt="Ad content"
-                    className="w-full h-auto"
+                    className="w-full h-auto max-h-[300px] object-cover"
                   />
                 )
               ) : (
@@ -180,7 +224,7 @@ export function AdPreview({
         </div>
       ) : (
         // Instagram Stories Preview (based on Meta's May 2025 design)
-        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-6 max-w-[375px] mx-auto">
+        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-0 max-w-[375px] mx-auto">
           <div className="bg-[#F0F2F5] relative h-[667px]">
             {/* Determine which media to use for Stories */}
             {(() => {
@@ -247,7 +291,6 @@ export function AdPreview({
           </div>
         </div>
       )}
-
     </div>
   );
 }
