@@ -103,7 +103,9 @@ export function AdPreview({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <div className="h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm">
-                  {brandName.charAt(0)}
+                  {(viewMode === 'feed' && facebookPage) 
+                    ? facebookPage.charAt(0) 
+                    : brandName.charAt(0)}
                 </div>
                 <div>
                   <p className="text-sm font-medium">
@@ -216,7 +218,7 @@ export function AdPreview({
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-white overflow-hidden flex items-center justify-center border border-gray-300">
                   <div className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center text-white text-xs bg-[#65676B]">
-                    {brandName.charAt(0)}
+                    {instagramAccount ? instagramAccount.charAt(0).toUpperCase() : brandName.charAt(0)}
                   </div>
                 </div>
                 <div>
