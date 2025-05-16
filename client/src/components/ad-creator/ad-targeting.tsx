@@ -458,18 +458,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                     )}
                   </div>
                 </ScrollArea>
-                <div className="p-2 border-t flex justify-end">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowCampaignDropdown(false);
-                    }}
-                  >
-                    Done
-                  </Button>
-                </div>
+                {/* Done button removed - dropdown closes automatically when clicking outside */}
               </div>
             )}
           </div>
@@ -561,18 +550,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                     )}
                   </div>
                 </ScrollArea>
-                <div className="p-2 border-t flex justify-end">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowAdSetDropdown(false);
-                    }}
-                  >
-                    Done
-                  </Button>
-                </div>
+                {/* Done button removed - dropdown closes automatically when clicking outside */}
               </div>
             )}
           </div>
