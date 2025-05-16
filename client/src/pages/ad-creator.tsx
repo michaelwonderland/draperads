@@ -28,6 +28,12 @@ export default function AdCreator() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [aiSuggestions, setAiSuggestions] = useState<{
+    suggestedHeadline: string;
+    suggestedPrimaryText: string;
+    suggestedDescription: string;
+    suggestedCta: string;
+  } | null>(null);
   
   // Ad content state
   const [adData, setAdData] = useState({
@@ -136,6 +142,21 @@ export default function AdCreator() {
   // Handle media upload
   const handleMediaUpload = (mediaUrl: string) => {
     setAdData(prev => ({ ...prev, mediaUrl }));
+  };
+  
+  // Handle AI-generated suggestions
+  const handleSuggestionsGenerated = (suggestions: {
+    suggestedHeadline: string;
+    suggestedPrimaryText: string;
+    suggestedDescription: string;
+    suggestedCta: string;
+  }) => {
+    setAiSuggestions(suggestions);
+    
+    toast({
+      title: "AI Suggestions Ready",
+      description: "We've generated ad copy based on your image!",
+    });
   };
   
   // Handle template selection
@@ -256,7 +277,8 @@ export default function AdCreator() {
                 
                 {/* Media Uploader */}
                 <MediaUploader 
-                  onMediaUpload={handleMediaUpload} 
+                  onMediaUpload={handleMediaUpload}
+                  onSuggestionsGenerated={handleSuggestionsGenerated}
                   value={adData.mediaUrl}
                 />
                 
@@ -271,7 +293,36 @@ export default function AdCreator() {
               </div>
               
               <div className="border-t pt-8 mb-8">
-                <h3 className="text-lg font-medium mb-6">Ad Copy</h3>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-medium">Ad Copy</h3>
+                  
+                  {aiSuggestions && (
+                    <Button
+                      onClick={() => {
+                        handleAdTextChange({
+                          primaryText: aiSuggestions.suggestedPrimaryText,
+                          headline: aiSuggestions.suggestedHeadline,
+                          description: aiSuggestions.suggestedDescription,
+                          cta: aiSuggestions.suggestedCta,
+                          websiteUrl: adData.websiteUrl
+                        });
+                        
+                        toast({
+                          title: "AI suggestions applied",
+                          description: "The ad copy has been updated with AI-generated suggestions.",
+                        });
+                      }}
+                      type="button"
+                      variant="outline"
+                      className="bg-red-50 text-[#f6242f] hover:bg-red-100 border-red-200 flex items-center gap-1"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
+                        <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                      </svg>
+                      Apply AI Suggestions
+                    </Button>
+                  )}
+                </div>
                 
                 {/* Ad Text Form */}
                 <AdTextForm 
