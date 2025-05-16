@@ -303,7 +303,9 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       
       // Remove its ad sets
       const updatedAdSets = prev.selectedAdSets.filter(adSet => {
-        const matchingAdSet = mockAdSets.find(a => a.id === adSet.id);
+        // Get available adSets for this account
+        const accountAdSets = accountData[prev.adAccountId]?.adSets || [];
+        const matchingAdSet = accountAdSets.find(a => a.id === adSet.id);
         return matchingAdSet && matchingAdSet.campaignId !== campaignId;
       });
       
@@ -599,7 +601,10 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                           <div className="flex-1">
                             <div>{adSet.name}</div>
                             <div className="text-xs text-[#65676B]">
-                              {mockCampaigns.find(c => c.id === adSet.campaignId)?.name}
+                              {
+                                // Find the campaign for this ad set in the account data
+                                accountData[formData.adAccountId]?.campaigns.find(c => c.id === adSet.campaignId)?.name
+                              }
                             </div>
                           </div>
                         </div>
@@ -661,7 +666,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                 <SelectValue placeholder={isConnected ? "Select an Instagram account" : "draperads"} />
               </SelectTrigger>
               <SelectContent>
-                {mockInstagramAccounts.map(account => (
+                {getAccountInstagramAccounts().map(account => (
                   <SelectItem key={account.id} value={account.id}>
                     {account.name}
                   </SelectItem>
