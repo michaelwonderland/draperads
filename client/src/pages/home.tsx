@@ -19,7 +19,7 @@ export default function Home() {
             not rebuilding the same creative for each ad set. Since ad platforms won't fix this 
             fundamental workflow issue, we built DraperAds to do it for you.
           </p>
-          <Link href="/create">
+          <Link href="/ad-creator">
             <Button className="bg-[#f6242f] hover:opacity-90 text-white px-6 py-2 text-lg">
               Create An Ad
             </Button>
@@ -66,7 +66,7 @@ export default function Home() {
           DraperAds flips the process: create once, then deploy across multiple campaigns and ad sets with a single click.
         </p>
         <div className="flex justify-center">
-          <Link href="/create">
+          <Link href="/ad-creator">
             <Button className="bg-[#f6242f] hover:opacity-90 text-white">
               Try DraperAds Now
             </Button>
