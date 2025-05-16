@@ -734,46 +734,49 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
 
         {/* Brand Identity Section */}
         <div>
-          <h3 className="text-base font-medium mb-2">Brand Identity</h3>
-          <p className="text-sm text-[#65676B] mb-4">
-            For previewing purposes only - actual Facebook Page and Instagram Account will appear on the next step
-          </p>
+          <h3 className="text-base font-medium mb-4">Brand Identity</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="fb_page" className="text-sm font-medium mb-1">Facebook Page</Label>
-              <Select
-                onValueChange={handleFacebookPageChange}
-                value={formData.facebookPageId}
-                disabled={!isConnected || !formData.adAccountId}
-              >
-                <SelectTrigger id="fb_page" className={`w-full ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400' : ''}`}>
-                  <SelectValue placeholder="Select Facebook Page" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAccountFacebookPages().map(page => (
-                    <SelectItem key={page.id} value={page.id}>{page.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <Facebook className="h-5 w-5 mr-2 text-[#1877F2]" />
+              <div className="flex-1">
+                <Label htmlFor="fb_page" className="text-sm font-medium">Facebook Page</Label>
+                <Select
+                  onValueChange={handleFacebookPageChange}
+                  value={formData.facebookPageId}
+                  disabled={!isConnected || !formData.adAccountId}
+                >
+                  <SelectTrigger id="fb_page" className={`w-full mt-1 ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400' : ''}`}>
+                    <SelectValue placeholder="Select Facebook Page" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAccountFacebookPages().map(page => (
+                      <SelectItem key={page.id} value={page.id}>{page.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
-            <div>
-              <Label htmlFor="ig_account" className="text-sm font-medium mb-1">Instagram Account</Label>
-              <Select
-                onValueChange={handleInstagramAccountChange}
-                value={formData.instagramAccountId}
-                disabled={!isConnected || !formData.adAccountId}
-              >
-                <SelectTrigger id="ig_account" className={`w-full ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400' : ''}`}>
-                  <SelectValue placeholder="Select Instagram Account" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAccountInstagramAccounts().map(account => (
-                    <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex items-center">
+              <Instagram className="h-5 w-5 mr-2 text-[#E1306C]" />
+              <div className="flex-1">
+                <Label htmlFor="ig_account" className="text-sm font-medium">Instagram Account</Label>
+                <Select
+                  onValueChange={handleInstagramAccountChange}
+                  value={formData.instagramAccountId}
+                  disabled={!isConnected || !formData.adAccountId}
+                >
+                  <SelectTrigger id="ig_account" className={`w-full mt-1 ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400' : ''}`}>
+                    <SelectValue placeholder="Select Instagram Account" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAccountInstagramAccounts().map(account => (
+                      <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
