@@ -65,9 +65,7 @@ interface AdTargetingFormData {
   selectedCampaigns: Campaign[];
   selectedAdSets: AdSet[];
   facebookPageId: string;
-  facebookPageName?: string;
   instagramAccountId: string;
-  instagramAccountName?: string;
   allowMultiAdvertiserAds: boolean;
   enableFlexibleMedia: boolean;
   advantagePlusEnhancements: {
@@ -91,23 +89,8 @@ interface AdSetConfig {
   audience: string;
 }
 
-// Extended type for data passed to parent component
-interface TargetingOutputData {
-  adAccountId: string;
-  adAccountName?: string;
-  campaignObjective: string;
-  campaigns?: any[];
-  placements?: string[];
-  adSets: any[];
-  facebookPageId?: string;
-  instagramAccountId?: string;
-  facebookPageName?: string;
-  instagramAccountName?: string;
-  advancedOptions?: any;
-}
-
 interface AdTargetingProps {
-  onChange: (data: TargetingOutputData) => void;
+  onChange: (data: any) => void;
   defaultValues?: Partial<AdTargetingFormData>;
   onConnectionChange?: (isConnected: boolean) => void;
 }
@@ -207,13 +190,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     // Get the actual Facebook page and Instagram account names
     let facebookPageName = "";
     let instagramAccountName = "";
-    let adAccountName = "";
-    
-    // Find the account name
-    if (data.adAccountId && adAccounts) {
-      const account = adAccounts.find(acc => acc.accountId === data.adAccountId);
-      adAccountName = account?.name || "";
-    }
     
     if (data.facebookPageId && data.adAccountId) {
       const fbPage = accountData[data.adAccountId]?.facebookPages.find(
@@ -229,39 +205,15 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       instagramAccountName = igAccount?.name || "";
     }
     
-    // Map campaigns to get campaign names
-    const campaigns = data.selectedCampaigns.map(campaign => ({
-      id: campaign.id,
-      name: campaign.name,
-      status: campaign.status || 'ACTIVE'
-    }));
-    
-    // Map ad sets with more detailed information
-    const mappedAdSets = data.selectedAdSets.map(adSet => {
-      // Find the campaign this ad set belongs to for better context
-      const campaign = data.selectedCampaigns.find(c => {
-        const accountAdSets = accountData[data.adAccountId]?.adSets || [];
-        const matchingAdSet = accountAdSets.find(a => a.id === adSet.id);
-        return matchingAdSet && matchingAdSet.campaignId === c.id;
-      });
-      
-      return {
-        id: adSet.id,
-        name: adSet.name,
-        campaignId: adSet.campaignId,
-        campaignName: campaign?.name || "",
-        audience: "Broad - 25-54 age range", // default audience
-        status: adSet.status || 'ACTIVE'
-      };
-    });
-    
     return {
       adAccountId: data.adAccountId,
-      adAccountName,
       campaignObjective: "traffic", // default
-      campaigns, // Include full campaign data
       placements: ["facebook", "instagram"], // default
-      adSets: mappedAdSets, // Enhanced ad sets with campaign info
+      adSets: data.selectedAdSets.map(adSet => ({
+        id: adSet.id,
+        name: adSet.name,
+        audience: "Broad - 25-54 age range" // default audience
+      })),
       facebookPageId: data.facebookPageId,
       instagramAccountId: data.instagramAccountId,
       facebookPageName,
@@ -382,25 +334,11 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   };
 
   const handleFacebookPageChange = (value: string) => {
-    // Find the corresponding page name for the selected ID
-    const selectedPage = getAccountFacebookPages().find(page => page.id === value);
-    
-    setFormData(prev => ({ 
-      ...prev, 
-      facebookPageId: value,
-      facebookPageName: selectedPage?.name || "" 
-    }));
+    setFormData(prev => ({ ...prev, facebookPageId: value }));
   };
 
   const handleInstagramAccountChange = (value: string) => {
-    // Find the corresponding account name for the selected ID
-    const selectedAccount = getAccountInstagramAccounts().find(account => account.id === value);
-    
-    setFormData(prev => ({ 
-      ...prev, 
-      instagramAccountId: value,
-      instagramAccountName: selectedAccount?.name || ""
-    }));
+    setFormData(prev => ({ ...prev, instagramAccountId: value }));
   };
 
   const handleToggleEnhancement = (key: keyof AdTargetingFormData['advantagePlusEnhancements']) => {
@@ -503,7 +441,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">Distribution Settings</h2>
       <p className="text-sm text-[#65676B] mb-6">
-        Connect your Meta account to select campaigns and ad sets.
+        Choose where to deploy the ad you just created.
       </p>
       
       <div className="space-y-6">

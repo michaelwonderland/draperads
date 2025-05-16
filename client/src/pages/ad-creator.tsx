@@ -10,7 +10,6 @@ import { AdTextForm } from "@/components/ad-creator/ad-text-form";
 import { BrandSettings } from "@/components/ad-creator/brand-settings";
 import { AdTargeting } from "@/components/ad-creator/ad-targeting";
 import { AdPreview } from "@/components/ad-creator/ad-preview";
-import { AdSummary } from "@/components/ad-creator/ad-summary";
 import { CombinedTypeSelector } from "@/components/ad-creator/combined-type-selector";
 import { PlacementCustomizer } from "@/components/ad-creator/placement-customizer";
 import { AuthDialog } from "@/components/auth/auth-dialog";
@@ -46,15 +45,10 @@ export default function AdCreator() {
     enabled: true,
     retry: false, // Don't retry if no draft is found
     staleTime: 60 * 1000, // Cache for 1 minute
-    // In newer versions of React-Query, onSettled is used differently, we'll update this 
-    onSuccess: () => {
-      setIsLoadingDraft(false);
-    },
-    onError: () => {
+    onSettled: () => {
       setIsLoadingDraft(false);
     }
   });
-  
   const [aiSuggestions, setAiSuggestions] = useState<{
     suggestedHeadline: string;
     suggestedPrimaryText: string;
@@ -62,100 +56,6 @@ export default function AdCreator() {
     suggestedCta: string;
   } | null>(null);
   const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
-  
-  // Ad content state
-  const [adData, setAdData] = useState({
-    templateId: 1,
-    adType: "conversions", // "conversions", "leads", "reach"
-    adFormat: "image", // "image", "carousel", "collection"
-    mediaUrl: "",
-    primaryText: "Transform your social media presence with our AI-powered design tools. No design skills needed!",
-    headline: "Create stunning ads in minutes!",
-    description: "No design skills needed. Try it today!",
-    cta: "sign_up",
-    websiteUrl: "https://example.com/signup",
-    brandName: "DraperAds",
-    status: "draft",
-    customizePlacements: false, // Whether to use different creatives for different placements
-    facebookPage: "",
-    instagramAccount: "",
-    facebookPageId: "",
-    instagramAccountId: "",
-    hasAppliedAiSuggestions: false // Track whether AI suggestions are applied
-  });
-  
-  // Ad targeting state
-  const [targetingData, setTargetingData] = useState({
-    adAccountId: "account_1",
-    campaignObjective: "traffic",
-    placements: ["facebook", "instagram"],
-    adSets: [
-      { id: "set1", name: "Main Audience", audience: "Broad - 25-54 age range" }
-    ],
-    facebookPageId: "",
-    instagramAccountId: "",
-    facebookPageName: "",
-    instagramAccountName: ""
-  });
-  
-  // Meta connection state
-  const [isMetaConnected, setIsMetaConnected] = useState(false);
-  
-  // Create or update ad mutation
-  const createAdMutation = useMutation({
-    mutationFn: async () => {
-      // Include current step and additional ad type fields when saving
-      const adDataToSave = {
-        ...adData,
-        adType: adData.adType,
-        adFormat: adData.adFormat,
-        customizePlacements: adData.customizePlacements
-      };
-      
-      const response = await apiRequest('POST', '/api/ads', adDataToSave);
-      return await response.json();
-    },
-    onSuccess: (ad) => {
-      toast({
-        title: "Draft saved",
-        description: "Your ad has been saved as a draft.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/ads/draft/latest'] });
-    },
-    onError: (error: any) => {
-      console.error("Failed to save ad draft:", error);
-      // Don't show error toast as this happens in the background
-    }
-  });
-  
-  // Publish ad mutation
-  const publishAdMutation = useMutation({
-    mutationFn: async (adId: number) => {
-      const requestData = {
-        adId,
-        targeting: targetingData
-      };
-      
-      const response = await apiRequest('POST', '/api/ads/publish', requestData);
-      return await response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Ad published!",
-        description: "Your ad is now being processed and will be live soon.",
-      });
-      
-      // Navigate to history page to see published ads
-      navigate('/ad-history');
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Publish failed",
-        description: `Failed to publish ad: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  });
   
   // Load latest draft when available
   useEffect(() => {
@@ -174,10 +74,8 @@ export default function AdCreator() {
         brandName: latestDraft.brandName || "DraperAds",
         status: latestDraft.status || "draft",
         customizePlacements: false,
-        facebookPage: latestDraft.facebookPage || "",
-        instagramAccount: latestDraft.instagramAccount || "",
-        facebookPageId: latestDraft.facebookPageId || "",
-        instagramAccountId: latestDraft.instagramAccountId || "",
+        facebookPage: "",
+        instagramAccount: "",
         hasAppliedAiSuggestions: false
       });
       
@@ -200,76 +98,222 @@ export default function AdCreator() {
     rightColumn: ""
   });
   
-  // AI Suggestions
+  // Ad content state
+  const [adData, setAdData] = useState({
+    templateId: 1,
+    adType: "conversions", // "conversions", "leads", "reach"
+    adFormat: "image", // "image", "carousel", "collection"
+    mediaUrl: "",
+    primaryText: "Transform your social media presence with our AI-powered design tools. No design skills needed!",
+    headline: "Create stunning ads in minutes!",
+    description: "No design skills needed. Try it today!",
+    cta: "sign_up",
+    websiteUrl: "https://example.com/signup",
+    brandName: "DraperAds",
+    status: "draft",
+    customizePlacements: false, // Whether to use different creatives for different placements
+    facebookPage: "",
+    instagramAccount: "",
+    hasAppliedAiSuggestions: false // Track whether AI suggestions are applied
+  });
+  
+  // Ad targeting state
+  const [targetingData, setTargetingData] = useState({
+    adAccountId: "account_1",
+    campaignObjective: "traffic",
+    placements: ["facebook", "instagram"],
+    adSets: [
+      { id: "set1", name: "Main Audience", audience: "Broad - 25-54 age range" }
+    ],
+    facebookPageId: "",
+    instagramAccountId: ""
+  });
+  
+  // Meta connection state
+  const [isMetaConnected, setIsMetaConnected] = useState(false);
+  
+  // Create or update ad mutation
+  const createAdMutation = useMutation({
+    mutationFn: async () => {
+      // Include current step and additional ad type fields when saving
+      const adDataToSave = {
+        ...adData,
+        adType: adData.adType,
+        adFormat: adData.adFormat,
+        customizePlacements: adData.customizePlacements
+      };
+      
+      const response = await apiRequest('POST', '/api/ads', adDataToSave);
+      return await response.json();
+    },
+    onSuccess: (ad) => {
+      toast({
+        title: "Progress Saved",
+        description: "Your ad creative has been saved as a draft.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/ads'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ads/draft/latest'] });
+      return ad;
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to save ad: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Publish ad mutation
+  const publishAdMutation = useMutation({
+    mutationFn: async (adId: number) => {
+      // Create one publish request for each ad set
+      const promises = targetingData.adSets.map(adSet => {
+        const publishData = {
+          adId,
+          adSetData: {
+            name: adSet.name,
+            accountId: targetingData.adAccountId.replace('account_', ''),
+            campaignObjective: targetingData.campaignObjective,
+            placements: targetingData.placements,
+            adId,
+          }
+        };
+        return apiRequest('POST', '/api/publish', publishData);
+      });
+      
+      // Process responses
+      try {
+        const responses = await Promise.all(promises);
+        const results = await Promise.all(responses.map(res => res.json()));
+        return results;
+      } catch (error: any) {
+        // Handle 401 unauthorized errors (user not logged in)
+        if (error.response && error.response.status === 401) {
+          throw new Error("Authentication required");
+        }
+        throw error;
+      }
+    },
+    onSuccess: async (results) => {
+      toast({
+        title: "Success",
+        description: `Your ad has been published to ${targetingData.adSets.length} ad sets.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/ads'] });
+      navigate('/ad-history');
+    },
+    onError: (error: any) => {
+      // If it's an authentication error, we already show the auth dialog
+      if (error.message === "Authentication required") {
+        return;
+      }
+      
+      toast({
+        title: "Error",
+        description: `Failed to publish ad: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Handle media upload
+  const handleMediaUpload = (mediaUrl: string) => {
+    setAdData(prev => ({ ...prev, mediaUrl }));
+  };
+  
+  // Handle AI-generated suggestions
   const handleSuggestionsGenerated = (suggestions: {
     suggestedHeadline: string;
     suggestedPrimaryText: string;
     suggestedDescription: string;
     suggestedCta: string;
   }) => {
-    setAiSuggestions(suggestions);
-    
-    // Automatically apply the suggestions
-    handleAdTextChange({
-      primaryText: suggestions.suggestedPrimaryText,
-      headline: suggestions.suggestedHeadline,
-      description: suggestions.suggestedDescription,
-      cta: suggestions.suggestedCta,
-      websiteUrl: adData.websiteUrl
-    });
-    
-    setAdData(prev => ({
-      ...prev,
-      hasAppliedAiSuggestions: true
-    }));
-    
-    toast({
-      title: "AI suggestions applied",
-      description: "The ad copy has been updated with AI-generated suggestions based on your image.",
-    });
-    
-    setGeneratingSuggestions(false);
-  };
-  
-  // Handle media upload
-  const handleMediaUpload = (mediaUrl: string) => {
-    setAdData(prev => ({ ...prev, mediaUrl }));
+    // Start generating suggestions
     setGeneratingSuggestions(true);
+    
+    // Simulate a short delay to show the generating indicator
+    setTimeout(() => {
+      setAiSuggestions(suggestions);
+      setGeneratingSuggestions(false);
+      
+      // Immediately apply the suggestions to the ad text
+      handleAdTextChange({
+        primaryText: suggestions.suggestedPrimaryText,
+        headline: suggestions.suggestedHeadline,
+        description: suggestions.suggestedDescription,
+        cta: suggestions.suggestedCta,
+        websiteUrl: adData.websiteUrl
+      });
+      
+      // Update the hasAppliedAiSuggestions flag
+      setAdData(prev => ({
+        ...prev,
+        hasAppliedAiSuggestions: true
+      }));
+      
+      toast({
+        title: "AI Suggestions Applied",
+        description: "Ad copy has been updated based on your image",
+      });
+    }, 2000); // Show generating for 2 seconds to make it more visible
   };
   
-  // Handle ad text changes
+  // Handle template selection
+  const handleTemplateSelect = (templateId: number) => {
+    setAdData(prev => ({ ...prev, templateId }));
+  };
+  
+  // Handle ad text form submission
   const handleAdTextChange = (values: any) => {
-    setAdData(prev => ({
-      ...prev,
-      primaryText: values.primaryText,
-      headline: values.headline,
-      description: values.description,
-      cta: values.cta,
-      websiteUrl: values.websiteUrl
-    }));
+    // If AI suggestions exist and were applied, check if user has modified the AI suggested text
+    if (aiSuggestions && adData.hasAppliedAiSuggestions) {
+      const isModified = 
+        (values.primaryText !== undefined && values.primaryText !== aiSuggestions.suggestedPrimaryText) ||
+        (values.headline !== undefined && values.headline !== aiSuggestions.suggestedHeadline) ||
+        (values.description !== undefined && values.description !== aiSuggestions.suggestedDescription);
+      
+      if (isModified) {
+        // User modified AI suggested text, update flag
+        setAdData(prev => ({ 
+          ...prev, 
+          ...values,
+          hasAppliedAiSuggestions: false
+        }));
+      } else {
+        // No modification to AI suggested text
+        setAdData(prev => ({ 
+          ...prev, 
+          ...values 
+        }));
+      }
+    } else {
+      // No AI suggestions or they weren't applied
+      setAdData(prev => ({ 
+        ...prev, 
+        ...values 
+      }));
+    }
   };
   
-  // Handle brand change
+  // Handle brand settings change
   const handleBrandChange = (values: { brandName: string }) => {
     setAdData(prev => ({ ...prev, brandName: values.brandName }));
   };
+  
+  // Handle ad type and format change - these are now handled directly in the component
   
   // Handle targeting change
   const handleTargetingChange = (values: any) => {
     setTargetingData(values);
     
-    // Store both Facebook and Instagram IDs and names to ensure they persit between steps
-    setAdData(prev => ({
-      ...prev,
-      facebookPage: values.facebookPageName || prev.facebookPage || "",
-      instagramAccount: values.instagramAccountName || prev.instagramAccount || "",
-      facebookPageId: values.facebookPageId || prev.facebookPageId || "",
-      instagramAccountId: values.instagramAccountId || prev.instagramAccountId || ""
-    }));
-    
-    // Update the Meta connection status based on ad account selection
-    if (values.adAccountId) {
-      setIsMetaConnected(true);
+    // Use the Facebook page and Instagram account names directly from the targeting data
+    if (values.facebookPageName || values.instagramAccountName) {
+      setAdData(prev => ({
+        ...prev,
+        facebookPage: values.facebookPageName || "",
+        instagramAccount: values.instagramAccountName || ""
+      }));
     }
   };
   
@@ -291,29 +335,8 @@ export default function AdCreator() {
     }
   };
   
-  // Move to summary/publish step
+  // Publish ad
   const handlePublish = async () => {
-    // First save the ad if it's not saved yet (to keep a draft)
-    try {
-      // Save the current ad data
-      await createAdMutation.mutateAsync();
-      
-      // Move to the summary step
-      setCurrentStep(3);
-      
-      // Update localStorage to sync with header
-      localStorage.setItem('adCreatorStep', '3');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: `Failed to save ad: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-  
-  // Final submission with account creation
-  const handleFinalSubmit = async (email: string) => {
     // Check if user is authenticated
     if (!isAuthenticated && !authLoading) {
       // Show auth dialog if not authenticated
@@ -321,7 +344,7 @@ export default function AdCreator() {
       return;
     }
     
-    // Publish the ad with the created account
+    // First save the ad if it's not saved yet
     try {
       let adId;
       if (!createAdMutation.data) {
@@ -334,16 +357,13 @@ export default function AdCreator() {
       
       if (adId) {
         publishAdMutation.mutate(adId);
-        
-        // Navigate to the ad history page
-        navigate('/ad-history');
       } else {
         throw new Error("Failed to get ad ID");
       }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: `Failed to publish ad: ${error.message}`,
+        description: `Failed to save ad: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -354,35 +374,21 @@ export default function AdCreator() {
     setShowAuthDialog(false);
   };
   
-  // After successful login
+  // Handle successful login
   const handleLoginSuccess = () => {
-    setShowAuthDialog(false);
-    
-    // Try publishing again now that we're authenticated
-    handleFinalSubmit("");
+    // Continue with ad publishing
+    handlePublish();
   };
-  
-  // Handle step changes
-  const handleStepChange = (step: number) => {
-    // If moving forward, validate step
-    if (step > currentStep) {
-      // Step 1 to 2: Validate ad design
-      if (currentStep === 1 && step === 2) {
-        if (!adData.mediaUrl) {
-          toast({
-            title: "Media required",
-            description: "Please upload an image or video for your ad.",
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-      
-      // Save current progress
-      setCurrentStep(step);
+
+  // Handle next step
+  const handleNextStep = () => {
+    if (currentStep < 3) {
+      // Immediately move to the next step
+      const newStep = currentStep + 1;
+      setCurrentStep(newStep);
       
       // Update localStorage to sync with header
-      localStorage.setItem('adCreatorStep', step.toString());
+      localStorage.setItem('adCreatorStep', newStep.toString());
       
       // Try to save in the background without blocking
       try {
@@ -390,12 +396,25 @@ export default function AdCreator() {
       } catch (error) {
         console.log("Background save attempt will continue in the background");
       }
-    } else {
-      // Moving backward is always allowed
-      setCurrentStep(step);
+    }
+  };
+
+  // Handle previous step
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      // Immediately move to previous step without waiting
+      const newStep = currentStep - 1;
+      setCurrentStep(newStep);
       
       // Update localStorage to sync with header
-      localStorage.setItem('adCreatorStep', step.toString());
+      localStorage.setItem('adCreatorStep', newStep.toString());
+      
+      // Try to save in the background without blocking
+      try {
+        createAdMutation.mutate();
+      } catch (error) {
+        console.log("Background save attempt will continue in the background");
+      }
     }
   };
   
@@ -409,24 +428,12 @@ export default function AdCreator() {
         message="You need to sign in to publish your ad to Meta Ad Sets"
       />
       
-      {/* Summary view (full width) */}
-      {currentStep === 3 ? (
-        <div className="w-full">
-          <AdSummary 
-            adData={adData}
-            targetingData={targetingData}
-            onComplete={handleFinalSubmit}
-            onBack={() => {
-              setCurrentStep(2);
-              localStorage.setItem('adCreatorStep', '2');
-            }}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Editor Panel */}
-          <div className="lg:w-7/12">
-            {currentStep === 1 && (
+
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Editor Panel */}
+        <div className="lg:w-7/12">
+          {currentStep === 1 && (
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h2 className="text-xl font-semibold mb-6">Design Your Ad</h2>
               
@@ -488,36 +495,6 @@ export default function AdCreator() {
                             </Badge>
                             <Button
                               onClick={() => {
-                                handleAdTextChange({
-                                  primaryText: aiSuggestions.suggestedPrimaryText,
-                                  headline: aiSuggestions.suggestedHeadline,
-                                  description: aiSuggestions.suggestedDescription,
-                                  cta: aiSuggestions.suggestedCta,
-                                  websiteUrl: adData.websiteUrl
-                                });
-                                
-                                setAdData(prev => ({
-                                  ...prev,
-                                  hasAppliedAiSuggestions: true
-                                }));
-                                
-                                toast({
-                                  title: "AI suggestions restored",
-                                  description: "The ad copy has been restored to AI-generated suggestions.",
-                                });
-                              }}
-                              type="button"
-                              variant="outline"
-                              className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1"
-                              size="sm"
-                            >
-                              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                                <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-                              </svg>
-                              Restore AI suggestions
-                            </Button>
-                            <Button
-                              onClick={() => {
                                 setAdData(prev => ({
                                   ...prev,
                                   primaryText: "",
@@ -565,12 +542,11 @@ export default function AdCreator() {
                               type="button"
                               variant="outline"
                               className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1"
-                              size="sm"
                             >
                               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
                                 <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
                               </svg>
-                              Apply AI suggestions
+                              Restore AI suggestions
                             </Button>
                             <Button
                               onClick={() => {
@@ -625,104 +601,141 @@ export default function AdCreator() {
                 />
               </div>
             </div>
-            )}
-            
-            {currentStep === 2 && (
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Choose where to deploy the ad you just created</h2>
-              
-              {/* Ad Targeting Form */}
-              <AdTargeting 
-                onChange={handleTargetingChange}
-                onConnectionChange={setIsMetaConnected}
-                defaultValues={targetingData}
-              />
-            </div>
-            )}
-            
-            {/* Bottom Button Bar */}
-            <div className="flex justify-between mb-6 bg-white p-4 rounded-lg shadow-sm">
-              <div>
-                {currentStep > 1 && (
-                  <Button 
-                    onClick={() => handleStepChange(currentStep - 1)}
-                    variant="outline"
-                  >
-                    Back
-                  </Button>
-                )}
-              </div>
-              
-              <div className="flex gap-3">
-                <Button 
-                  onClick={handleSaveDraft}
-                  variant="outline"
-                  disabled={createAdMutation.isPending || !adData.mediaUrl}
-                >
-                  {createAdMutation.isPending ? "Saving..." : "Save Draft"}
-                </Button>
-                
-                {currentStep < 3 ? (
-                  <Button
-                    onClick={currentStep === 1 
-                      ? () => handleStepChange(2) 
-                      : handlePublish}
-                    disabled={
-                      !adData.mediaUrl || 
-                      (currentStep === 2 && (
-                        !isMetaConnected || 
-                        targetingData.adSets.length === 0 || 
-                        !targetingData.facebookPageId
-                      ))
-                    }
-                    className={`${(
-                      !adData.mediaUrl || 
-                      (currentStep === 2 && (
-                        !isMetaConnected || 
-                        targetingData.adSets.length === 0 || 
-                        !targetingData.facebookPageId
-                      ))
-                    ) ? 
-                      "bg-[#f6242f]/50 hover:bg-[#f6242f]/50 cursor-not-allowed" : 
-                      "bg-[#f6242f] hover:opacity-90"
-                    } text-white`}
-                  >
-                    {currentStep === 1 ? "Create Ad" : "Launch"}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handlePublish}
-                    disabled={publishAdMutation.isPending || !adData.mediaUrl || targetingData.adSets.length === 0}
-                    className="bg-[#f6242f] hover:opacity-90 text-white"
-                  >
-                    {publishAdMutation.isPending ? 
-                      "Launching..." : 
-                      `Launch to ${targetingData.adSets.length} Ad Set${targetingData.adSets.length !== 1 ? 's' : ''}`
-                    }
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+          )}
           
-          {/* Preview Panel */}
-          <div className="lg:w-5/12">
-            <AdPreview
-              brandName={adData.brandName}
-              mediaUrl={adData.mediaUrl}
-              primaryText={adData.primaryText}
-              websiteUrl={adData.websiteUrl}
-              headline={adData.headline}
-              description={adData.description}
-              cta={adData.cta}
-              storiesMediaUrl={placementMedia.stories}
-              customizedPlacements={adData.customizePlacements}
-              facebookPage={adData.facebookPage}
-              instagramAccount={adData.instagramAccount}
+          {/* Ad Targeting - Step 2 */}
+          {currentStep === 2 && (
+            <AdTargeting 
+              onChange={handleTargetingChange} 
+              defaultValues={targetingData} 
+              onConnectionChange={setIsMetaConnected} 
             />
+          )}
+
+          {/* Launch Preview - Step 3 */}
+          {currentStep === 3 && (
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Launch Preview</h2>
+              <p className="text-sm text-[#65676B] mb-6">
+                Review your ad creative and distribution settings before launching.
+              </p>
+              
+              <div className="border border-[#E4E6EB] rounded-md p-4 mb-4">
+                <h3 className="font-medium mb-2">Ad Creative</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="text-[#65676B]">Brand:</div>
+                  <div>{adData.brandName}</div>
+                  <div className="text-[#65676B]">Headline:</div>
+                  <div>{adData.headline}</div>
+                  <div className="text-[#65676B]">Media:</div>
+                  <div>{adData.mediaUrl ? "✓ Uploaded" : "No media"}</div>
+                </div>
+              </div>
+              
+              <div className="border border-[#E4E6EB] rounded-md p-4 mb-6">
+                <h3 className="font-medium mb-2">Distribution</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="text-[#65676B]">Campaign objective:</div>
+                  <div className="capitalize">{targetingData.campaignObjective}</div>
+                  <div className="text-[#65676B]">Placements:</div>
+                  <div>{targetingData.placements.join(', ')}</div>
+                  <div className="text-[#65676B]">Ad Sets:</div>
+                  <div>{targetingData.adSets.length}</div>
+                </div>
+              </div>
+
+              <div className="border border-[#E4E6EB] rounded-md p-4 mb-6">
+                <h3 className="font-medium mb-2">Ad Sets ({targetingData.adSets.length})</h3>
+                <div className="space-y-3">
+                  {targetingData.adSets.map((adSet, index) => (
+                    <div key={adSet.id} className="border-b border-[#E4E6EB] last:border-0 pb-2 last:pb-0">
+                      <div className="font-medium">{adSet.name}</div>
+                      <div className="text-sm text-[#65676B]">Audience: {adSet.audience}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Action Buttons */}
+          <div className="flex justify-between">
+            {currentStep === 1 ? (
+              <Button
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={createAdMutation.isPending}
+              >
+                {createAdMutation.isPending ? "Saving..." : "Save Draft"}
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={handlePrevStep}
+              >
+                Back
+              </Button>
+            )}
+            <div className="flex gap-3">
+
+              {currentStep < 3 ? (
+                <Button
+                  onClick={handleNextStep}
+                  disabled={
+                    (currentStep === 1 && !adData.mediaUrl) || 
+                    (currentStep === 2 && (
+                      !isMetaConnected ||
+                      !targetingData.adAccountId || 
+                      targetingData.adSets.length === 0 || 
+                      !targetingData.facebookPageId
+                    ))
+                  }
+                  className={`${
+                    (currentStep === 2 && (
+                      !isMetaConnected ||
+                      !targetingData.adAccountId || 
+                      targetingData.adSets.length === 0 || 
+                      !targetingData.facebookPageId
+                    )) ? 
+                    "bg-[#f6242f]/50 hover:bg-[#f6242f]/50 cursor-not-allowed" : 
+                    "bg-[#f6242f] hover:opacity-90"
+                  } text-white`}
+                >
+                  {currentStep === 1 ? "Create Ad" : "Launch"}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handlePublish}
+                  disabled={publishAdMutation.isPending || !adData.mediaUrl || targetingData.adSets.length === 0}
+                  className="bg-[#f6242f] hover:opacity-90 text-white"
+                >
+                  {publishAdMutation.isPending ? 
+                    "Launching..." : 
+                    `Launch to ${targetingData.adSets.length} Ad Set${targetingData.adSets.length !== 1 ? 's' : ''}`
+                  }
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      )}
+        
+        {/* Preview Panel */}
+        <div className="lg:w-5/12">
+          <AdPreview
+            brandName={adData.brandName}
+            mediaUrl={adData.mediaUrl}
+            primaryText={adData.primaryText}
+            websiteUrl={adData.websiteUrl}
+            headline={adData.headline}
+            description={adData.description}
+            cta={adData.cta}
+            storiesMediaUrl={placementMedia.stories}
+            customizedPlacements={adData.customizePlacements}
+            facebookPage={adData.facebookPage}
+            instagramAccount={adData.instagramAccount}
+          />
+        </div>
+      </div>
     </div>
   );
 }
