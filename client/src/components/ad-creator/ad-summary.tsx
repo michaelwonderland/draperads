@@ -136,16 +136,17 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold mb-2">Your Ad Is Ready For Launch</h1>
+        <div className="text-center mb-3">
+          <h1 className="text-lg font-bold">Your Ad Is Ready For Launch</h1>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-6 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
           {/* Left Column - Ad Preview */}
           <div className="md:w-1/2">
             <div className="mb-4">
+              <h3 className="text-sm font-semibold mb-2 text-gray-600">Ad Preview</h3>
               <AdPreview
                 brandName={adData.brandName}
                 mediaUrl={adData.mediaUrl}
@@ -163,15 +164,15 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
             </div>
             
             {/* Distribution Details - Simplified */}
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-              <h2 className="text-base font-semibold mb-3">Distribution Details</h2>
+            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+              <h2 className="text-sm font-semibold mb-3">Distribution Details</h2>
               
               <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {/* Meta Account */}
                 <div className="col-span-2">
                   <div className="flex items-center">
-                    <div className="rounded-full bg-blue-100 p-1.5 mr-2 flex-shrink-0">
-                      <Facebook className="h-3.5 w-3.5 text-blue-600" />
+                    <div className="rounded-full bg-blue-100 p-1 mr-2 flex-shrink-0">
+                      <Facebook className="h-3 w-3 text-blue-600" />
                     </div>
                     <div className="overflow-hidden">
                       <h3 className="text-xs font-medium">Meta Ad Account</h3>
@@ -221,48 +222,48 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
           
           {/* Right Column - Account Creation */}
           <div className="md:w-1/2">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4 text-center">Create an Account to Deploy Your Ad</h2>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h2 className="text-base font-semibold mb-3 text-center">Create an Account to Deploy Your Ad</h2>
               
               {!showEmailSignup ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Google Sign Up */}
                   <Button 
                     onClick={handleContinueWithGoogle}
                     variant="outline" 
-                    className="w-full py-6 flex justify-center items-center"
+                    className="w-full py-3 flex justify-center items-center"
                     disabled={isSubmitting}
                   >
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="h-6 w-6 mr-3" />
-                    <span className="text-base">Continue with Google</span>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="h-5 w-5 mr-2" />
+                    <span>Continue with Google</span>
                   </Button>
                   
                   {/* Facebook Sign Up */}
                   <Button 
                     onClick={handleContinueWithFacebook}
                     variant="outline" 
-                    className="w-full py-6 flex justify-center items-center"
+                    className="w-full py-3 flex justify-center items-center"
                     disabled={isSubmitting}
                   >
-                    <Facebook className="h-6 w-6 mr-3 text-blue-600" />
-                    <span className="text-base">Continue with Facebook</span>
+                    <Facebook className="h-5 w-5 mr-2 text-blue-600" />
+                    <span>Continue with Facebook</span>
                   </Button>
                   
                   {/* Email Sign Up */}
                   <Button
                     onClick={() => setShowEmailSignup(true)}
                     variant="link"
-                    className="w-full text-indigo-600 hover:text-indigo-800 text-base py-3"
+                    className="w-full text-indigo-600 hover:text-indigo-800 text-sm py-2"
                     disabled={isSubmitting}
                   >
                     Continue with Email
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Name Input */}
                   <div>
-                    <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                    <Label htmlFor="name" className="text-xs font-medium">Name</Label>
                     <div className="relative">
                       <Input 
                         id="name" 
@@ -270,13 +271,13 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                         placeholder="Enter your name..." 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="mt-1 pr-10"
+                        className="mt-1 pr-10 h-8 text-sm"
                       />
                       {name && (
                         <Button 
                           type="button" 
                           variant="ghost" 
-                          className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400"
+                          className="absolute right-0 top-0 h-full px-2 py-1 text-gray-400"
                           onClick={() => setName("")}
                         >
                           <span className="sr-only">Clear</span>
@@ -288,20 +289,20 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                   
                   {/* Email Input */}
                   <div>
-                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                    <Label htmlFor="email" className="text-xs font-medium">Email</Label>
                     <Input 
                       id="email" 
                       type="email" 
                       placeholder="Enter your email address..." 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="mt-1"
+                      className="mt-1 h-8 text-sm"
                     />
                   </div>
                   
                   {/* Password Input */}
                   <div>
-                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <Label htmlFor="password" className="text-xs font-medium">Password</Label>
                     <div className="relative">
                       <Input 
                         id="password" 
@@ -309,23 +310,23 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                         placeholder="Enter a secure password..." 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="mt-1 pr-10"
+                        className="mt-1 pr-10 h-8 text-sm"
                       />
                       <Button 
                         type="button" 
                         variant="ghost" 
-                        className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400"
+                        className="absolute right-0 top-0 h-full px-2 py-1 text-gray-400"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
                   
                   <Button
                     onClick={handleCreateAccount}
-                    className="w-full mt-6 py-6 bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="w-full mt-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Creating Account..." : "Continue"}
@@ -334,24 +335,45 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                   <Button
                     onClick={() => setShowEmailSignup(false)}
                     variant="link"
-                    className="flex items-center justify-center w-full text-gray-600 hover:text-gray-800"
+                    className="flex items-center justify-center w-full text-gray-600 hover:text-gray-800 text-xs py-1"
                   >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <ChevronLeft className="h-3 w-3 mr-1" />
                     Back to social login
                   </Button>
                 </div>
               )}
               
               {/* Bottom navigation */}
-              <div className="mt-8 pt-4 border-t border-gray-200">
+              <div className="mt-4 pt-3 border-t border-gray-200">
                 <Button
                   onClick={onBack}
                   variant="outline"
-                  className="w-full"
+                  className="w-full py-2 text-sm"
                 >
                   Back to targeting
                 </Button>
               </div>
+            </div>
+            
+            {/* Deploy section */}
+            <div className="mt-4 bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-semibold">Final Step</h3>
+                <Badge variant="outline" className="text-xs border-orange-200 text-orange-800 bg-orange-50">
+                  Account Required
+                </Badge>
+              </div>
+              
+              <Button
+                className="w-full bg-[#f6242f] hover:bg-[#d21e28] text-white py-3"
+                disabled={targetingData.adSets.length === 0 || isSubmitting}
+              >
+                Deploy Ad to Meta
+              </Button>
+              
+              <p className="mt-2 text-xs text-gray-500 text-center">
+                Your ad will be sent to Meta for approval after deployment
+              </p>
             </div>
           </div>
         </div>

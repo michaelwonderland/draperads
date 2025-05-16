@@ -120,13 +120,13 @@ export function AdPreview({
       )}
       
       {viewMode === 'feed' ? (
-        // Facebook Feed Preview
-        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-0">
+        // Facebook Feed Preview - With fixed width for compact mode
+        <div className={`border border-[#E4E6EB] rounded-lg overflow-hidden ${compact ? 'mx-auto' : ''}`} style={compact ? {maxWidth: "380px"} : {}}>
           {/* Header */}
           <div className="p-3 border-b border-[#E4E6EB]">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm">
+                <div className={`${compact ? 'h-8 w-8' : 'h-10 w-10'} rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm`}>
                   {(viewMode === 'feed' && facebookPage) 
                     ? facebookPage.charAt(0).toUpperCase()
                     : brandName.charAt(0).toUpperCase()}
@@ -171,19 +171,19 @@ export function AdPreview({
               )}
             </div>
             
-            <div className="relative">
+            <div>
               {mediaUrl ? (
                 mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
                   <video
                     src={mediaUrl}
                     controls
-                    className="w-full h-auto max-h-[300px] object-cover"
+                    className="w-full h-auto max-h-[250px] object-cover"
                   />
                 ) : (
                   <img
                     src={mediaUrl}
                     alt="Ad content"
-                    className="w-full h-auto max-h-[300px] object-cover"
+                    className="w-full h-auto max-h-[250px] object-cover"
                   />
                 )
               ) : (
@@ -224,8 +224,8 @@ export function AdPreview({
         </div>
       ) : (
         // Instagram Stories Preview (based on Meta's May 2025 design)
-        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-0 max-w-[375px] mx-auto">
-          <div className="bg-[#F0F2F5] relative h-[667px]">
+        <div className={`border border-[#E4E6EB] rounded-lg overflow-hidden ${compact ? 'mx-auto' : 'max-w-[375px] mx-auto'}`} style={compact ? {maxWidth: "240px"} : {}}>
+          <div className="bg-[#F0F2F5] relative" style={compact ? {height: "400px"} : {height: "667px"}}>
             {/* Determine which media to use for Stories */}
             {(() => {
               const storyImageUrl = customizedPlacements && storiesMediaUrl ? storiesMediaUrl : mediaUrl;
@@ -279,7 +279,7 @@ export function AdPreview({
             {/* Stories Content - Matching exact Meta format from screenshot */}
             <div className="absolute bottom-8 left-0 right-0 px-4">
               <div className="flex items-center justify-center">
-                <button className="bg-white text-black font-serif text-lg py-1.5 px-4 rounded-full flex items-center gap-1.5">
+                <button className="bg-white text-black font-serif text-base py-1.5 px-4 rounded-full flex items-center gap-1.5">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#4895ef]">
                     <path d="M7.33333 11.3333C9.54448 11.3333 11.3333 9.54448 11.3333 7.33333C11.3333 5.12219 9.54448 3.33333 7.33333 3.33333C5.12219 3.33333 3.33333 5.12219 3.33333 7.33333C3.33333 9.54448 5.12219 11.3333 7.33333 11.3333Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M12.6667 12.6667L10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
