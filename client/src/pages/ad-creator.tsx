@@ -9,6 +9,7 @@ import { AdTextForm } from "@/components/ad-creator/ad-text-form";
 import { BrandSettings } from "@/components/ad-creator/brand-settings";
 import { AdTargeting } from "@/components/ad-creator/ad-targeting";
 import { AdPreview } from "@/components/ad-creator/ad-preview";
+import { AdTypeSelector } from "@/components/ad-creator/ad-type-selector";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
@@ -30,6 +31,7 @@ export default function AdCreator() {
   // Ad content state
   const [adData, setAdData] = useState({
     templateId: 1,
+    adType: "standard_conversion", // "standard_conversion", "lead_generation", "reach"
     mediaUrl: "",
     primaryText: "Transform your social media presence with our AI-powered design tools. No design skills needed!",
     headline: "Create stunning ads in minutes!",
@@ -38,7 +40,10 @@ export default function AdCreator() {
     websiteUrl: "https://example.com/signup",
     brandName: "DraperAds",
     brandLogoUrl: "",
-    status: "draft"
+    status: "draft",
+    customizePlacements: false, // Whether to use different creatives for different placements
+    facebookPage: "",
+    instagramAccount: ""
   });
   
   // Ad targeting state
@@ -147,6 +152,11 @@ export default function AdCreator() {
     setAdData(prev => ({ ...prev, ...values }));
   };
   
+  // Handle ad type change
+  const handleAdTypeChange = (values: { adType: string; customizePlacements: boolean }) => {
+    setAdData(prev => ({ ...prev, ...values }));
+  };
+  
   // Handle targeting change
   const handleTargetingChange = (values: any) => {
     setTargetingData(values);
@@ -233,36 +243,59 @@ export default function AdCreator() {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h2 className="text-xl font-semibold mb-6">Design Your Ad</h2>
               
-              {/* Media Uploader */}
-              <MediaUploader 
-                onMediaUpload={handleMediaUpload} 
-                value={adData.mediaUrl}
-              />
+              {/* Ad Type Selector */}
+              <div className="mb-8">
+                <AdTypeSelector
+                  onChange={handleAdTypeChange}
+                  defaultValues={{
+                    adType: adData.adType,
+                    customizePlacements: adData.customizePlacements
+                  }}
+                />
+              </div>
               
-              {/* Template Selector */}
-              <TemplateSelector 
-                onTemplateSelect={handleTemplateSelect}
-                selectedTemplateId={adData.templateId}
-              />
+              <div className="border-t pt-8 mb-8">
+                <h3 className="text-lg font-medium mb-6">Creative Assets</h3>
+                
+                {/* Media Uploader */}
+                <MediaUploader 
+                  onMediaUpload={handleMediaUpload} 
+                  value={adData.mediaUrl}
+                />
+                
+                {/* Template Selector */}
+                <TemplateSelector 
+                  onTemplateSelect={handleTemplateSelect}
+                  selectedTemplateId={adData.templateId}
+                />
+              </div>
               
-              {/* Ad Text Form */}
-              <AdTextForm 
-                onSubmit={handleAdTextChange}
-                defaultValues={{
-                  primaryText: adData.primaryText,
-                  headline: adData.headline,
-                  description: adData.description,
-                  cta: adData.cta,
-                  websiteUrl: adData.websiteUrl
-                }}
-              />
+              <div className="border-t pt-8 mb-8">
+                <h3 className="text-lg font-medium mb-6">Ad Copy</h3>
+                
+                {/* Ad Text Form */}
+                <AdTextForm 
+                  onSubmit={handleAdTextChange}
+                  defaultValues={{
+                    primaryText: adData.primaryText,
+                    headline: adData.headline,
+                    description: adData.description,
+                    cta: adData.cta,
+                    websiteUrl: adData.websiteUrl
+                  }}
+                />
+              </div>
               
-              {/* Brand Settings */}
-              <BrandSettings 
-                onBrandChange={handleBrandChange}
-                brandName={adData.brandName}
-                brandLogoUrl={adData.brandLogoUrl}
-              />
+              <div className="border-t pt-8">
+                <h3 className="text-lg font-medium mb-6">Brand Identity</h3>
+                
+                {/* Brand Settings */}
+                <BrandSettings 
+                  onBrandChange={handleBrandChange}
+                  brandName={adData.brandName}
+                  brandLogoUrl={adData.brandLogoUrl}
+                />
+              </div>
             </div>
           )}
           
