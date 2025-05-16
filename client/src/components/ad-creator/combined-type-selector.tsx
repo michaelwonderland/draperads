@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 interface CombinedTypeSelectorProps {
@@ -29,88 +26,73 @@ export function CombinedTypeSelector({
     onFormatChange(value);
   };
 
+  // Common button styles
+  const buttonStyle = "px-4 py-2 border rounded-md cursor-pointer transition-colors";
+  const selectedStyle = "bg-[#f6242f] text-white border-[#f6242f]";
+  const unselectedStyle = "bg-white text-gray-900 hover:bg-gray-50";
+
   return (
     <div className="space-y-6">
       {/* Ad Type Selection */}
       <div>
         <h3 className="text-base font-medium mb-3">Ad Type</h3>
         
-        <RadioGroup
-          defaultValue={adType}
-          className="flex flex-wrap gap-2"
-          onValueChange={handleTypeChange}
-        >
-          <div className="flex items-center">
-            <RadioGroupItem value="conversions" id="conversions" className="sr-only peer" />
-            <Label 
-              htmlFor="conversions" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
-            >
-              Conversions
-            </Label>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => handleTypeChange("conversions")}
+            className={`${buttonStyle} ${adType === "conversions" ? selectedStyle : unselectedStyle}`}
+          >
+            Conversions
+          </button>
           
-          <div className="flex items-center">
-            <RadioGroupItem value="leads" id="leads" className="sr-only peer" />
-            <Label 
-              htmlFor="leads" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
-            >
-              Leads
-            </Label>
-          </div>
+          <button
+            type="button"
+            onClick={() => handleTypeChange("leads")}
+            className={`${buttonStyle} ${adType === "leads" ? selectedStyle : unselectedStyle}`}
+          >
+            Leads
+          </button>
           
-          <div className="flex items-center">
-            <RadioGroupItem value="reach" id="reach" className="sr-only peer" />
-            <Label 
-              htmlFor="reach" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
-            >
-              Reach
-            </Label>
-          </div>
-        </RadioGroup>
+          <button
+            type="button"
+            onClick={() => handleTypeChange("reach")}
+            className={`${buttonStyle} ${adType === "reach" ? selectedStyle : unselectedStyle}`}
+          >
+            Reach
+          </button>
+        </div>
       </div>
 
       {/* Ad Format Selection */}
       <div>
         <h3 className="text-base font-medium mb-3">Ad Format</h3>
         
-        <RadioGroup
-          defaultValue={adFormat}
-          className="flex flex-wrap gap-2"
-          onValueChange={handleFormatChange}
-        >
-          <div className="flex items-center">
-            <RadioGroupItem value="image" id="image" className="sr-only peer" />
-            <Label 
-              htmlFor="image" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
-            >
-              Image/Video
-            </Label>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => handleFormatChange("image")}
+            className={`${buttonStyle} ${adFormat === "image" ? selectedStyle : unselectedStyle}`}
+          >
+            Image/Video
+          </button>
           
-          <div className="flex items-center">
-            <RadioGroupItem value="carousel" id="carousel" className="sr-only peer" />
-            <Label 
-              htmlFor="carousel" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
-            >
-              Carousel
-            </Label>
-          </div>
+          <button
+            type="button"
+            onClick={() => handleFormatChange("carousel")}
+            className={`${buttonStyle} ${adFormat === "carousel" ? selectedStyle : unselectedStyle}`}
+          >
+            Carousel
+          </button>
           
-          <div className="flex items-center">
-            <RadioGroupItem value="collection" id="collection" className="sr-only peer" />
-            <Label 
-              htmlFor="collection" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
-            >
-              Collection
-            </Label>
-          </div>
-        </RadioGroup>
+          <button
+            type="button"
+            onClick={() => handleFormatChange("collection")}
+            className={`${buttonStyle} ${adFormat === "collection" ? selectedStyle : unselectedStyle}`}
+          >
+            Collection
+          </button>
+        </div>
       </div>
     </div>
   );
