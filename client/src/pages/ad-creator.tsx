@@ -41,7 +41,6 @@ export default function AdCreator() {
     cta: "sign_up",
     websiteUrl: "https://example.com/signup",
     brandName: "DraperAds",
-    brandLogoUrl: "",
     status: "draft",
     customizePlacements: false, // Whether to use different creatives for different placements
     facebookPage: "",
@@ -150,8 +149,8 @@ export default function AdCreator() {
   };
   
   // Handle brand settings change
-  const handleBrandChange = (values: { brandName: string; brandLogoUrl?: string }) => {
-    setAdData(prev => ({ ...prev, ...values }));
+  const handleBrandChange = (values: { brandName: string }) => {
+    setAdData(prev => ({ ...prev, brandName: values.brandName }));
   };
   
   // Handle ad type and format change - these are now handled directly in the component
@@ -294,7 +293,6 @@ export default function AdCreator() {
                 <BrandSettings 
                   onBrandChange={handleBrandChange}
                   brandName={adData.brandName}
-                  brandLogoUrl={adData.brandLogoUrl}
                 />
               </div>
             </div>
@@ -406,7 +404,6 @@ export default function AdCreator() {
         <div className="lg:w-5/12">
           <AdPreview
             brandName={adData.brandName}
-            brandLogoUrl={adData.brandLogoUrl}
             mediaUrl={adData.mediaUrl}
             primaryText={adData.primaryText}
             headline={adData.headline}

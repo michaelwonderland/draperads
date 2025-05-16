@@ -4,7 +4,6 @@ import { SmartphoneIcon, MonitorIcon, ThumbsUpIcon, MessageCircleIcon, ShareIcon
 
 interface AdPreviewProps {
   brandName: string;
-  brandLogoUrl?: string;
   mediaUrl?: string;
   primaryText: string;
   headline: string;
@@ -14,7 +13,6 @@ interface AdPreviewProps {
 
 export function AdPreview({
   brandName,
-  brandLogoUrl,
   mediaUrl,
   primaryText,
   headline,
@@ -67,18 +65,8 @@ export function AdPreview({
         <div className="p-3 border-b border-[#E4E6EB]">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-[#F0F2F5] overflow-hidden">
-                {brandLogoUrl ? (
-                  <img
-                    src={brandLogoUrl}
-                    alt={`${brandName} logo`}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-[#65676B] flex items-center justify-center text-white text-sm">
-                    {brandName.charAt(0)}
-                  </div>
-                )}
+              <div className="h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm">
+                {brandName.charAt(0)}
               </div>
               <div>
                 <p className="text-sm font-medium">{brandName}</p>
