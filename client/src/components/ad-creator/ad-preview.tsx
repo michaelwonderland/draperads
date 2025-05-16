@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { SmartphoneIcon, MonitorIcon, ThumbsUpIcon, MessageCircleIcon, ShareIcon, MoreHorizontalIcon, GlobeIcon } from "lucide-react";
+import { 
+  ThumbsUpIcon, 
+  MessageCircleIcon, 
+  ShareIcon, 
+  MoreHorizontalIcon, 
+  GlobeIcon,
+  FacebookIcon,
+  InstagramIcon,
+  ExternalLinkIcon
+} from "lucide-react";
 
 interface AdPreviewProps {
   brandName: string;
@@ -9,6 +18,9 @@ interface AdPreviewProps {
   headline: string;
   description?: string;
   cta: string;
+  // For placement customization support
+  storiesMediaUrl?: string;
+  customizedPlacements?: boolean;
 }
 
 export function AdPreview({
@@ -17,9 +29,11 @@ export function AdPreview({
   primaryText,
   headline,
   description,
-  cta
+  cta,
+  storiesMediaUrl,
+  customizedPlacements = false
 }: AdPreviewProps) {
-  const [viewMode, setViewMode] = useState<'mobile' | 'desktop'>('mobile');
+  const [viewMode, setViewMode] = useState<'feed' | 'stories'>('feed');
 
   // Convert CTA code to display text
   const getCtaText = (ctaCode: string): string => {
@@ -41,101 +55,176 @@ export function AdPreview({
           <Button
             type="button"
             variant="ghost"
-            size="icon"
-            className={viewMode === 'mobile' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
-            onClick={() => setViewMode('mobile')}
+            size="sm"
+            className={viewMode === 'feed' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
+            onClick={() => setViewMode('feed')}
           >
-            <SmartphoneIcon className="h-5 w-5" />
+            <FacebookIcon className="h-4 w-4 mr-1.5" />
+            Feed
           </Button>
           <Button
             type="button"
             variant="ghost"
-            size="icon"
-            className={viewMode === 'desktop' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
-            onClick={() => setViewMode('desktop')}
+            size="sm"
+            className={viewMode === 'stories' ? 'text-[#f6242f] bg-red-50' : 'text-[#65676B]'}
+            onClick={() => setViewMode('stories')}
           >
-            <MonitorIcon className="h-5 w-5" />
+            <InstagramIcon className="h-4 w-4 mr-1.5" />
+            Stories
           </Button>
         </div>
       </div>
       
-      {/* Facebook/Instagram Feed Preview */}
-      <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-6">
-        {/* Header */}
-        <div className="p-3 border-b border-[#E4E6EB]">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm">
-                {brandName.charAt(0)}
+      {viewMode === 'feed' ? (
+        // Facebook Feed Preview
+        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-6">
+          {/* Header */}
+          <div className="p-3 border-b border-[#E4E6EB]">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm">
+                  {brandName.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{brandName}</p>
+                  <p className="text-xs text-[#65676B] flex items-center gap-1">
+                    Sponsored · <GlobeIcon className="h-3 w-3" />
+                  </p>
+                </div>
               </div>
               <div>
-                <p className="text-sm font-medium">{brandName}</p>
-                <p className="text-xs text-[#65676B] flex items-center gap-1">
-                  Sponsored · <GlobeIcon className="h-3 w-3" />
-                </p>
+                <MoreHorizontalIcon className="text-[#65676B] h-5 w-5" />
               </div>
             </div>
-            <div>
-              <MoreHorizontalIcon className="text-[#65676B] h-5 w-5" />
-            </div>
           </div>
-        </div>
-        
-        {/* Ad Content */}
-        <div>
-          <p className="p-3 text-sm">{primaryText}</p>
-          <div className="relative">
-            {mediaUrl ? (
-              mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-                <video
-                  src={mediaUrl}
-                  controls
-                  className="w-full h-auto"
-                />
+          
+          {/* Feed Ad Content */}
+          <div>
+            <p className="p-3 text-sm">{primaryText}</p>
+            <div className="relative">
+              {mediaUrl ? (
+                mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                  <video
+                    src={mediaUrl}
+                    controls
+                    className="w-full h-auto"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl}
+                    alt="Ad content"
+                    className="w-full h-auto"
+                  />
+                )
               ) : (
-                <img
-                  src={mediaUrl}
-                  alt="Ad content"
-                  className="w-full h-auto"
-                />
-              )
-            ) : (
-              <div className="w-full h-48 bg-[#F0F2F5] flex items-center justify-center text-[#65676B]">
-                <p>No media uploaded</p>
+                <div className="w-full h-48 bg-[#F0F2F5] flex items-center justify-center text-[#65676B]">
+                  <p>No media uploaded</p>
+                </div>
+              )}
+            </div>
+            <div className="p-3">
+              <p className="text-xs text-[#65676B] uppercase tracking-wide">{brandName.toLowerCase()}.com</p>
+              <h3 className="font-medium">{headline}</h3>
+              {description && <p className="text-sm text-[#65676B]">{description}</p>}
+              <div className="flex justify-end mt-2">
+                <button className="bg-[#F0F2F5] text-black text-center text-sm font-medium py-1.5 px-4 rounded">
+                  {getCtaText(cta)}
+                </button>
               </div>
-            )}
-          </div>
-          <div className="p-3">
-            <p className="text-xs text-[#65676B] uppercase tracking-wide">{brandName.toLowerCase()}.com</p>
-            <h3 className="font-medium">{headline}</h3>
-            {description && <p className="text-sm text-[#65676B]">{description}</p>}
-            <div className="flex justify-end mt-2">
-              <button className="bg-[#F0F2F5] text-black text-center text-sm font-medium py-1.5 px-4 rounded">
-                {getCtaText(cta)}
-              </button>
             </div>
           </div>
-        </div>
-        
-        {/* Engagement */}
-        <div className="p-3 border-t border-[#E4E6EB]">
-          <div className="flex justify-between text-sm text-[#65676B]">
-            <div className="flex items-center gap-1">
-              <ThumbsUpIcon className="h-4 w-4" />
-              <span>Like</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageCircleIcon className="h-4 w-4" />
-              <span>Comment</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <ShareIcon className="h-4 w-4" />
-              <span>Share</span>
+          
+          {/* Engagement */}
+          <div className="p-3 border-t border-[#E4E6EB]">
+            <div className="flex justify-between text-sm text-[#65676B]">
+              <div className="flex items-center gap-1">
+                <ThumbsUpIcon className="h-4 w-4" />
+                <span>Like</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <MessageCircleIcon className="h-4 w-4" />
+                <span>Comment</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <ShareIcon className="h-4 w-4" />
+                <span>Share</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
+      ) : (
+        // Instagram Stories Preview (based on Meta's May 2025 design)
+        <div className="border border-[#E4E6EB] rounded-lg overflow-hidden mb-6 max-w-[375px] mx-auto">
+          <div className="bg-[#F0F2F5] relative h-[667px]">
+            {/* Determine which media to use for Stories */}
+            {(() => {
+              const storyImageUrl = customizedPlacements && storiesMediaUrl ? storiesMediaUrl : mediaUrl;
+              
+              return storyImageUrl ? (
+                storyImageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                  <video
+                    src={storyImageUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  // If it's a 4:5 or 1:1 image, it will have gap at top and bottom
+                  <div className="h-full flex items-center justify-center bg-gray-300">
+                    <img
+                      src={storyImageUrl}
+                      alt="Ad content"
+                      className="w-full object-contain"
+                    />
+                  </div>
+                )
+              ) : (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-[#65676B]">
+                  <p>No media uploaded</p>
+                </div>
+              );
+            })()}
+            
+            {/* Stories Header */}
+            <div className="absolute top-0 left-0 right-0 p-3 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-white overflow-hidden flex items-center justify-center border border-gray-300">
+                  <div className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center text-white text-xs bg-[#65676B]">
+                    {brandName.charAt(0)}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-white">{brandName.toLowerCase()}</p>
+                  <p className="text-[10px] text-white/80">Sponsored</p>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <div className="text-white">•••</div>
+                <div className="text-white">✕</div>
+              </div>
+            </div>
+            
+            {/* Stories Content */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 to-transparent">
+              <div className="text-white mb-4">
+                <h3 className="font-semibold text-lg">{headline}</h3>
+                {description && <p className="text-sm text-white/90">{description}</p>}
+                <p className="text-sm mt-1">{primaryText}</p>
+              </div>
+              
+              {/* CTA Button */}
+              <div className="flex items-center justify-center mt-4">
+                <button className="bg-white text-black font-medium py-2 px-12 rounded-full flex items-center gap-2">
+                  <ExternalLinkIcon className="h-4 w-4" />
+                  {getCtaText(cta)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
