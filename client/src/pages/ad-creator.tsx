@@ -254,7 +254,34 @@ export default function AdCreator() {
   
   // Handle ad text form submission
   const handleAdTextChange = (values: any) => {
-    setAdData(prev => ({ ...prev, ...values }));
+    // If AI suggestions exist and were applied, check if user has modified the AI suggested text
+    if (aiSuggestions && adData.hasAppliedAiSuggestions) {
+      const isModified = 
+        (values.primaryText !== undefined && values.primaryText !== aiSuggestions.suggestedPrimaryText) ||
+        (values.headline !== undefined && values.headline !== aiSuggestions.suggestedHeadline) ||
+        (values.description !== undefined && values.description !== aiSuggestions.suggestedDescription);
+      
+      if (isModified) {
+        // User modified AI suggested text, update flag
+        setAdData(prev => ({ 
+          ...prev, 
+          ...values,
+          hasAppliedAiSuggestions: false
+        }));
+      } else {
+        // No modification to AI suggested text
+        setAdData(prev => ({ 
+          ...prev, 
+          ...values 
+        }));
+      }
+    } else {
+      // No AI suggestions or they weren't applied
+      setAdData(prev => ({ 
+        ...prev, 
+        ...values 
+      }));
+    }
   };
   
   // Handle brand settings change
@@ -469,12 +496,12 @@ export default function AdCreator() {
                             }}
                             type="button"
                             variant="outline"
-                            className="bg-red-50 text-[#f6242f] hover:bg-red-100 border-red-200 flex items-center gap-1"
+                            className="bg-yellow-50 text-[#f6242f] hover:bg-yellow-100 border-yellow-200 flex items-center gap-1"
                           >
                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
                               <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
                             </svg>
-                            Apply AI Suggestions
+                            Restore AI suggestions
                           </Button>
                         )}
                       </div>
