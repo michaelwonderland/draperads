@@ -154,9 +154,7 @@ export function PlacementCustomizer({
             )}
           </div>
           <div className="text-gray-500 mt-1">
-            <span className="font-medium">Recommended formats:</span> {isVideo ? 
-              "MP4, MOV, GIF (max 4GB, H.264 compression)" : 
-              "JPG, PNG (max 30MB)"}
+            <span className="font-medium">Recommended:</span> 1x1, 4x5 or 9x16. JPG, PNG (max 30MB), MP4, MOV, GIF (max 4GB)
           </div>
         </div>
       )}
