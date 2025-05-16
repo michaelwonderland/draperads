@@ -48,6 +48,7 @@ export default function AdCreator() {
     suggestedDescription: string;
     suggestedCta: string;
   } | null>(null);
+  const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
   
   // Load latest draft when available
   useEffect(() => {
@@ -216,27 +217,34 @@ export default function AdCreator() {
     suggestedDescription: string;
     suggestedCta: string;
   }) => {
-    setAiSuggestions(suggestions);
+    // Start generating suggestions
+    setGeneratingSuggestions(true);
     
-    // Immediately apply the suggestions to the ad text
-    handleAdTextChange({
-      primaryText: suggestions.suggestedPrimaryText,
-      headline: suggestions.suggestedHeadline,
-      description: suggestions.suggestedDescription,
-      cta: suggestions.suggestedCta,
-      websiteUrl: adData.websiteUrl
-    });
-    
-    // Update the hasAppliedAiSuggestions flag
-    setAdData(prev => ({
-      ...prev,
-      hasAppliedAiSuggestions: true
-    }));
-    
-    toast({
-      title: "AI Suggestions Applied",
-      description: "Ad copy has been updated based on your image",
-    });
+    // Simulate a short delay to show the generating indicator
+    setTimeout(() => {
+      setAiSuggestions(suggestions);
+      setGeneratingSuggestions(false);
+      
+      // Immediately apply the suggestions to the ad text
+      handleAdTextChange({
+        primaryText: suggestions.suggestedPrimaryText,
+        headline: suggestions.suggestedHeadline,
+        description: suggestions.suggestedDescription,
+        cta: suggestions.suggestedCta,
+        websiteUrl: adData.websiteUrl
+      });
+      
+      // Update the hasAppliedAiSuggestions flag
+      setAdData(prev => ({
+        ...prev,
+        hasAppliedAiSuggestions: true
+      }));
+      
+      toast({
+        title: "AI Suggestions Applied",
+        description: "Ad copy has been updated based on your image",
+      });
+    }, 2000); // Show generating for 2 seconds to make it more visible
   };
   
   // Handle template selection
@@ -399,7 +407,14 @@ export default function AdCreator() {
                   <h3 className="text-lg font-medium">Ad Copy</h3>
                   
                   <div className="flex items-center gap-3">
-                    {aiSuggestions && (
+                    {generatingSuggestions && (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 flex items-center gap-1">
+                        <Sparkles className="h-3 w-3 mr-1" /> 
+                        Generating AI suggestions...
+                      </Badge>
+                    )}
+                    
+                    {!generatingSuggestions && aiSuggestions && (
                       <div className="flex items-center gap-3">
                         {adData.hasAppliedAiSuggestions ? (
                           <>

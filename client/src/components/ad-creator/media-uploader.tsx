@@ -63,14 +63,6 @@ export function MediaUploader({
     <div className="mb-4">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-base font-medium">Media</h3>
-        {generatingSuggestions && (
-          <div className="flex items-center">
-            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 flex items-center gap-1">
-              <Sparkles className="h-3 w-3" /> 
-              Generating ad suggestions...
-            </Badge>
-          </div>
-        )}
       </div>
       
       <FileUpload
