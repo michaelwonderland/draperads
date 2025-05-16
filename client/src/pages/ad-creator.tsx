@@ -115,6 +115,15 @@ export default function AdCreator() {
           status?: string;
           facebookPage?: string;
           instagramAccount?: string;
+          // Targeting-specific fields
+          targetingAdAccountId?: string;
+          targetingCampaignObjective?: string;
+          targetingFacebookPageId?: string;
+          targetingFacebookPageName?: string;
+          targetingInstagramAccountId?: string;
+          targetingInstagramAccountName?: string;
+          targetingAdSets?: string;
+          targetingPlacements?: string;
         };
         
         // Update ad data with the latest draft
@@ -135,6 +144,34 @@ export default function AdCreator() {
           instagramAccount: draft.instagramAccount || "",
           hasAppliedAiSuggestions: false
         });
+        
+        // Update targeting data if available in the draft
+        if (draft.targetingAdAccountId || draft.targetingAdSets) {
+          try {
+            // Create targeting data object from saved draft
+            const newTargetingData: TargetingData = {
+              adAccountId: draft.targetingAdAccountId || "account_1",
+              campaignObjective: draft.targetingCampaignObjective || "traffic",
+              facebookPageId: draft.targetingFacebookPageId,
+              facebookPageName: draft.targetingFacebookPageName,
+              instagramAccountId: draft.targetingInstagramAccountId,
+              instagramAccountName: draft.targetingInstagramAccountName,
+              // Parse JSON strings back to arrays/objects
+              adSets: draft.targetingAdSets ? JSON.parse(draft.targetingAdSets) : [],
+              placements: draft.targetingPlacements ? JSON.parse(draft.targetingPlacements) : ["facebook", "instagram"]
+            };
+            
+            setTargetingData(newTargetingData);
+            
+            // If we recovered targeting data, we should consider Meta as connected
+            if (draft.targetingAdAccountId && draft.targetingFacebookPageId) {
+              setIsMetaConnected(true);
+            }
+          } catch (error) {
+            console.error("Failed to parse targeting data from draft:", error);
+            // Don't update targeting data if there's an error parsing JSON
+          }
+        }
         
         // Show toast notification
         toast({
@@ -191,12 +228,22 @@ export default function AdCreator() {
   // Create or update ad mutation
   const createAdMutation = useMutation({
     mutationFn: async () => {
-      // Include current step and additional ad type fields when saving
+      // Include current step, ad type fields, and targeting information when saving
       const adDataToSave = {
         ...adData,
         adType: adData.adType,
         adFormat: adData.adFormat,
-        customizePlacements: adData.customizePlacements
+        customizePlacements: adData.customizePlacements,
+        // Include targeting data key fields
+        targetingAdAccountId: targetingData.adAccountId,
+        targetingCampaignObjective: targetingData.campaignObjective,
+        targetingFacebookPageId: targetingData.facebookPageId,
+        targetingFacebookPageName: targetingData.facebookPageName,
+        targetingInstagramAccountId: targetingData.instagramAccountId,
+        targetingInstagramAccountName: targetingData.instagramAccountName,
+        // Convert complex objects to JSON strings to ensure they are saved
+        targetingAdSets: JSON.stringify(targetingData.adSets),
+        targetingPlacements: targetingData.placements ? JSON.stringify(targetingData.placements) : JSON.stringify(['facebook', 'instagram'])
       };
       
       const response = await apiRequest('POST', '/api/ads', adDataToSave);
@@ -450,21 +497,40 @@ export default function AdCreator() {
   };
 
   // Handle next step
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (currentStep < 3) {
-      // Immediately move to the next step
+      // First, ensure all data is saved - especially when going from Step 2 to Step 3
+      if (currentStep === 2) {
+        try {
+          // Await the mutation to ensure targeting data is fully saved before proceeding
+          // This is critical to ensure all selections are securely stored
+          await createAdMutation.mutateAsync();
+          
+          console.log("Successfully saved all targeting data before proceeding to Step 3");
+        } catch (error) {
+          console.error("Error saving targeting data:", error);
+          // Show error toast but still proceed to next step
+          toast({
+            title: "Warning",
+            description: "There was an issue saving your targeting selections. Your changes might not be preserved.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // For other steps, save in the background without blocking
+        try {
+          createAdMutation.mutate();
+        } catch (error) {
+          console.log("Background save attempt will continue in the background");
+        }
+      }
+      
+      // Now proceed to next step
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
       
       // Update localStorage to sync with header
       localStorage.setItem('adCreatorStep', newStep.toString());
-      
-      // Try to save in the background without blocking
-      try {
-        createAdMutation.mutate();
-      } catch (error) {
-        console.log("Background save attempt will continue in the background");
-      }
     }
   };
 
