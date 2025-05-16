@@ -178,7 +178,7 @@ export function AdPreview({
                   ref={textRef}
                   className={`text-base leading-snug ${!showFullText && 'max-h-[4.5em] overflow-hidden'}`}
                 >
-                  {primaryText}
+                  {compact ? compactPrimaryText : primaryText}
                 </p>
                 
                 {/* Only show "See more" if text actually overflows */}
@@ -219,10 +219,12 @@ export function AdPreview({
                   {/* Headline and description below image */}
                   <div className="p-4 pb-2">
                     <p className="text-sm text-[#65676B] uppercase mb-1">{extractDomain(websiteUrl)}</p>
-                    <h3 className="text-[18px] font-semibold text-black leading-tight mb-1 line-clamp-2">{headline}</h3>
+                    <h3 className="text-[18px] font-semibold text-black leading-tight mb-1 line-clamp-2">
+                      {compact ? compactHeadline : headline}
+                    </h3>
                     {description && (
                       <p className="text-sm text-[#65676B] mb-2 line-clamp-2">
-                        {description}
+                        {compact ? compactDescription : description}
                       </p>
                     )}
                   </div>

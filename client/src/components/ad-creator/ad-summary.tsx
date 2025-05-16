@@ -28,12 +28,16 @@ interface AdSummaryProps {
   };
   targetingData: {
     adAccountId: string;
+    adAccountName?: string;
     campaignObjective: string;
+    campaigns?: any[];
+    placements?: string[];
     adSets: any[];
     facebookPageId?: string;
     instagramAccountId?: string;
     facebookPageName?: string;
     instagramAccountName?: string;
+    advancedOptions?: any;
   };
   onComplete: (email: string) => void;
   onBack: () => void;
