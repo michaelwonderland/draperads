@@ -502,8 +502,8 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                         <div
                           key={campaign.id}
                           className="flex items-center gap-2 p-2 hover:bg-[#F7F8FA] rounded-md cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onMouseDown={(e) => {
+                            e.preventDefault();
                             handleToggleCampaign(campaign);
                           }}
                         >
@@ -593,8 +593,8 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                         <div
                           key={adSet.id}
                           className="flex items-center gap-2 p-2 hover:bg-[#F7F8FA] rounded-md cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onMouseDown={(e) => {
+                            e.preventDefault();
                             handleToggleAdSet(adSet);
                           }}
                         >
