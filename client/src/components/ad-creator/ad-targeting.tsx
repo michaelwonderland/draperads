@@ -453,7 +453,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
           <Label className="text-sm font-medium mb-1">Campaigns</Label>
           <div className="relative">
             <div
-              className={`border rounded-md p-2 min-h-[42px] flex flex-wrap gap-2 cursor-pointer ${!isConnected ? 'bg-gray-50 text-gray-400 pointer-events-none' : ''}`}
+              className={`border rounded-md p-2 min-h-[42px] flex flex-wrap gap-2 cursor-pointer ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400 pointer-events-none' : ''}`}
               onClick={() => {
                 if (isConnected) {
                   setShowCampaignDropdown(true);
@@ -537,7 +537,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
           <Label className="text-sm font-medium mb-1">Ad Sets</Label>
           <div className="relative">
             <div
-              className={`border rounded-md p-2 min-h-[42px] flex flex-wrap gap-2 cursor-pointer ${!isConnected || formData.selectedCampaigns.length === 0 ? 'bg-gray-50 text-gray-400 pointer-events-none' : ''}`}
+              className={`border rounded-md p-2 min-h-[42px] flex flex-wrap gap-2 cursor-pointer ${!isConnected || !formData.adAccountId || formData.selectedCampaigns.length === 0 ? 'bg-gray-50 text-gray-400 pointer-events-none' : ''}`}
               onClick={() => {
                 if (isConnected && formData.selectedCampaigns.length > 0) {
                   setShowAdSetDropdown(true);
