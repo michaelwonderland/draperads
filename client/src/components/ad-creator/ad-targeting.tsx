@@ -103,31 +103,11 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       onConnectionChange(isConnected);
     }
   }, [isConnected, onConnectionChange]);
+  
   const [searchCampaign, setSearchCampaign] = useState('');
   const [searchAdSet, setSearchAdSet] = useState('');
-  const [showCampaignDropdown, setShowCampaignDropdown] = useState(false);
-  const [showAdSetDropdown, setShowAdSetDropdown] = useState(false);
+  const [showActiveCampaignsOnly, setShowActiveCampaignsOnly] = useState(false);
   
-  // Add click outside listener to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      // Check if click is outside the campaign dropdown
-      if (showCampaignDropdown && !target.closest('[data-campaign-dropdown]')) {
-        setShowCampaignDropdown(false);
-      }
-      // Check if click is outside the ad set dropdown
-      if (showAdSetDropdown && !target.closest('[data-adset-dropdown]')) {
-        setShowAdSetDropdown(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showCampaignDropdown, showAdSetDropdown]);
-
   // Account-specific data mapping
   const accountData: Record<string, {
     campaigns: Campaign[],
@@ -178,8 +158,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     }
   };
 
-  // We now use account-specific data from accountData
-
   const { data: adAccounts, isLoading: isLoadingAccounts } = useQuery<AdAccount[]>({
     queryKey: ["/api/ad-accounts"],
   });
@@ -206,9 +184,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       imageAnimation: false,
     }
   });
-
-  // Add state for active campaign filter
-  const [showActiveCampaignsOnly, setShowActiveCampaignsOnly] = useState(false);
   
   // For conversion to old format
   const convertToOldFormat = (data: AdTargetingFormData) => {
@@ -508,44 +483,66 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
               )}
               
               {/* Select All */}
-              {isConnected && formData.adAccountId && getAccountCampaigns().length > 0 && (
+              {isConnected && formData.adAccountId && getFilteredCampaigns().length > 0 && (
                 <div className="flex items-center mb-2 px-1">
                   <Checkbox 
                     id="select-all-campaigns"
-                    checked={formData.selectedCampaigns.length === getAccountCampaigns().length && getAccountCampaigns().length > 0}
+                    checked={
+                      getFilteredCampaigns().length > 0 &&
+                      getFilteredCampaigns().every(campaign => 
+                        formData.selectedCampaigns.some(c => c.id === campaign.id)
+                      )
+                    }
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        // Select all campaigns
+                        // Select all filtered campaigns
+                        const filteredCampaignIds = getFilteredCampaigns().map(c => c.id);
+                        const currentSelected = [...formData.selectedCampaigns];
+                        
+                        // Add any filtered campaigns not already selected
+                        getFilteredCampaigns().forEach(campaign => {
+                          if (!currentSelected.some(c => c.id === campaign.id)) {
+                            currentSelected.push(campaign);
+                          }
+                        });
+                        
                         setFormData(prev => ({
                           ...prev,
-                          selectedCampaigns: [...getAccountCampaigns()]
+                          selectedCampaigns: currentSelected,
+                          // Clear ad sets as campaigns selection changes
+                          selectedAdSets: []
                         }));
                       } else {
-                        // Deselect all campaigns
+                        // Deselect all filtered campaigns
+                        const filteredCampaignIds = getFilteredCampaigns().map(c => c.id);
+                        
                         setFormData(prev => ({
                           ...prev,
-                          selectedCampaigns: []
+                          selectedCampaigns: prev.selectedCampaigns.filter(
+                            campaign => !filteredCampaignIds.includes(campaign.id)
+                          ),
+                          // Clear ad sets as campaigns selection changes
+                          selectedAdSets: []
                         }));
                       }
                     }}
                     className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
                   />
                   <Label htmlFor="select-all-campaigns" className="ml-2 text-sm font-medium">
-                    Select All
+                    Select All {searchCampaign || showActiveCampaignsOnly ? "Filtered" : ""} ({getFilteredCampaigns().length})
                   </Label>
                 </div>
               )}
-                
-              {/* Separator */}
-              {isConnected && formData.adAccountId && getAccountCampaigns().length > 0 && (
+              
+              {isConnected && formData.adAccountId && getFilteredCampaigns().length > 0 && (
                 <Separator className="mb-2" />
               )}
               
               {/* Campaign list */}
               <ScrollArea className="h-48 w-full pr-4">
-                {filteredCampaigns.length > 0 ? (
+                {getFilteredCampaigns().length > 0 ? (
                   <div className="space-y-1">
-                    {filteredCampaigns.map(campaign => (
+                    {getFilteredCampaigns().map(campaign => (
                       <div
                         key={campaign.id}
                         className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer"
@@ -556,21 +553,34 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                           className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
                           onCheckedChange={() => handleToggleCampaign(campaign)}
                         />
-                        <span className="text-sm">{campaign.name}</span>
+                        <div>
+                          <span className="text-sm">{campaign.name}</span>
+                          {campaign.status && (
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+                              campaign.status === 'ACTIVE' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-600'
+                            }`}>
+                              {campaign.status}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="p-4 text-center text-sm text-gray-500">
-                    {!isConnected || !formData.adAccountId ? 
-                      "Please connect to Meta and select an account" : 
-                      "No campaigns found"}
+                    {searchCampaign || showActiveCampaignsOnly 
+                      ? "No matching campaigns found" 
+                      : !isConnected || !formData.adAccountId
+                        ? "Connect to Meta and select an account" 
+                        : "No campaigns available"}
                   </div>
                 )}
               </ScrollArea>
             </div>
             
-            {/* Selected campaigns badges */}
+            {/* Selected campaign badges */}
             {formData.selectedCampaigns.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {formData.selectedCampaigns.map(campaign => (
@@ -585,11 +595,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
               </div>
             )}
           </div>
-          {isConnected && formData.selectedCampaigns.length > 0 && (
-            <p className="text-xs text-[#65676B] mt-1">
-              {formData.selectedCampaigns.length} campaign{formData.selectedCampaigns.length !== 1 ? 's' : ''} selected
-            </p>
-          )}
         </div>
 
         {/* Ad Set Multi-Selector */}
@@ -597,342 +602,335 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
           <Label className="text-sm font-medium mb-1">Ad Sets</Label>
           <div className="relative">
             <div
-              className={`border rounded-md p-2 min-h-[42px] flex flex-wrap gap-2 cursor-pointer ${!isConnected || !formData.adAccountId || formData.selectedCampaigns.length === 0 ? 'bg-gray-50 text-gray-400 pointer-events-none' : ''}`}
-              onClick={() => {
-                if (isConnected && formData.selectedCampaigns.length > 0) {
-                  setShowAdSetDropdown(true);
-                }
-              }}
+              className={`border rounded-md p-2 flex flex-col ${!isConnected || !formData.adAccountId || formData.selectedCampaigns.length === 0 ? 'bg-gray-50 pointer-events-none opacity-60' : ''}`}
             >
-              {isConnected && formData.selectedAdSets.length > 0 ? (
-                formData.selectedAdSets.map(adSet => (
-                  <Badge key={adSet.id} variant="secondary" className="flex items-center gap-1 bg-[#F0F2F5] hover:bg-[#E4E6EB]">
-                    {adSet.name}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveAdSet(adSet.id);
-                      }}
-                    />
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-[#65676B] text-sm">
-                  {!isConnected 
-                    ? "Connect Meta to access ad sets" 
-                    : formData.selectedCampaigns.length === 0 
-                      ? "Select campaigns first" 
-                      : "Select ad sets"}
-                </span>
-              )}
-            </div>
-
-            {showAdSetDropdown && isConnected && formData.selectedCampaigns.length > 0 && (
-              <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg">
-                <div className="p-2 border-b">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#65676B]" />
-                    <Input
-                      placeholder="Search ad sets"
-                      className="pl-8"
-                      value={searchAdSet}
-                      onChange={(e) => setSearchAdSet(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
+              {/* Search box */}
+              <div className="mb-2 relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder={isConnected && formData.adAccountId
+                    ? formData.selectedCampaigns.length > 0
+                      ? "Search ad sets..."
+                      : "Select campaigns first"
+                    : "Connect Meta and select account first"}
+                  className="pl-8 bg-white"
+                  value={searchAdSet}
+                  onChange={(e) => setSearchAdSet(e.target.value)}
+                  disabled={!isConnected || !formData.adAccountId || formData.selectedCampaigns.length === 0}
+                />
+              </div>
+              
+              {/* Select All */}
+              {isConnected && formData.adAccountId && formData.selectedCampaigns.length > 0 && getFilteredAdSets().length > 0 && (
+                <div className="flex items-center mb-2 px-1">
+                  <Checkbox 
+                    id="select-all-adsets"
+                    checked={
+                      getFilteredAdSets().length > 0 &&
+                      getFilteredAdSets().every(adSet => 
+                        formData.selectedAdSets.some(a => a.id === adSet.id)
+                      )
+                    }
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        // Select all filtered ad sets
+                        const currentSelected = [...formData.selectedAdSets];
+                        
+                        // Add any filtered ad sets not already selected
+                        getFilteredAdSets().forEach(adSet => {
+                          if (!currentSelected.some(a => a.id === adSet.id)) {
+                            currentSelected.push(adSet);
+                          }
+                        });
+                        
+                        setFormData(prev => ({
+                          ...prev,
+                          selectedAdSets: currentSelected
+                        }));
+                      } else {
+                        // Deselect all filtered ad sets
+                        const filteredAdSetIds = getFilteredAdSets().map(a => a.id);
+                        
+                        setFormData(prev => ({
+                          ...prev,
+                          selectedAdSets: prev.selectedAdSets.filter(
+                            adSet => !filteredAdSetIds.includes(adSet.id)
+                          )
+                        }));
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
+                  />
+                  <Label htmlFor="select-all-adsets" className="ml-2 text-sm font-medium">
+                    Select All {searchAdSet ? "Filtered" : ""} ({getFilteredAdSets().length})
+                  </Label>
                 </div>
-                <ScrollArea className="h-60">
-                  <div className="p-2">
-                    {filteredAdSets.length > 0 ? (
-                      filteredAdSets.map(adSet => (
-                        <div
-                          key={adSet.id}
-                          className="flex items-center gap-2 p-2 hover:bg-[#F7F8FA] rounded-md cursor-pointer"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            handleToggleAdSet(adSet);
-                          }}
-                        >
-                          <Checkbox
-                            checked={formData.selectedAdSets.some(a => a.id === adSet.id)}
-                            className="h-4 w-4 text-[#1877F2] rounded border-[#CED0D4]"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleAdSet(adSet);
-                            }}
-                          />
-                          <div className="flex-1">
-                            <div>{adSet.name}</div>
-                            <div className="text-xs text-[#65676B]">
-                              {
-                                // Find the campaign for this ad set in the account data
-                                accountData[formData.adAccountId]?.campaigns.find(c => c.id === adSet.campaignId)?.name
-                              }
-                            </div>
+              )}
+                
+              {/* Separator */}
+              {isConnected && formData.adAccountId && formData.selectedCampaigns.length > 0 && getFilteredAdSets().length > 0 && (
+                <Separator className="mb-2" />
+              )}
+              
+              {/* Ad Set list */}
+              <ScrollArea className="h-48 w-full pr-4">
+                {getFilteredAdSets().length > 0 ? (
+                  <div className="space-y-1">
+                    {getFilteredAdSets().map(adSet => (
+                      <div
+                        key={adSet.id}
+                        className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer"
+                        onClick={() => handleToggleAdSet(adSet)}
+                      >
+                        <Checkbox
+                          checked={formData.selectedAdSets.some(a => a.id === adSet.id)}
+                          className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
+                          onCheckedChange={() => handleToggleAdSet(adSet)}
+                        />
+                        <div className="flex-1">
+                          <div className="text-sm">{adSet.name}</div>
+                          <div className="text-xs text-[#65676B]">
+                            {
+                              // Find the campaign for this ad set in the account data
+                              accountData[formData.adAccountId]?.campaigns.find(c => c.id === adSet.campaignId)?.name
+                            }
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-[#65676B]">
-                        No ad sets found for selected campaigns
                       </div>
-                    )}
+                    ))}
                   </div>
-                </ScrollArea>
-                {/* Done button removed - dropdown closes automatically when clicking outside */}
+                ) : (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    {!isConnected || !formData.adAccountId 
+                      ? "Please connect to Meta and select an account" 
+                      : formData.selectedCampaigns.length === 0
+                        ? "Please select campaigns first"
+                        : searchAdSet
+                          ? "No matching ad sets found"
+                          : "No ad sets found for selected campaigns"}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+            
+            {/* Selected ad sets badges */}
+            {formData.selectedAdSets.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {formData.selectedAdSets.map(adSet => (
+                  <Badge key={adSet.id} variant="secondary" className="bg-[#f1f1f1] text-black">
+                    {adSet.name}
+                    <X
+                      className="h-3 w-3 ml-1 cursor-pointer"
+                      onClick={() => handleRemoveAdSet(adSet.id)}
+                    />
+                  </Badge>
+                ))}
               </div>
             )}
           </div>
-          {isConnected && formData.selectedAdSets.length > 0 && (
-            <p className="text-xs text-[#65676B] mt-1">
-              {formData.selectedAdSets.length} ad set{formData.selectedAdSets.length !== 1 ? 's' : ''} selected
-            </p>
-          )}
         </div>
 
-        {/* Social Media Pages */}
-        <div className="border-t border-[#E4E6EB] pt-5 space-y-5">
-          <h3 className="text-base font-medium">Social Media Pages</h3>
+        {/* Brand Identity Section */}
+        <div>
+          <h3 className="text-base font-medium mb-2">Brand Identity</h3>
+          <p className="text-sm text-[#65676B] mb-4">
+            For previewing purposes only - actual Facebook Page and Instagram Account will appear on the next step
+          </p>
           
-          <div>
-            <Label htmlFor="facebook_page" className="text-sm font-medium flex items-center gap-2 mb-1">
-              <Facebook className="h-4 w-4 text-[#1877F2]" /> Facebook Page
-            </Label>
-            <Select
-              onValueChange={handleFacebookPageChange}
-              value={formData.facebookPageId}
-              disabled={!isConnected}
-            >
-              <SelectTrigger id="facebook_page" className={`w-full ${!isConnected ? 'bg-gray-50 text-gray-400' : ''}`}>
-                <SelectValue placeholder={isConnected ? "Select a Facebook page" : "DraperAds"} />
-              </SelectTrigger>
-              <SelectContent>
-                {getAccountFacebookPages().map(page => (
-                  <SelectItem key={page.id} value={page.id}>
-                    {page.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Label htmlFor="instagram_account" className="text-sm font-medium flex items-center gap-2 mb-1">
-              <Instagram className="h-4 w-4 text-[#C13584]" /> Instagram Account
-            </Label>
-            <Select
-              onValueChange={handleInstagramAccountChange}
-              value={formData.instagramAccountId}
-              disabled={!isConnected}
-            >
-              <SelectTrigger id="instagram_account" className={`w-full ${!isConnected ? 'bg-gray-50 text-gray-400' : ''}`}>
-                <SelectValue placeholder={isConnected ? "Select an Instagram account" : "draperads"} />
-              </SelectTrigger>
-              <SelectContent>
-                {getAccountInstagramAccounts().map(account => (
-                  <SelectItem key={account.id} value={account.id}>
-                    {account.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Ad Settings */}
-        <div className="border-t border-[#E4E6EB] pt-5 space-y-5">
-          <h3 className="text-base font-medium">Advanced Settings</h3>
-          
-          <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="multi_advertiser" className="text-sm font-medium">Allow Multi-advertiser ads</Label>
-              <p className="text-xs text-[#65676B]">Allow your ad to appear with other ads from Meta advertisers</p>
-            </div>
-            <Switch
-              id="multi_advertiser"
-              checked={formData.allowMultiAdvertiserAds}
-              onCheckedChange={(checked) => 
-                setFormData(prev => ({ ...prev, allowMultiAdvertiserAds: checked }))
-              }
-              disabled={!isConnected}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="flexible_media" className="text-sm font-medium">Flexible Media</Label>
-              <p className="text-xs text-[#65676B]">Allow Meta to adjust your media for different placements</p>
-            </div>
-            <Switch
-              id="flexible_media"
-              checked={formData.enableFlexibleMedia}
-              onCheckedChange={(checked) => 
-                setFormData(prev => ({ ...prev, enableFlexibleMedia: checked }))
-              }
-              disabled={!isConnected}
-            />
-          </div>
-          
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <Label className="text-sm font-medium">Advantage+ Creative Enhancements</Label>
-                <p className="text-xs text-[#65676B]">Select creative optimizations for your ad</p>
-              </div>
-              <Badge variant="outline" className="bg-[#F0F2F5]">
-                {getActiveEnhancementsCount()} active
-              </Badge>
+              <Label htmlFor="fb_page" className="text-sm font-medium mb-1">Facebook Page</Label>
+              <Select
+                onValueChange={handleFacebookPageChange}
+                value={formData.facebookPageId}
+                disabled={!isConnected || !formData.adAccountId}
+              >
+                <SelectTrigger id="fb_page" className={`w-full ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400' : ''}`}>
+                  <SelectValue placeholder="Select Facebook Page" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getAccountFacebookPages().map(page => (
+                    <SelectItem key={page.id} value={page.id}>{page.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
-            <Accordion type="single" collapsible className={`border rounded-md ${!isConnected ? 'opacity-70' : ''}`}>
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="px-4 py-3 text-sm" disabled={!isConnected}>View all enhancements</AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-4 mt-2">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* First row */}
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Translate text</p>
-                          <p className="text-xs text-[#65676B]">Auto-translate to viewer's language</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.translateText}
-                          onCheckedChange={() => handleToggleEnhancement('translateText')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Add overlays</p>
-                          <p className="text-xs text-[#65676B]">Add text overlays to your image</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.addOverlays}
-                          onCheckedChange={() => handleToggleEnhancement('addOverlays')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      {/* Second row */}
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Add catalog items</p>
-                          <p className="text-xs text-[#65676B]">Include relevant products from catalog</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.addCatalogItems}
-                          onCheckedChange={() => handleToggleEnhancement('addCatalogItems')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Visual touch-ups</p>
-                          <p className="text-xs text-[#65676B]">Enhance image quality automatically</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.visualTouchUps}
-                          onCheckedChange={() => handleToggleEnhancement('visualTouchUps')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      {/* Third row */}
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Music</p>
-                          <p className="text-xs text-[#65676B]">Add background music to videos</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.music}
-                          onCheckedChange={() => handleToggleEnhancement('music')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">3D animation</p>
-                          <p className="text-xs text-[#65676B]">Add depth and motion effects</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.animation3d}
-                          onCheckedChange={() => handleToggleEnhancement('animation3d')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      {/* Fourth row */}
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Text improvements</p>
-                          <p className="text-xs text-[#65676B]">Optimize headline and description</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.textImprovements}
-                          onCheckedChange={() => handleToggleEnhancement('textImprovements')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Store locations</p>
-                          <p className="text-xs text-[#65676B]">Show nearest store to viewers</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.storeLocations}
-                          onCheckedChange={() => handleToggleEnhancement('storeLocations')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      {/* Fifth row */}
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Enhance CTA</p>
-                          <p className="text-xs text-[#65676B]">Optimize call-to-action button</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.enhanceCta}
-                          onCheckedChange={() => handleToggleEnhancement('enhanceCta')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Add site links</p>
-                          <p className="text-xs text-[#65676B]">Include additional links in ad</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.addSiteLinks}
-                          onCheckedChange={() => handleToggleEnhancement('addSiteLinks')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                      
-                      {/* Last item */}
-                      <div className="flex items-center justify-between border rounded-md p-3">
-                        <div>
-                          <p className="text-sm font-medium">Image animation</p>
-                          <p className="text-xs text-[#65676B]">Add subtle movement to static images</p>
-                        </div>
-                        <Switch
-                          checked={formData.advantagePlusEnhancements.imageAnimation}
-                          onCheckedChange={() => handleToggleEnhancement('imageAnimation')}
-                          disabled={!isConnected}
-                        />
-                      </div>
-                    </div>
+            <div>
+              <Label htmlFor="ig_account" className="text-sm font-medium mb-1">Instagram Account</Label>
+              <Select
+                onValueChange={handleInstagramAccountChange}
+                value={formData.instagramAccountId}
+                disabled={!isConnected || !formData.adAccountId}
+              >
+                <SelectTrigger id="ig_account" className={`w-full ${!isConnected || !formData.adAccountId ? 'bg-gray-50 text-gray-400' : ''}`}>
+                  <SelectValue placeholder="Select Instagram Account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getAccountInstagramAccounts().map(account => (
+                    <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Advantage+ Settings */}
+        <div>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="advantage-plus">
+              <AccordionTrigger className="text-base font-medium hover:no-underline">
+                <div className="flex items-center">
+                  <span>Advantage+ Creative Enhancements</span>
+                  {getActiveEnhancementsCount() > 0 && (
+                    <Badge className="ml-2 bg-[#f6242f] text-white">{getActiveEnhancementsCount()}</Badge>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="translate-text"
+                      checked={formData.advantagePlusEnhancements.translateText}
+                      onCheckedChange={() => handleToggleEnhancement('translateText')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="translate-text" className="cursor-pointer">Translate text</Label>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="add-overlays"
+                      checked={formData.advantagePlusEnhancements.addOverlays}
+                      onCheckedChange={() => handleToggleEnhancement('addOverlays')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="add-overlays" className="cursor-pointer">Add overlays</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="add-catalog-items"
+                      checked={formData.advantagePlusEnhancements.addCatalogItems}
+                      onCheckedChange={() => handleToggleEnhancement('addCatalogItems')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="add-catalog-items" className="cursor-pointer">Add catalog items</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="visual-touch-ups"
+                      checked={formData.advantagePlusEnhancements.visualTouchUps}
+                      onCheckedChange={() => handleToggleEnhancement('visualTouchUps')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="visual-touch-ups" className="cursor-pointer">Visual touch-ups</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="music"
+                      checked={formData.advantagePlusEnhancements.music}
+                      onCheckedChange={() => handleToggleEnhancement('music')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="music" className="cursor-pointer">Add music</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="animation-3d"
+                      checked={formData.advantagePlusEnhancements.animation3d}
+                      onCheckedChange={() => handleToggleEnhancement('animation3d')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="animation-3d" className="cursor-pointer">3D animation</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="text-improvements"
+                      checked={formData.advantagePlusEnhancements.textImprovements}
+                      onCheckedChange={() => handleToggleEnhancement('textImprovements')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="text-improvements" className="cursor-pointer">Text improvements</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="store-locations"
+                      checked={formData.advantagePlusEnhancements.storeLocations}
+                      onCheckedChange={() => handleToggleEnhancement('storeLocations')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="store-locations" className="cursor-pointer">Add store locations</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="enhance-cta"
+                      checked={formData.advantagePlusEnhancements.enhanceCta}
+                      onCheckedChange={() => handleToggleEnhancement('enhanceCta')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="enhance-cta" className="cursor-pointer">Enhance CTA</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="add-site-links"
+                      checked={formData.advantagePlusEnhancements.addSiteLinks}
+                      onCheckedChange={() => handleToggleEnhancement('addSiteLinks')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="add-site-links" className="cursor-pointer">Add site links</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="image-animation"
+                      checked={formData.advantagePlusEnhancements.imageAnimation}
+                      onCheckedChange={() => handleToggleEnhancement('imageAnimation')}
+                      className="rounded text-[#f6242f]"
+                    />
+                    <Label htmlFor="image-animation" className="cursor-pointer">Image animation</Label>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+        
+        {/* Additional Options */}
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="multi-advertiser" className="text-sm font-medium">Allow Multi-Advertiser Ads</Label>
+              <p className="text-xs text-[#65676B]">Let Meta show your ads alongside other advertisers</p>
+            </div>
+            <Switch 
+              id="multi-advertiser"
+              checked={formData.allowMultiAdvertiserAds}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, allowMultiAdvertiserAds: checked }))}
+              className="data-[state=checked]:bg-[#f6242f]"
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="flexible-media" className="text-sm font-medium">Enable Flexible Media</Label>
+              <p className="text-xs text-[#65676B]">Allows Meta to adjust your media to fit different placements</p>
+            </div>
+            <Switch 
+              id="flexible-media"
+              checked={formData.enableFlexibleMedia}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, enableFlexibleMedia: checked }))}
+              className="data-[state=checked]:bg-[#f6242f]"
+            />
           </div>
         </div>
       </div>
