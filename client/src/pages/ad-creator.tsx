@@ -10,6 +10,7 @@ import { AdTextForm } from "@/components/ad-creator/ad-text-form";
 import { BrandSettings } from "@/components/ad-creator/brand-settings";
 import { AdTargeting } from "@/components/ad-creator/ad-targeting";
 import { AdPreview } from "@/components/ad-creator/ad-preview";
+import { AdSummary } from "@/components/ad-creator/ad-summary";
 import { CombinedTypeSelector } from "@/components/ad-creator/combined-type-selector";
 import { PlacementCustomizer } from "@/components/ad-creator/placement-customizer";
 import { AuthDialog } from "@/components/auth/auth-dialog";
@@ -755,39 +756,81 @@ export default function AdCreator() {
                 Review your ad creative and distribution settings before launching.
               </p>
               
-              <div className="border border-[#E4E6EB] rounded-md p-4 mb-4">
-                <h3 className="font-medium mb-2">Ad Creative</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="text-[#65676B]">Brand:</div>
-                  <div>{adData.brandName}</div>
-                  <div className="text-[#65676B]">Headline:</div>
-                  <div>{adData.headline}</div>
-                  <div className="text-[#65676B]">Media:</div>
-                  <div>{adData.mediaUrl ? "✓ Uploaded" : "No media"}</div>
+              {/* Two-column layout for Summary and Preview */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column - Ad Summary */}
+                <div>
+                  <AdSummary 
+                    adName={`Ad for ${adData.brandName}`}
+                    onAdNameChange={(name) => {
+                      // Update ad name if needed
+                      console.log("Ad name updated:", name);
+                      // Could save this to state/db if needed
+                    }}
+                    adAccountName={targetingData.adAccountId ? 
+                      (targetingData.adAccountId === "account_1" ? "Meta Ads Account (Main)" : 
+                      targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
+                      targetingData.adAccountId) : 
+                      undefined}
+                    campaigns={[
+                      // Extract unique campaigns from ad sets 
+                      ...new Map(targetingData.adSets
+                        .filter(adSet => adSet.campaignId)
+                        .map(adSet => {
+                          // Convert campaign ID to name
+                          let campaignName = "Campaign";
+                          if (adSet.campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
+                          if (adSet.campaignId === "campaign2") campaignName = "Summer Sale 2025";
+                          if (adSet.campaignId === "campaign3") campaignName = "Brand Awareness Q1";
+                          
+                          return { 
+                            id: adSet.campaignId || "", 
+                            name: campaignName
+                          };
+                        })
+                        .map(campaign => [campaign.id, campaign])
+                      ).values()
+                    ]}
+                    adSets={targetingData.adSets.map(adSet => ({
+                      id: adSet.id,
+                      name: adSet.name,
+                      campaignId: adSet.campaignId
+                    }))}
+                    facebookPage={adData.facebookPage}
+                    instagramAccount={adData.instagramAccount}
+                    allowMultiAdvertiserAds={false}
+                    enableFlexibleMedia={false}
+                    advantagePlusEnhancements={{
+                      translateText: targetingData.campaignObjective === "traffic",
+                      addOverlays: false,
+                      addCatalogItems: false,
+                      visualTouchUps: true,
+                      music: false,
+                      animation3d: false,
+                      textImprovements: true,
+                      storeLocations: false,
+                      enhanceCta: true,
+                      addSiteLinks: false,
+                      imageAnimation: false
+                    }}
+                  />
                 </div>
-              </div>
-              
-              <div className="border border-[#E4E6EB] rounded-md p-4 mb-6">
-                <h3 className="font-medium mb-2">Distribution</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="text-[#65676B]">Campaign objective:</div>
-                  <div className="capitalize">{targetingData.campaignObjective}</div>
-                  <div className="text-[#65676B]">Placements:</div>
-                  <div>{(targetingData.placements || ['facebook', 'instagram']).join(', ')}</div>
-                  <div className="text-[#65676B]">Ad Sets:</div>
-                  <div>{targetingData.adSets.length}</div>
-                </div>
-              </div>
-
-              <div className="border border-[#E4E6EB] rounded-md p-4 mb-6">
-                <h3 className="font-medium mb-2">Ad Sets ({targetingData.adSets.length})</h3>
-                <div className="space-y-3">
-                  {targetingData.adSets.map((adSet, index) => (
-                    <div key={adSet.id} className="border-b border-[#E4E6EB] last:border-0 pb-2 last:pb-0">
-                      <div className="font-medium">{adSet.name}</div>
-                      <div className="text-sm text-[#65676B]">Audience: {adSet.audience}</div>
-                    </div>
-                  ))}
+                
+                {/* Right Column - Ad Preview */}
+                <div>
+                  <AdPreview
+                    brandName={adData.brandName}
+                    facebookPage={adData.facebookPage}
+                    instagramAccount={adData.instagramAccount}
+                    mediaUrl={adData.mediaUrl}
+                    primaryText={adData.primaryText}
+                    headline={adData.headline}
+                    description={adData.description}
+                    cta={adData.cta}
+                    websiteUrl={adData.websiteUrl}
+                    customizedPlacements={adData.customizePlacements}
+                    storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
+                  />
                 </div>
               </div>
             </div>
