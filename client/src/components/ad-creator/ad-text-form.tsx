@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -57,6 +58,27 @@ export function AdTextForm({ onSubmit, defaultValues }: AdTextFormProps) {
   const watchPrimaryText = form.watch("primaryText", "");
   const watchHeadline = form.watch("headline", "");
   const watchDescription = form.watch("description", "");
+  
+  // Update form when defaultValues change (like when AI suggestions are applied)
+  useEffect(() => {
+    if (defaultValues) {
+      if (defaultValues.primaryText) {
+        form.setValue("primaryText", defaultValues.primaryText);
+      }
+      if (defaultValues.headline) {
+        form.setValue("headline", defaultValues.headline);
+      }
+      if (defaultValues.description) {
+        form.setValue("description", defaultValues.description);
+      }
+      if (defaultValues.cta) {
+        form.setValue("cta", defaultValues.cta);
+      }
+      if (defaultValues.websiteUrl) {
+        form.setValue("websiteUrl", defaultValues.websiteUrl);
+      }
+    }
+  }, [defaultValues, form]);
 
   // Handle changes and auto-submit
   const handleValueChange = (values: Partial<AdTextFormValues>) => {
