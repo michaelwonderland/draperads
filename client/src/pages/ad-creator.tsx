@@ -749,12 +749,12 @@ export default function AdCreator() {
             />
           )}
 
-          {/* Step 3 - Side by side */}
+          {/* Step 3 - Side by side, just Distribution Summary and Ad Preview */}
           {currentStep === 3 && (
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               
               {/* Two-column layout for Summary and Preview */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left Column - Ad Summary */}
                 <div>
                   <AdSummary 
@@ -815,24 +815,21 @@ export default function AdCreator() {
                   />
                 </div>
                 
-                {/* Right Column - Ad Preview */}
+                {/* Right Column - Ad Preview (no additional title) */}
                 <div>
-                  <h3 className="text-lg font-medium mb-4">Ad Creative</h3>
-                  <div className="mb-4">
-                    <AdPreview
-                      brandName={adData.brandName}
-                      facebookPage={adData.facebookPage}
-                      instagramAccount={adData.instagramAccount}
-                      mediaUrl={adData.mediaUrl}
-                      primaryText={adData.primaryText}
-                      headline={adData.headline}
-                      description={adData.description}
-                      cta={adData.cta}
-                      websiteUrl={adData.websiteUrl}
-                      customizedPlacements={adData.customizePlacements}
-                      storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
-                    />
-                  </div>
+                  <AdPreview
+                    brandName={adData.brandName}
+                    facebookPage={adData.facebookPage}
+                    instagramAccount={adData.instagramAccount}
+                    mediaUrl={adData.mediaUrl}
+                    primaryText={adData.primaryText}
+                    headline={adData.headline}
+                    description={adData.description}
+                    cta={adData.cta}
+                    websiteUrl={adData.websiteUrl}
+                    customizedPlacements={adData.customizePlacements}
+                    storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
+                  />
                 </div>
               </div>
             </div>
