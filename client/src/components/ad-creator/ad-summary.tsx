@@ -149,7 +149,7 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                   <h3 className="text-base font-medium mb-2">Campaigns</h3>
                   <div className="flex flex-wrap gap-1">
                     <Badge variant="outline" className="bg-gray-100">
-                      {formatAdType(targetingData.campaignObjective || adData.adType)}
+                      {formatAdType(targetingData.campaignObjective || adData.adType)} Campaign
                     </Badge>
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                   <h3 className="text-base font-medium mb-2">Ad Sets</h3>
                   {targetingData.adSets && targetingData.adSets.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {targetingData.adSets.map((adSet, index) => (
+                      {targetingData.adSets.map((adSet: any, index: number) => (
                         <Badge key={index} variant="outline" className="bg-gray-100">
                           {adSet.name}
                         </Badge>
@@ -171,33 +171,31 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                 </div>
               </div>
             </div>
-            
-            {/* Account Creation - Moved up */}
-            <div className="bg-[#FFF8F8] border border-[#FFCDD2] rounded-lg p-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#f6242f]"></div>
-              
-              <div className="flex items-start">
-                <div className="bg-[#FFEBEE] p-2 rounded-full mr-4">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 8V12" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12 16H12.01" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                
-                <div>
-                  <h3 className="font-bold text-[#f6242f] text-lg mb-1">Account Required</h3>
-                  <p className="text-gray-700">
-                    You need a DraperAds account to deploy this ad to Meta. Create your account below to continue.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         
-        {/* Account Creation Form */}
-        <div className="max-w-md mx-auto border-t pt-6">
+        {/* Account Creation */}
+        <div className="max-w-lg mx-auto">
+          <div className="bg-[#FFF8F8] border border-[#FFCDD2] rounded-lg p-6 mb-6 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-[#f6242f]"></div>
+            
+            <div className="flex items-start">
+              <div className="bg-[#FFEBEE] p-2 rounded-full mr-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 8V12" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 16H12.01" stroke="#f6242f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              
+              <div>
+                <h3 className="font-bold text-[#f6242f] text-lg mb-1">Account Required</h3>
+                <p className="text-gray-700">
+                  You need a DraperAds account to deploy this ad to Meta. Create your account below to continue.
+                </p>
+              </div>
+            </div>
+          </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-2">Create Your DraperAds Account</h2>
