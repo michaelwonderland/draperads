@@ -663,8 +663,23 @@ export default function AdCreator() {
               {currentStep < 3 ? (
                 <Button
                   onClick={handleNextStep}
-                  disabled={currentStep === 1 && !adData.mediaUrl}
-                  className="bg-[#f6242f] hover:opacity-90 text-white"
+                  disabled={
+                    (currentStep === 1 && !adData.mediaUrl) || 
+                    (currentStep === 2 && (
+                      !targetingData.adAccountId || 
+                      targetingData.adSets.length === 0 || 
+                      !targetingData.facebookPageId
+                    ))
+                  }
+                  className={`${
+                    (currentStep === 2 && (
+                      !targetingData.adAccountId || 
+                      targetingData.adSets.length === 0 || 
+                      !targetingData.facebookPageId
+                    )) ? 
+                    "bg-[#f6242f]/50 hover:bg-[#f6242f]/50 cursor-not-allowed" : 
+                    "bg-[#f6242f] hover:opacity-90"
+                  } text-white`}
                 >
                   {currentStep === 1 ? "Create Ad" : "Launch"}
                 </Button>

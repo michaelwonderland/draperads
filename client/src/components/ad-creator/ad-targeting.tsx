@@ -82,6 +82,7 @@ interface AdSetConfig {
 interface AdTargetingProps {
   onChange: (data: any) => void;
   defaultValues?: Partial<AdTargetingFormData>;
+  onConnectionChange?: (isConnected: boolean) => void;
 }
 
 export function AdTargeting({ onChange, defaultValues }: AdTargetingProps) {
