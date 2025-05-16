@@ -48,6 +48,25 @@ export function AdPreview({
   const [textOverflows, setTextOverflows] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
   
+  // For compact view, truncate text even more
+  const compactPrimaryText = compact && primaryText 
+    ? primaryText.length > 60 
+      ? primaryText.substring(0, 60) + '...' 
+      : primaryText 
+    : primaryText;
+  
+  const compactHeadline = compact && headline
+    ? headline.length > 30
+      ? headline.substring(0, 30) + '...'
+      : headline
+    : headline;
+  
+  const compactDescription = compact && description
+    ? description.length > 40
+      ? description.substring(0, 40) + '...'
+      : description
+    : description;
+  
   // Check if text overflows on mount and on text/container change
   useEffect(() => {
     const checkOverflow = () => {
@@ -152,72 +171,67 @@ export function AdPreview({
           
           {/* Ad Content */}
           <div className="bg-white">
-            {/* Primary Text with "See more" functionality */}
-            <div className="relative mx-4 my-4">
-              <p 
-                ref={textRef}
-                className={`text-base leading-tight ${!showFullText && 'max-h-[4.5em] overflow-hidden'}`}
-              >
-                {primaryText}
-              </p>
-              
-              {textOverflows && !showFullText && (
-                <div className="absolute bottom-0 right-0 pl-12 text-right bg-gradient-to-l from-white via-white to-transparent">
-                  <button 
-                    onClick={() => setShowFullText(true)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    ...See more
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Primary Text with "See more" functionality - Only show if there's actual text */}
+            {primaryText && (
+              <div className="relative mx-4 my-3">
+                <p 
+                  ref={textRef}
+                  className={`text-base leading-snug ${!showFullText && 'max-h-[4.5em] overflow-hidden'}`}
+                >
+                  {primaryText}
+                </p>
+                
+                {/* Only show "See more" if text actually overflows */}
+                {textOverflows && !showFullText && (
+                  <div className="absolute bottom-0 right-0 pl-12 text-right bg-gradient-to-l from-white via-white to-transparent">
+                    <button 
+                      onClick={() => setShowFullText(true)}
+                      className="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      ...See more
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
             
-            {/* Ad creative section - matched to screenshot */}
+            {/* Ad creative section - improved layout */}
             <div className="w-full mx-auto overflow-hidden">
               {mediaUrl ? (
                 <div className="relative bg-white flex flex-col">
-                  <div className="py-4 px-4 flex flex-col">
-                    <h2 className="text-[26px] font-bold leading-tight">
-                      {headline}
-                    </h2>
-                    {description && (
-                      <div className="mt-2 text-base">
-                        {description}
-                        {description.includes("technique") && (
-                          <div className="mt-1">by Rebecca</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Media image */}
+                  {/* Media image - moved to top for better layout */}
                   {mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
                     <video
                       src={mediaUrl}
                       controls
-                      className="w-full h-auto"
+                      className="w-full h-auto object-cover"
                     />
                   ) : (
-                    <img
-                      src={mediaUrl}
-                      alt="Ad content"
-                      className="w-full h-auto"
-                    />
+                    <div className="w-full overflow-hidden">
+                      <img
+                        src={mediaUrl}
+                        alt="Ad content"
+                        className="w-full h-auto object-cover"
+                      />
+                    </div>
                   )}
                   
-                  {/* CTA section */}
-                  <div className="p-4">
+                  {/* Headline and description below image */}
+                  <div className="p-4 pb-2">
                     <p className="text-sm text-[#65676B] uppercase mb-1">{extractDomain(websiteUrl)}</p>
-                    <h3 className="text-[18px] font-medium text-black mb-1">{headline}</h3>
-                    <p className="text-sm text-[#65676B] mb-4">
-                      {description?.substring(0, 100) || "Ancient hair removal technique using only natural ingredients for smoother, less irritated skin."}
-                    </p>
-                    <div className="flex justify-end">
-                      <button className="bg-[#F3F4F6] text-black text-center text-sm font-medium py-2 px-4 rounded-md">
-                        {getCtaText(cta)}
-                      </button>
-                    </div>
+                    <h3 className="text-[18px] font-semibold text-black leading-tight mb-1 line-clamp-2">{headline}</h3>
+                    {description && (
+                      <p className="text-sm text-[#65676B] mb-2 line-clamp-2">
+                        {description}
+                      </p>
+                    )}
+                  </div>
+                  
+                  {/* CTA button */}
+                  <div className="px-4 pb-4">
+                    <button className="bg-[#F3F4F6] text-black text-center text-sm font-medium py-2 px-4 rounded-md w-full md:w-auto">
+                      {getCtaText(cta)}
+                    </button>
                   </div>
                 </div>
               ) : (

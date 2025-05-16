@@ -177,45 +177,80 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                     <div className="overflow-hidden">
                       <h3 className="text-xs font-medium">Meta Ad Account</h3>
                       <p className="text-xs text-gray-500 truncate">
-                        {targetingData.adAccountId ? `Connected (ID: ${targetingData.adAccountId})` : "Not Connected"}
+                        {targetingData.adAccountName 
+                          ? targetingData.adAccountName 
+                          : (targetingData.adAccountId 
+                              ? `Connected (ID: ${targetingData.adAccountId})`
+                              : "Not Connected"
+                            )
+                        }
                       </p>
                     </div>
                   </div>
                 </div>
                 
-                {/* Campaign */}
-                <div>
-                  <h3 className="text-xs font-medium mb-1">Campaign</h3>
-                  <Badge variant="outline" className="bg-white border-blue-200 text-blue-800 ml-0 text-xs">
-                    {formatAdType(targetingData.campaignObjective || adData.adType)} 
-                  </Badge>
+                {/* Campaigns */}
+                <div className="col-span-2 mt-1">
+                  <h3 className="text-xs font-medium mb-1">Campaigns</h3>
+                  {targetingData.campaigns && targetingData.campaigns.length > 0 ? (
+                    <div className="max-h-[60px] overflow-y-auto bg-white rounded border border-gray-200 p-2">
+                      <div className="space-y-1">
+                        {targetingData.campaigns.map((campaign: any, index: number) => (
+                          <div key={index} className="flex items-center py-0.5">
+                            <CheckCircle2 className="h-3 w-3 text-green-500 mr-1.5 flex-shrink-0" />
+                            <span className="text-xs truncate">{campaign.name}</span>
+                            {campaign.status === 'ACTIVE' && (
+                              <Badge variant="outline" className="ml-auto text-[10px] py-0 h-4 bg-green-50 border-green-200 text-green-700">
+                                Active
+                              </Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Badge variant="outline" className="bg-white border-blue-200 text-blue-800 ml-0 text-xs">
+                      {formatAdType(targetingData.campaignObjective || adData.adType)} Campaign
+                    </Badge>
+                  )}
                 </div>
                 
-                {/* Ad Sets - Compact list */}
-                <div>
-                  <h3 className="text-xs font-medium mb-1">Ad Sets</h3>
-                  <span className="text-xs">
-                    {targetingData.adSets && targetingData.adSets.length > 0 
-                      ? `${targetingData.adSets.length} selected` 
-                      : "None selected"}
-                  </span>
-                </div>
-                
-                {/* Ad Sets Details */}
-                {targetingData.adSets && targetingData.adSets.length > 0 && (
-                  <div className="col-span-2 mt-1">
+                {/* Ad Sets */}
+                <div className="col-span-2 mt-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-medium mb-1">Ad Sets</h3>
+                    <span className="text-xs text-gray-500">
+                      {targetingData.adSets && targetingData.adSets.length > 0 
+                        ? `${targetingData.adSets.length} selected` 
+                        : "None selected"}
+                    </span>
+                  </div>
+                  
+                  {targetingData.adSets && targetingData.adSets.length > 0 && (
                     <div className="max-h-[100px] overflow-y-auto bg-white rounded border border-gray-200 p-2">
                       <div className="space-y-1">
                         {targetingData.adSets.map((adSet: any, index: number) => (
                           <div key={index} className="flex items-center py-0.5">
                             <CheckCircle2 className="h-3 w-3 text-green-500 mr-1.5 flex-shrink-0" />
-                            <span className="text-xs truncate">{adSet.name}</span>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs font-medium truncate block">{adSet.name}</span>
+                              {adSet.campaignName && (
+                                <span className="text-[10px] text-gray-500 truncate block">
+                                  Campaign: {adSet.campaignName}
+                                </span>
+                              )}
+                            </div>
+                            {adSet.audience && (
+                              <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                {adSet.audience}
+                              </span>
+                            )}
                           </div>
                         ))}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
