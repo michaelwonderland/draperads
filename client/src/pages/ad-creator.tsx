@@ -17,10 +17,53 @@ import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle2, Sparkles } from "lucide-react";
 
+// Define proper interfaces for our state objects
 interface AdSetConfig {
   id: string;
   name: string;
-  audience: string;
+  audience?: string;
+}
+
+interface AdData {
+  templateId: number;
+  adType: string;
+  adFormat: string;
+  mediaUrl: string;
+  primaryText: string;
+  headline: string;
+  description: string;
+  cta: string;
+  websiteUrl: string;
+  brandName: string;
+  status: string;
+  customizePlacements: boolean;
+  facebookPage: string;
+  instagramAccount: string;
+  hasAppliedAiSuggestions: boolean;
+}
+
+interface TargetingData {
+  adAccountId: string;
+  campaignObjective?: string;
+  placements?: string[];
+  adSets: AdSetConfig[];
+  facebookPageId?: string;
+  instagramAccountId?: string;
+  facebookPageName?: string;
+  instagramAccountName?: string;
+}
+
+interface AiSuggestions {
+  suggestedHeadline: string;
+  suggestedPrimaryText: string;
+  suggestedDescription: string;
+  suggestedCta: string;
+}
+
+interface PlacementMediaData {
+  feeds: string;
+  stories: string;
+  rightColumn: string;
 }
 
 export default function AdCreator() {
@@ -46,12 +89,7 @@ export default function AdCreator() {
     retry: false, // Don't retry if no draft is found
     staleTime: 60 * 1000 // Cache for 1 minute
   });
-  const [aiSuggestions, setAiSuggestions] = useState<{
-    suggestedHeadline: string;
-    suggestedPrimaryText: string;
-    suggestedDescription: string;
-    suggestedCta: string;
-  } | null>(null);
+  const [aiSuggestions, setAiSuggestions] = useState<AiSuggestions | null>(null);
   const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
   
   // Load latest draft when available
@@ -108,14 +146,14 @@ export default function AdCreator() {
   }, [latestDraft, isDraftLoading, toast]);
   
   // Placement-specific media state
-  const [placementMedia, setPlacementMedia] = useState({
+  const [placementMedia, setPlacementMedia] = useState<PlacementMediaData>({
     feeds: "",
     stories: "",
     rightColumn: ""
   });
   
   // Ad content state
-  const [adData, setAdData] = useState({
+  const [adData, setAdData] = useState<AdData>({
     templateId: 1,
     adType: "conversions", // "conversions", "leads", "reach"
     adFormat: "image", // "image", "carousel", "collection"
@@ -134,7 +172,7 @@ export default function AdCreator() {
   });
   
   // Ad targeting state
-  const [targetingData, setTargetingData] = useState({
+  const [targetingData, setTargetingData] = useState<TargetingData>({
     adAccountId: "account_1",
     campaignObjective: "traffic",
     placements: ["facebook", "instagram"],
@@ -142,7 +180,9 @@ export default function AdCreator() {
       { id: "set1", name: "Main Audience", audience: "Broad - 25-54 age range" }
     ],
     facebookPageId: "",
-    instagramAccountId: ""
+    instagramAccountId: "",
+    facebookPageName: "",
+    instagramAccountName: ""
   });
   
   // Meta connection state
@@ -320,17 +360,21 @@ export default function AdCreator() {
   // Handle ad type and format change - these are now handled directly in the component
   
   // Handle targeting change
-  const handleTargetingChange = (values: {
-    adAccountId: string;
-    campaignObjective?: string;
-    placements?: string[];
-    adSets: { id: string; name: string; audience?: string }[];
-    facebookPageId?: string;
-    instagramAccountId?: string;
-    facebookPageName?: string;
-    instagramAccountName?: string;
-  }) => {
-    setTargetingData(values);
+  const handleTargetingChange = (values: TargetingData) => {
+    // Create a properly typed targeting data object
+    const newTargetingData: TargetingData = {
+      adAccountId: values.adAccountId,
+      campaignObjective: values.campaignObjective || "traffic",
+      placements: values.placements || ["facebook", "instagram"],
+      adSets: values.adSets || [],
+      facebookPageId: values.facebookPageId,
+      instagramAccountId: values.instagramAccountId,
+      facebookPageName: values.facebookPageName,
+      instagramAccountName: values.instagramAccountName
+    };
+    
+    // Update targeting data
+    setTargetingData(newTargetingData);
     
     // Use the Facebook page and Instagram account names directly from the targeting data
     if (values.facebookPageName || values.instagramAccountName) {
