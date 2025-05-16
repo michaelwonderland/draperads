@@ -27,9 +27,10 @@ export function CombinedTypeSelector({
   };
 
   // Common button styles
-  const buttonStyle = "px-4 py-2 border rounded-md cursor-pointer transition-colors";
+  const buttonStyle = "px-4 py-2 border rounded-md transition-colors";
   const selectedStyle = "bg-[#f6242f] text-white border-[#f6242f]";
-  const unselectedStyle = "bg-white text-gray-900 hover:bg-gray-50";
+  const unselectedStyle = "bg-white text-gray-900 hover:bg-gray-50 cursor-pointer";
+  const disabledStyle = "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed";
 
   return (
     <div className="space-y-6">
@@ -48,16 +49,18 @@ export function CombinedTypeSelector({
           
           <button
             type="button"
-            onClick={() => handleTypeChange("leads")}
-            className={`${buttonStyle} ${adType === "leads" ? selectedStyle : unselectedStyle}`}
+            title="DraperAds Preview available only for Standard Image/Video Conversion Ads"
+            className={`${buttonStyle} ${disabledStyle}`}
+            disabled
           >
             Leads
           </button>
           
           <button
             type="button"
-            onClick={() => handleTypeChange("reach")}
-            className={`${buttonStyle} ${adType === "reach" ? selectedStyle : unselectedStyle}`}
+            title="DraperAds Preview available only for Standard Image/Video Conversion Ads"
+            className={`${buttonStyle} ${disabledStyle}`}
+            disabled
           >
             Reach
           </button>
@@ -79,16 +82,18 @@ export function CombinedTypeSelector({
           
           <button
             type="button"
-            onClick={() => handleFormatChange("carousel")}
-            className={`${buttonStyle} ${adFormat === "carousel" ? selectedStyle : unselectedStyle}`}
+            title="DraperAds Preview available only for Standard Image/Video Conversion Ads"
+            className={`${buttonStyle} ${disabledStyle}`}
+            disabled
           >
             Carousel
           </button>
           
           <button
             type="button"
-            onClick={() => handleFormatChange("collection")}
-            className={`${buttonStyle} ${adFormat === "collection" ? selectedStyle : unselectedStyle}`}
+            title="DraperAds Preview available only for Standard Image/Video Conversion Ads"
+            className={`${buttonStyle} ${disabledStyle}`}
+            disabled
           >
             Collection
           </button>
