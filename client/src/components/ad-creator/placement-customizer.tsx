@@ -110,7 +110,31 @@ export function PlacementCustomizer({
   // Display format for media dimensions
   const formatDimensions = (width?: number, height?: number): string => {
     if (!width || !height) return '';
-    return `${width} × ${height} px`;
+    
+    // Calculate aspect ratio and determine if it matches standard ratios
+    let ratioText = "";
+    if (width && height) {
+      const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
+      const divisor = gcd(width, height);
+      const simpleRatioW = width / divisor;
+      const simpleRatioH = height / divisor;
+      
+      // Check if it closely matches common aspect ratios
+      const ratio = width / height;
+      
+      if (Math.abs(ratio - 1) < 0.05) {
+        ratioText = " (1:1)";
+      } else if (Math.abs(ratio - 4/5) < 0.05) {
+        ratioText = " (4:5)";
+      } else if (Math.abs(ratio - 9/16) < 0.05) {
+        ratioText = " (9:16)";
+      } else if (simpleRatioW <= 20 && simpleRatioH <= 20) {
+        // Only show if the reduced ratio has reasonable numbers
+        ratioText = ` (${simpleRatioW}:${simpleRatioH})`;
+      }
+    }
+    
+    return `${width} × ${height} px${ratioText}`;
   };
 
   // Format video duration in MM:SS format
