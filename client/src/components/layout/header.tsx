@@ -81,7 +81,7 @@ export default function Header() {
                   <span className={`w-6 h-6 ${currentStep >= 1 ? 'bg-[#f6242f] text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center text-xs`}>1</span>
                   <span className={`text-xs ${currentStep >= 1 ? 'font-semibold text-[#f6242f]' : 'text-[#65676B]'}`}>Design</span>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" className="text-[#E4E6EB]">
+                <svg width="16" height="16" viewBox="0 0 24 24" className={`${currentStep >= 2 ? 'text-[#f6242f]' : 'text-[#E4E6EB]'}`}>
                   <path fill="none" stroke="currentColor" strokeWidth="2" d="M5 12h14"></path>
                   <path fill="none" stroke="currentColor" strokeWidth="2" d="M12 5l7 7-7 7"></path>
                 </svg>
@@ -89,7 +89,7 @@ export default function Header() {
                   <span className={`w-6 h-6 ${currentStep >= 2 ? 'bg-[#f6242f] text-white' : 'bg-[#F0F2F5] text-[#65676B] border border-[#E4E6EB]'} rounded-full flex items-center justify-center text-xs`}>2</span>
                   <span className={`text-xs ${currentStep >= 2 ? 'font-semibold text-[#f6242f]' : 'text-[#65676B]'}`}>Distribution</span>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" className="text-[#E4E6EB]">
+                <svg width="16" height="16" viewBox="0 0 24 24" className={`${currentStep >= 3 ? 'text-[#f6242f]' : 'text-[#E4E6EB]'}`}>
                   <path fill="none" stroke="currentColor" strokeWidth="2" d="M5 12h14"></path>
                   <path fill="none" stroke="currentColor" strokeWidth="2" d="M12 5l7 7-7 7"></path>
                 </svg>
