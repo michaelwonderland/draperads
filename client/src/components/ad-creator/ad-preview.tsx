@@ -22,6 +22,9 @@ interface AdPreviewProps {
   // For placement customization support
   storiesMediaUrl?: string;
   customizedPlacements?: boolean;
+  // Brand identity
+  facebookPage?: string;
+  instagramAccount?: string;
 }
 
 export function AdPreview({
@@ -33,7 +36,9 @@ export function AdPreview({
   cta,
   websiteUrl,
   storiesMediaUrl,
-  customizedPlacements = false
+  customizedPlacements = false,
+  facebookPage,
+  instagramAccount
 }: AdPreviewProps) {
   const [viewMode, setViewMode] = useState<'feed' | 'stories'>('feed');
 
@@ -101,7 +106,11 @@ export function AdPreview({
                   {brandName.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{brandName}</p>
+                  <p className="text-sm font-medium">
+                    {viewMode === 'feed' 
+                      ? (facebookPage || brandName) 
+                      : (instagramAccount || brandName)}
+                  </p>
                   <p className="text-xs text-[#65676B] flex items-center gap-1">
                     Sponsored · <GlobeIcon className="h-3 w-3" />
                   </p>
@@ -211,7 +220,7 @@ export function AdPreview({
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-white">{brandName.toLowerCase()}</p>
+                  <p className="text-xs font-medium text-white">{instagramAccount || brandName.toLowerCase()}</p>
                   <p className="text-[10px] text-white/80">Sponsored</p>
                 </div>
               </div>
