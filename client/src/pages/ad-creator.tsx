@@ -29,7 +29,14 @@ export default function AdCreator() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    // Get initial step from localStorage if available
+    if (typeof window !== 'undefined') {
+      const savedStep = localStorage.getItem('adCreatorStep');
+      return savedStep ? parseInt(savedStep, 10) : 1;
+    }
+    return 1;
+  });
   const [isLoadingDraft, setIsLoadingDraft] = useState(true);
   
   // Fetch latest draft ad when component mounts
@@ -363,7 +370,11 @@ export default function AdCreator() {
   const handleNextStep = () => {
     if (currentStep < 3) {
       // Immediately move to the next step
-      setCurrentStep(currentStep + 1);
+      const newStep = currentStep + 1;
+      setCurrentStep(newStep);
+      
+      // Update localStorage to sync with header
+      localStorage.setItem('adCreatorStep', newStep.toString());
       
       // Try to save in the background without blocking
       try {
@@ -384,7 +395,11 @@ export default function AdCreator() {
         console.error("Failed to save progress:", error);
       }
       // Move to previous step regardless of save success
-      setCurrentStep(currentStep - 1);
+      const newStep = currentStep - 1;
+      setCurrentStep(newStep);
+      
+      // Update localStorage to sync with header
+      localStorage.setItem('adCreatorStep', newStep.toString());
     }
   };
   
