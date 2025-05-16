@@ -44,10 +44,7 @@ export default function AdCreator() {
     queryKey: ['/api/ads/draft/latest'],
     enabled: true,
     retry: false, // Don't retry if no draft is found
-    staleTime: 60 * 1000, // Cache for 1 minute
-    onSettled: () => {
-      setIsLoadingDraft(false);
-    }
+    staleTime: 60 * 1000 // Cache for 1 minute
   });
   const [aiSuggestions, setAiSuggestions] = useState<{
     suggestedHeadline: string;
@@ -59,35 +56,54 @@ export default function AdCreator() {
   
   // Load latest draft when available
   useEffect(() => {
-    if (latestDraft && !isDraftLoading) {
-      // Update ad data with the latest draft
-      setAdData({
-        templateId: latestDraft.templateId || 1,
-        adType: latestDraft.adType || "conversions",
-        adFormat: latestDraft.adFormat || "image",
-        mediaUrl: latestDraft.mediaUrl || "",
-        primaryText: latestDraft.primaryText || "",
-        headline: latestDraft.headline || "",
-        description: latestDraft.description || "",
-        cta: latestDraft.cta || "sign_up",
-        websiteUrl: latestDraft.websiteUrl || "https://example.com/signup",
-        brandName: latestDraft.brandName || "DraperAds",
-        status: latestDraft.status || "draft",
-        customizePlacements: false,
-        facebookPage: "",
-        instagramAccount: "",
-        hasAppliedAiSuggestions: false
-      });
-      
-      // Show toast notification
-      toast({
-        title: "Draft Loaded",
-        description: "Your previous ad draft has been loaded.",
-      });
-      
+    // If loading is done, update isLoadingDraft
+    if (!isDraftLoading) {
       setIsLoadingDraft(false);
-    } else if (!isDraftLoading) {
-      setIsLoadingDraft(false);
+      
+      // If there's a draft available, update the form with it
+      if (latestDraft) {
+        // Define a proper type for the draft
+        const draft = latestDraft as {
+          templateId?: number;
+          adType?: string;
+          adFormat?: string;
+          mediaUrl?: string;
+          primaryText?: string;
+          headline?: string;
+          description?: string;
+          cta?: string;
+          websiteUrl?: string;
+          brandName?: string;
+          status?: string;
+          facebookPage?: string;
+          instagramAccount?: string;
+        };
+        
+        // Update ad data with the latest draft
+        setAdData({
+          templateId: draft.templateId || 1,
+          adType: draft.adType || "conversions",
+          adFormat: draft.adFormat || "image",
+          mediaUrl: draft.mediaUrl || "",
+          primaryText: draft.primaryText || "",
+          headline: draft.headline || "",
+          description: draft.description || "",
+          cta: draft.cta || "sign_up",
+          websiteUrl: draft.websiteUrl || "https://example.com/signup",
+          brandName: draft.brandName || "DraperAds",
+          status: draft.status || "draft",
+          customizePlacements: false,
+          facebookPage: draft.facebookPage || "",
+          instagramAccount: draft.instagramAccount || "",
+          hasAppliedAiSuggestions: false
+        });
+        
+        // Show toast notification
+        toast({
+          title: "Draft Loaded",
+          description: "Your previous ad draft has been loaded.",
+        });
+      }
     }
   }, [latestDraft, isDraftLoading, toast]);
   
@@ -304,7 +320,16 @@ export default function AdCreator() {
   // Handle ad type and format change - these are now handled directly in the component
   
   // Handle targeting change
-  const handleTargetingChange = (values: any) => {
+  const handleTargetingChange = (values: {
+    adAccountId: string;
+    campaignObjective?: string;
+    placements?: string[];
+    adSets: { id: string; name: string; audience?: string }[];
+    facebookPageId?: string;
+    instagramAccountId?: string;
+    facebookPageName?: string;
+    instagramAccountName?: string;
+  }) => {
     setTargetingData(values);
     
     // Use the Facebook page and Instagram account names directly from the targeting data
