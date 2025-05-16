@@ -598,6 +598,7 @@ export default function AdCreator() {
             brandName={adData.brandName}
             mediaUrl={adData.mediaUrl}
             primaryText={adData.primaryText}
+            websiteUrl={adData.websiteUrl}
             headline={adData.headline}
             description={adData.description}
             cta={adData.cta}

@@ -18,6 +18,7 @@ interface AdPreviewProps {
   headline: string;
   description?: string;
   cta: string;
+  websiteUrl: string;
   // For placement customization support
   storiesMediaUrl?: string;
   customizedPlacements?: boolean;
@@ -30,6 +31,7 @@ export function AdPreview({
   headline,
   description,
   cta,
+  websiteUrl,
   storiesMediaUrl,
   customizedPlacements = false
 }: AdPreviewProps) {
@@ -45,6 +47,19 @@ export function AdPreview({
       'get_offer': 'Get Offer'
     };
     return ctaMap[ctaCode] || 'Learn More';
+  };
+  
+  // Extract domain from website URL
+  const extractDomain = (url: string): string => {
+    try {
+      // Remove protocol and path, keep just the domain
+      const domain = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+      return domain.toUpperCase();
+    } catch (error) {
+      // Fallback to brandName if URL parsing fails
+      console.error('Error extracting domain:', error);
+      return `${brandName.toUpperCase()}.COM`;
+    }
   };
 
   return (
@@ -123,7 +138,7 @@ export function AdPreview({
               )}
             </div>
             <div className="p-3">
-              <p className="text-xs text-[#65676B] uppercase tracking-wide">{brandName.toLowerCase()}.com</p>
+              <p className="text-xs text-[#65676B] uppercase tracking-wide">{extractDomain(websiteUrl)}</p>
               <h3 className="font-medium">{headline}</h3>
               {description && <p className="text-sm text-[#65676B]">{description}</p>}
               <div className="flex justify-end mt-2">
