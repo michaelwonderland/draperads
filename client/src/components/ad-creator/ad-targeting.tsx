@@ -47,6 +47,7 @@ interface AdSet {
   id: string;
   name: string;
   campaignId: string;
+  status?: string; // 'ACTIVE', 'PAUSED', etc.
 }
 
 interface FacebookPage {
@@ -121,11 +122,11 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
         { id: 'c1_3', name: 'Brand Awareness Q2', status: 'PAUSED' }
       ],
       adSets: [
-        { id: 'as1_1', name: 'Young Adults 18-24', campaignId: 'c1_1' },
-        { id: 'as1_2', name: 'Home Owners 35-45', campaignId: 'c1_1' },
-        { id: 'as1_3', name: 'Tech Enthusiasts', campaignId: 'c1_2' },
-        { id: 'as1_4', name: 'Early Adopters', campaignId: 'c1_2' },
-        { id: 'as1_5', name: 'Broad Audience', campaignId: 'c1_3' }
+        { id: 'as1_1', name: 'Young Adults 18-24', campaignId: 'c1_1', status: 'ACTIVE' },
+        { id: 'as1_2', name: 'Home Owners 35-45', campaignId: 'c1_1', status: 'ACTIVE' },
+        { id: 'as1_3', name: 'Tech Enthusiasts', campaignId: 'c1_2', status: 'ACTIVE' },
+        { id: 'as1_4', name: 'Early Adopters', campaignId: 'c1_2', status: 'PAUSED' },
+        { id: 'as1_5', name: 'Broad Audience', campaignId: 'c1_3', status: 'PAUSED' }
       ],
       facebookPages: [
         { id: 'fb1_1', name: 'DraperAds Official' },
@@ -143,10 +144,10 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
         { id: 'c2_3', name: 'Social Media Contest', status: 'ACTIVE' }
       ],
       adSets: [
-        { id: 'as2_1', name: 'Holiday Shoppers', campaignId: 'c2_1' },
-        { id: 'as2_2', name: 'Gift Givers 25-45', campaignId: 'c2_1' },
-        { id: 'as2_3', name: 'Business Decision Makers', campaignId: 'c2_2' },
-        { id: 'as2_4', name: 'Social Contest Entrants', campaignId: 'c2_3' }
+        { id: 'as2_1', name: 'Holiday Shoppers', campaignId: 'c2_1', status: 'PAUSED' },
+        { id: 'as2_2', name: 'Gift Givers 25-45', campaignId: 'c2_1', status: 'PAUSED' },
+        { id: 'as2_3', name: 'Business Decision Makers', campaignId: 'c2_2', status: 'ACTIVE' },
+        { id: 'as2_4', name: 'Social Contest Entrants', campaignId: 'c2_3', status: 'ACTIVE' }
       ],
       facebookPages: [
         { id: 'fb2_1', name: 'Creative Solutions' }
@@ -376,13 +377,17 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       adSet.name.toLowerCase().includes(searchAdSet.toLowerCase())
     );
     
-    // Sort: 1. Active first, 2. Group by campaign, 3. Alphabetical
+    // Sort: 1. Active ad sets first, 2. Group by campaign, 3. Alphabetical
     return filteredAdSets.sort((a, b) => {
       // Get campaigns for each ad set
       const campaignA = accountData[formData.adAccountId]?.campaigns.find(c => c.id === a.campaignId);
       const campaignB = accountData[formData.adAccountId]?.campaigns.find(c => c.id === b.campaignId);
       
-      // 1. Sort by status (active first) - ad sets inherit campaign status
+      // 1. Sort by ad set status first (active first)
+      if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1;
+      if (a.status !== 'ACTIVE' && b.status === 'ACTIVE') return 1;
+      
+      // 2. If same status, sort by campaign status
       if (campaignA?.status === 'ACTIVE' && campaignB?.status !== 'ACTIVE') return -1;
       if (campaignA?.status !== 'ACTIVE' && campaignB?.status === 'ACTIVE') return 1;
       
@@ -700,7 +705,18 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                           onCheckedChange={() => handleToggleAdSet(adSet)}
                         />
                         <div className="flex-1">
-                          <div className="text-sm">{adSet.name}</div>
+                          <div className="text-sm">
+                            {adSet.name}
+                            {adSet.status && (
+                              <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+                                adSet.status === 'ACTIVE' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                {adSet.status}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-[#65676B]">
                             {
                               // Find the campaign for this ad set in the account data
