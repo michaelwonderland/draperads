@@ -813,12 +813,13 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
         {/* Advantage+ Settings */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-medium flex items-center">
-              Advantage+ Creative Enhancements
+            <h3 className="text-base font-medium">Advantage+ Creative Enhancements</h3>
+            <div className="text-sm text-gray-500 font-medium">
+              {getActiveEnhancementsCount()} out of 11
               {getActiveEnhancementsCount() > 0 && (
                 <Badge className="ml-2 bg-[#f6242f] text-white">{getActiveEnhancementsCount()}</Badge>
               )}
-            </h3>
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-3 border rounded-md p-4">
