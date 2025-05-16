@@ -13,6 +13,7 @@ import { AdPreview } from "@/components/ad-creator/ad-preview";
 import { AdSummary } from "@/components/ad-creator/ad-summary";
 import { CombinedTypeSelector } from "@/components/ad-creator/combined-type-selector";
 import { PlacementCustomizer } from "@/components/ad-creator/placement-customizer";
+import type { PlacementMediaData } from "@/components/ad-creator/placement-customizer";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
@@ -60,12 +61,6 @@ interface AiSuggestions {
   suggestedPrimaryText: string;
   suggestedDescription: string;
   suggestedCta: string;
-}
-
-interface PlacementMediaData {
-  feeds: string;
-  stories: string;
-  rightColumn: string;
 }
 
 export default function AdCreator() {
@@ -257,13 +252,18 @@ export default function AdCreator() {
       }
       
       // Publish ad
+      // Safely extract ID from latestDraft
+      const adId = typeof latestDraft === 'object' && latestDraft !== null && 'id' in latestDraft 
+        ? latestDraft.id 
+        : 0;
+        
       const response = await apiRequest('/api/ads/publish', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          adId: latestDraft?.id || 0,
+          adId: adId,
           adSets: targetingData.adSets
         })
       });
@@ -316,7 +316,7 @@ export default function AdCreator() {
       handleAdTextChange({
         primaryText: suggestions.suggestedPrimaryText,
         headline: suggestions.suggestedHeadline,
-        description: suggestions.suggestedDescription,
+        description: suggestions.suggestedDescription || "",
         cta: suggestions.suggestedCta,
         websiteUrl: adData.websiteUrl
       });
@@ -332,7 +332,7 @@ export default function AdCreator() {
   const handleAdTextChange = (values: {
     primaryText: string;
     headline: string;
-    description: string;
+    description?: string;
     cta: string;
     websiteUrl: string;
   }) => {
@@ -340,7 +340,7 @@ export default function AdCreator() {
       ...prev,
       primaryText: values.primaryText,
       headline: values.headline,
-      description: values.description,
+      description: values.description || "",
       cta: values.cta,
       websiteUrl: values.websiteUrl
     }));
@@ -655,10 +655,10 @@ export default function AdCreator() {
                       stories: placementMedia.stories,
                       rightColumn: placementMedia.rightColumn
                     }}
-                    onCustomizationToggle={(enabled) => {
+                    onCustomizationToggle={(enabled: boolean) => {
                       setAdData(prev => ({ ...prev, customizePlacements: enabled }));
                     }}
-                    onMediaUpdate={(newMedia) => {
+                    onMediaUpdate={(newMedia: PlacementMediaData) => {
                       setPlacementMedia(newMedia);
                     }}
                   />

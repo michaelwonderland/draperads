@@ -29,6 +29,12 @@ interface MediaDimensions {
   duration?: number; // for videos
 }
 
+export interface PlacementMediaData {
+  feeds: string;
+  stories: string;
+  rightColumn: string;
+}
+
 interface Placement {
   id: string;
   name: string;
@@ -38,16 +44,16 @@ interface Placement {
 }
 
 interface PlacementCustomizerProps {
-  mediaUrl: string;
-  enabled: boolean;
-  onToggleCustomization: (enabled: boolean) => void;
-  onMediaUpdate?: (placementId: string, mediaUrl: string) => void;
+  defaultUseCustomPlacements: boolean;
+  defaultMedia: PlacementMediaData;
+  onCustomizationToggle: (enabled: boolean) => void;
+  onMediaUpdate: (newMedia: PlacementMediaData) => void;
 }
 
 export function PlacementCustomizer({ 
-  mediaUrl, 
-  enabled, 
-  onToggleCustomization,
+  defaultUseCustomPlacements, 
+  defaultMedia, 
+  onCustomizationToggle,
   onMediaUpdate
 }: PlacementCustomizerProps) {
   // References for file upload inputs
@@ -57,11 +63,8 @@ export function PlacementCustomizer({
     rightColumn: useRef<HTMLInputElement>(null)
   };
   
-  const [placementMedia, setPlacementMedia] = useState({
-    feeds: mediaUrl,
-    stories: mediaUrl,
-    rightColumn: mediaUrl
-  });
+  const [enabled, setEnabled] = useState(defaultUseCustomPlacements);
+  const [placementMedia, setPlacementMedia] = useState<PlacementMediaData>(defaultMedia);
   
   const [placementDimensions, setPlacementDimensions] = useState<{
     [key: string]: MediaDimensions | null
@@ -80,28 +83,35 @@ export function PlacementCustomizer({
   const [currentCropPlacement, setCurrentCropPlacement] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   
-  // Always show the toggle, but only show placement options if enabled AND media is uploaded
+  // Update parent when customization is toggled
+  useEffect(() => {
+    onCustomizationToggle(enabled);
+  }, [enabled, onCustomizationToggle]);
   
-  // Get image/video dimensions when media changes
+  // Update parent when media changes
+  useEffect(() => {
+    onMediaUpdate(placementMedia);
+  }, [placementMedia, onMediaUpdate]);
+  
   // Update all placement media when main media changes
   useEffect(() => {
-    if (mediaUrl) {
+    if (defaultMedia.feeds) {
       setPlacementMedia({
-        feeds: mediaUrl,
-        stories: mediaUrl,
-        rightColumn: mediaUrl
+        feeds: defaultMedia.feeds,
+        stories: defaultMedia.stories || defaultMedia.feeds,
+        rightColumn: defaultMedia.rightColumn || defaultMedia.feeds
       });
     }
-  }, [mediaUrl]);
+  }, [defaultMedia]);
 
   // Get dimensions for the main image/video
   useEffect(() => {
-    if (!mediaUrl) {
+    if (!defaultMedia.feeds) {
       setMediaDimensions(null);
       return;
     }
     
-    const isVideoFile = mediaUrl.match(/\.(mp4|mov|avi|wmv)$/i);
+    const isVideoFile = defaultMedia.feeds.match(/\.(mp4|mov|avi|wmv)$/i);
     setIsVideo(!!isVideoFile);
     
     if (isVideoFile) {
@@ -121,7 +131,7 @@ export function PlacementCustomizer({
           rightColumn: dimensions
         });
       };
-      video.src = mediaUrl;
+      video.src = defaultMedia.feeds;
     } else {
       const img = new Image();
       img.onload = () => {
@@ -138,9 +148,9 @@ export function PlacementCustomizer({
           rightColumn: dimensions
         });
       };
-      img.src = mediaUrl;
+      img.src = defaultMedia.feeds;
     }
-  }, [mediaUrl]);
+  }, [defaultMedia.feeds]);
   
   // Handle file selection for a specific placement
   const handleFileSelect = (placementId: string, file: File) => {
@@ -160,11 +170,6 @@ export function PlacementCustomizer({
           ...prev,
           [placementId]: newMediaUrl
         }));
-        
-        // Notify parent component of the media update
-        if (onMediaUpdate) {
-          onMediaUpdate(placementId, newMediaUrl);
-        }
         
         // Get dimensions of the new image
         const img = new Image();
@@ -209,11 +214,6 @@ export function PlacementCustomizer({
         [currentCropPlacement]: croppedImage
       }));
       
-      // Notify parent component of the media update
-      if (onMediaUpdate) {
-        onMediaUpdate(currentCropPlacement, croppedImage);
-      }
-      
       // Get dimensions of the cropped image
       const img = new Image();
       img.onload = () => {
@@ -243,21 +243,21 @@ export function PlacementCustomizer({
       id: "feeds",
       name: "Feeds, In-stream ads for videos and reels",
       description: "Appears in Facebook and Instagram feeds, between posts",
-      image: mediaUrl,
+      image: placementMedia.feeds,
       dimensions: "1x1 or 4x5"
     },
     {
       id: "stories",
       name: "Stories and Reels, Apps and sites",
       description: "Full-screen vertical format for Stories and Reels",
-      image: mediaUrl,
+      image: placementMedia.stories,
       dimensions: "9x16 or 4x5"
     },
     {
       id: "rightColumn",
       name: "Right column, Search results",
       description: "Appears in the right column on Facebook desktop",
-      image: mediaUrl,
+      image: placementMedia.rightColumn,
       dimensions: "1x1 or 4x5"
     }
   ];
@@ -304,13 +304,25 @@ export function PlacementCustomizer({
     setActiveEditPlacement(activeEditPlacement === placementId ? null : placementId);
   };
 
-  // Modify the placements array to use custom media for each placement
-  placements.forEach(placement => {
-    placement.image = placementMedia[placement.id as keyof typeof placementMedia];
-  });
-
   return (
     <div className="mt-4 border-t pt-4">
+      {/* Hidden file inputs */}
+      {placements.map(placement => (
+        <input 
+          key={placement.id}
+          type="file"
+          ref={fileInputRefs[placement.id as keyof typeof fileInputRefs]}
+          style={{ display: 'none' }}
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              handleFileSelect(placement.id, file);
+            }
+          }}
+        />
+      ))}
+      
       {/* Crop Dialog */}
       <Dialog open={cropDialogOpen} onOpenChange={setCropDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -379,12 +391,12 @@ export function PlacementCustomizer({
         <Switch 
           id="customize-placements"
           checked={enabled}
-          onCheckedChange={onToggleCustomization}
+          onCheckedChange={setEnabled}
         />
       </div>
 
       {/* Media dimensions display - always shown when media is uploaded */}
-      {mediaUrl && mediaDimensions && (
+      {defaultMedia.feeds && mediaDimensions && (
         <div className="mb-4 text-xs text-gray-600">
           <div className="flex items-center mb-1">
             <div className="mr-4 flex items-center">
@@ -404,7 +416,7 @@ export function PlacementCustomizer({
         </div>
       )}
 
-      {enabled && mediaUrl && (
+      {enabled && defaultMedia.feeds && (
         <div className="space-y-4">
           <div className="text-xs text-gray-500 mb-2">
             Your ad can appear differently across placement types.
@@ -473,19 +485,6 @@ export function PlacementCustomizer({
                             <Crop className="h-3 w-3" />
                             Crop
                           </Button>
-                          
-                          {/* Hidden file input for Replace button */}
-                          <input
-                            type="file"
-                            ref={fileInputRefs[placement.id as keyof typeof fileInputRefs]}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                handleFileSelect(placement.id, e.target.files[0]);
-                              }
-                            }}
-                          />
                         </div>
                       </div>
                     </AccordionContent>
