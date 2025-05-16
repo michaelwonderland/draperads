@@ -323,7 +323,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
             <div className="flex-1">
               <h3 className="text-base font-medium">Connect Your Meta Account</h3>
               <p className="text-sm text-[#65676B]">
-                Meta Page and Instagram Account options will appear after login.
+                Ad Account, Campaign and Ad Set options will appear after connecting
               </p>
             </div>
             <Button 
