@@ -228,21 +228,21 @@ export function PlacementCustomizer({
                     <AccordionContent className="px-3 pb-3 pt-0">
                       <div className="space-y-3">
                         <p className="text-xs text-gray-500">
-                          Optimize your creative for this placement.
+                          Optimize your creative for this placement group
                         </p>
                         <div className="flex gap-2">
                           <Button 
                             size="sm"
                             className="text-xs h-8 bg-[#f6242f] hover:opacity-90 text-white"
                           >
-                            Upload New Media
+                            Replace
                           </Button>
                           <Button 
                             size="sm"
                             variant="outline"
                             className="text-xs h-8"
                           >
-                            Edit Crop
+                            Crop
                           </Button>
                         </div>
                       </div>
