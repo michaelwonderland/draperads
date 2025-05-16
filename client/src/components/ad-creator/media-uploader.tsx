@@ -26,7 +26,7 @@ export function MediaUploader({ onMediaUpload, value }: MediaUploaderProps) {
   };
 
   return (
-    <div className="mb-8">
+    <div className="mb-4">
       <h3 className="text-base font-medium mb-2">Media</h3>
       
       <FileUpload

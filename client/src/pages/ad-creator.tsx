@@ -9,7 +9,7 @@ import { AdTextForm } from "@/components/ad-creator/ad-text-form";
 import { BrandSettings } from "@/components/ad-creator/brand-settings";
 import { AdTargeting } from "@/components/ad-creator/ad-targeting";
 import { AdPreview } from "@/components/ad-creator/ad-preview";
-import { AdTypeSelector } from "@/components/ad-creator/ad-type-selector";
+import { CombinedTypeSelector } from "@/components/ad-creator/combined-type-selector";
 import { PlacementCustomizer } from "@/components/ad-creator/placement-customizer";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,7 +32,8 @@ export default function AdCreator() {
   // Ad content state
   const [adData, setAdData] = useState({
     templateId: 1,
-    adType: "standard_conversion", // "standard_conversion", "lead_generation", "reach"
+    adType: "conversions", // "conversions", "leads", "reach"
+    adFormat: "image", // "image", "carousel", "collection"
     mediaUrl: "",
     primaryText: "Transform your social media presence with our AI-powered design tools. No design skills needed!",
     headline: "Create stunning ads in minutes!",
@@ -153,10 +154,7 @@ export default function AdCreator() {
     setAdData(prev => ({ ...prev, ...values }));
   };
   
-  // Handle ad type change
-  const handleAdTypeChange = (values: { adType: string; customizePlacements: boolean }) => {
-    setAdData(prev => ({ ...prev, ...values }));
-  };
+  // Handle ad type and format change - these are now handled directly in the component
   
   // Handle targeting change
   const handleTargetingChange = (values: any) => {
@@ -244,14 +242,13 @@ export default function AdCreator() {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h2 className="text-xl font-semibold mb-6">Design Your Ad</h2>
               
-              {/* Ad Type Selector */}
+              {/* Combined Type Selector - Type and Format */}
               <div className="mb-8">
-                <AdTypeSelector
-                  onChange={handleAdTypeChange}
-                  defaultValues={{
-                    adType: adData.adType,
-                    customizePlacements: adData.customizePlacements
-                  }}
+                <CombinedTypeSelector
+                  onTypeChange={(type) => setAdData(prev => ({ ...prev, adType: type }))}
+                  onFormatChange={(format) => setAdData(prev => ({ ...prev, adFormat: format }))}
+                  defaultType={adData.adType}
+                  defaultFormat={adData.adFormat}
                 />
               </div>
               
