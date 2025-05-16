@@ -653,6 +653,24 @@ export default function AdCreator() {
                   />
                 </div>
                 
+                {/* Placement Customizer - Right after Media Upload */}
+                <div className="mb-8">
+                  <PlacementCustomizer
+                    defaultUseCustomPlacements={adData.customizePlacements}
+                    defaultMedia={{
+                      feeds: adData.mediaUrl,
+                      stories: placementMedia.stories,
+                      rightColumn: placementMedia.rightColumn
+                    }}
+                    onCustomizationToggle={(enabled: boolean) => {
+                      setAdData(prev => ({ ...prev, customizePlacements: enabled }));
+                    }}
+                    onMediaUpdate={(newMedia: PlacementMediaData) => {
+                      setPlacementMedia(newMedia);
+                    }}
+                  />
+                </div>
+                
                 {/* Brand Settings */}
                 <div className="mb-8">
                   <BrandSettings 
@@ -676,24 +694,6 @@ export default function AdCreator() {
                       description: adData.description,
                       cta: adData.cta,
                       websiteUrl: adData.websiteUrl
-                    }}
-                  />
-                </div>
-                
-                {/* Placement Customizer */}
-                <div className="mb-8">
-                  <PlacementCustomizer
-                    defaultUseCustomPlacements={adData.customizePlacements}
-                    defaultMedia={{
-                      feeds: adData.mediaUrl,
-                      stories: placementMedia.stories,
-                      rightColumn: placementMedia.rightColumn
-                    }}
-                    onCustomizationToggle={(enabled: boolean) => {
-                      setAdData(prev => ({ ...prev, customizePlacements: enabled }));
-                    }}
-                    onMediaUpdate={(newMedia: PlacementMediaData) => {
-                      setPlacementMedia(newMedia);
                     }}
                   />
                 </div>
