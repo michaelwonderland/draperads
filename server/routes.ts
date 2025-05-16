@@ -124,10 +124,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const filePath = `/uploads/${req.file.filename}`;
+      const fullPath = path.join(process.cwd(), 'uploads', req.file.filename);
+      
+      // If it's an image, analyze it for ad copy suggestions
+      let suggestions = {
+        suggestedHeadline: '',
+        suggestedPrimaryText: '',
+        suggestedDescription: '',
+        suggestedCta: 'learn_more'
+      };
+      
+      if (req.file.mimetype.startsWith('image/')) {
+        try {
+          const { analyzeImage } = require('./api/image-analysis');
+          suggestions = await analyzeImage(fullPath);
+        } catch (analyzeError) {
+          console.error('Error analyzing image:', analyzeError);
+          // Continue without suggestions if analysis fails
+        }
+      }
+      
       res.json({ 
         url: filePath,
         filename: req.file.filename,
-        mimetype: req.file.mimetype
+        mimetype: req.file.mimetype,
+        ...suggestions
       });
     } catch (error) {
       console.error("Error uploading file:", error);
