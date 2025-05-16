@@ -10,6 +10,7 @@ import { BrandSettings } from "@/components/ad-creator/brand-settings";
 import { AdTargeting } from "@/components/ad-creator/ad-targeting";
 import { AdPreview } from "@/components/ad-creator/ad-preview";
 import { AdTypeSelector } from "@/components/ad-creator/ad-type-selector";
+import { PlacementCustomizer } from "@/components/ad-creator/placement-customizer";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
@@ -261,6 +262,13 @@ export default function AdCreator() {
                 <MediaUploader 
                   onMediaUpload={handleMediaUpload} 
                   value={adData.mediaUrl}
+                />
+                
+                {/* Placement Customizer - only shown after media upload */}
+                <PlacementCustomizer
+                  mediaUrl={adData.mediaUrl}
+                  enabled={adData.customizePlacements}
+                  onToggleCustomization={(enabled) => setAdData(prev => ({ ...prev, customizePlacements: enabled }))}
                 />
                 
                 {/* Template Selector */}

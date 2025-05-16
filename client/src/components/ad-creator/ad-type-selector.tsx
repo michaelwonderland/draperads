@@ -112,18 +112,7 @@ export function AdTypeSelector({
         </RadioGroup>
       </div>
 
-      <div className="pt-3">
-        <div className="flex items-center justify-between">
-          <label htmlFor="customize-placements" className="text-sm font-medium">
-            Customize for different placements
-          </label>
-          <Switch 
-            id="customize-placements"
-            checked={customizePlacements}
-            onCheckedChange={handleCustomizePlacementsChange}
-          />
-        </div>
-      </div>
+
     </div>
   );
 }
