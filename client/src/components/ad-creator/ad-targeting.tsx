@@ -467,70 +467,72 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                 />
               </div>
               
-              {/* Active campaigns filter */}
-              {isConnected && formData.adAccountId && (
-                <div className="flex items-center mb-2">
-                  <Switch
-                    id="active-campaigns-only"
-                    checked={showActiveCampaignsOnly}
-                    onCheckedChange={setShowActiveCampaignsOnly}
-                    className="data-[state=checked]:bg-[#f6242f]"
-                  />
-                  <Label htmlFor="active-campaigns-only" className="ml-2 text-sm">
-                    Show active campaigns only
-                  </Label>
-                </div>
-              )}
+              {/* Active campaigns filter moved near Select All */}
               
               {/* Select All */}
               {isConnected && formData.adAccountId && getFilteredCampaigns().length > 0 && (
-                <div className="flex items-center mb-2 px-1">
-                  <Checkbox 
-                    id="select-all-campaigns"
-                    checked={
-                      getFilteredCampaigns().length > 0 &&
-                      getFilteredCampaigns().every(campaign => 
-                        formData.selectedCampaigns.some(c => c.id === campaign.id)
-                      )
-                    }
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        // Select all filtered campaigns
-                        const filteredCampaignIds = getFilteredCampaigns().map(c => c.id);
-                        const currentSelected = [...formData.selectedCampaigns];
-                        
-                        // Add any filtered campaigns not already selected
-                        getFilteredCampaigns().forEach(campaign => {
-                          if (!currentSelected.some(c => c.id === campaign.id)) {
-                            currentSelected.push(campaign);
-                          }
-                        });
-                        
-                        setFormData(prev => ({
-                          ...prev,
-                          selectedCampaigns: currentSelected,
-                          // Clear ad sets as campaigns selection changes
-                          selectedAdSets: []
-                        }));
-                      } else {
-                        // Deselect all filtered campaigns
-                        const filteredCampaignIds = getFilteredCampaigns().map(c => c.id);
-                        
-                        setFormData(prev => ({
-                          ...prev,
-                          selectedCampaigns: prev.selectedCampaigns.filter(
-                            campaign => !filteredCampaignIds.includes(campaign.id)
-                          ),
-                          // Clear ad sets as campaigns selection changes
-                          selectedAdSets: []
-                        }));
+                <div className="space-y-2">
+                  <div className="flex items-center px-1">
+                    <Checkbox 
+                      id="select-all-campaigns"
+                      checked={
+                        getFilteredCampaigns().length > 0 &&
+                        getFilteredCampaigns().every(campaign => 
+                          formData.selectedCampaigns.some(c => c.id === campaign.id)
+                        )
                       }
-                    }}
-                    className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
-                  />
-                  <Label htmlFor="select-all-campaigns" className="ml-2 text-sm font-medium">
-                    Select All {searchCampaign || showActiveCampaignsOnly ? "Filtered" : ""} ({getFilteredCampaigns().length})
-                  </Label>
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          // Select all filtered campaigns
+                          const filteredCampaignIds = getFilteredCampaigns().map(c => c.id);
+                          const currentSelected = [...formData.selectedCampaigns];
+                          
+                          // Add any filtered campaigns not already selected
+                          getFilteredCampaigns().forEach(campaign => {
+                            if (!currentSelected.some(c => c.id === campaign.id)) {
+                              currentSelected.push(campaign);
+                            }
+                          });
+                          
+                          setFormData(prev => ({
+                            ...prev,
+                            selectedCampaigns: currentSelected,
+                            // Clear ad sets as campaigns selection changes
+                            selectedAdSets: []
+                          }));
+                        } else {
+                          // Deselect all filtered campaigns
+                          const filteredCampaignIds = getFilteredCampaigns().map(c => c.id);
+                          
+                          setFormData(prev => ({
+                            ...prev,
+                            selectedCampaigns: prev.selectedCampaigns.filter(
+                              campaign => !filteredCampaignIds.includes(campaign.id)
+                            ),
+                            // Clear ad sets as campaigns selection changes
+                            selectedAdSets: []
+                          }));
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
+                    />
+                    <Label htmlFor="select-all-campaigns" className="ml-2 text-sm font-medium">
+                      Select All {searchCampaign || showActiveCampaignsOnly ? "Filtered" : ""} ({getFilteredCampaigns().length})
+                    </Label>
+                  </div>
+                  
+                  {/* Active campaigns filter as a checkbox */}
+                  <div className="flex items-center px-1">
+                    <Checkbox 
+                      id="active-campaigns-only"
+                      checked={showActiveCampaignsOnly}
+                      onCheckedChange={setShowActiveCampaignsOnly}
+                      className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
+                    />
+                    <Label htmlFor="active-campaigns-only" className="ml-2 text-sm">
+                      Active campaigns only
+                    </Label>
+                  </div>
                 </div>
               )}
               
