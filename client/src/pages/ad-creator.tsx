@@ -749,11 +749,11 @@ export default function AdCreator() {
             />
           )}
 
-          {/* Step 3 - Distribution Summary and Ad Preview only */}
+          {/* Step 3 - Distribution Summary Only */}
           {currentStep === 3 && (
-            <div className="flex flex-col lg:flex-row gap-8 mb-6">
-              {/* Left Column - Distribution Summary */}
-              <div className="lg:w-1/2">
+            <div className="mb-6">
+              {/* Display only the Distribution Summary component */}
+              <div className="w-full max-w-md">
                 <AdSummary 
                   adName={`Ad for ${adData.brandName}`}
                   onAdNameChange={(name) => {
@@ -809,23 +809,6 @@ export default function AdCreator() {
                     addSiteLinks: false,
                     imageAnimation: false
                   }}
-                />
-              </div>
-              
-              {/* Right Column - Ad Preview */}
-              <div className="lg:w-1/2">
-                <AdPreview
-                  brandName={adData.brandName}
-                  facebookPage={adData.facebookPage}
-                  instagramAccount={adData.instagramAccount}
-                  mediaUrl={adData.mediaUrl}
-                  primaryText={adData.primaryText}
-                  headline={adData.headline}
-                  description={adData.description}
-                  cta={adData.cta}
-                  websiteUrl={adData.websiteUrl}
-                  customizedPlacements={adData.customizePlacements}
-                  storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
                 />
               </div>
             </div>
