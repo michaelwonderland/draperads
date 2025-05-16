@@ -398,6 +398,36 @@ export default function AdCreator() {
         message="You need to sign in to publish your ad to Meta Ad Sets"
       />
       
+      {/* Step Progress Indicator */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between max-w-3xl mx-auto">
+          <div className="flex flex-col items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${currentStep >= 1 ? 'bg-[#f6242f]' : 'bg-gray-300'}`}>
+              1
+            </div>
+            <span className={`mt-2 text-sm ${currentStep === 1 ? 'font-medium' : ''}`}>Design</span>
+          </div>
+
+          <div className={`flex-1 h-1 mx-2 ${currentStep >= 2 ? 'bg-[#f6242f]' : 'bg-gray-300'}`}></div>
+          
+          <div className="flex flex-col items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${currentStep >= 2 ? 'bg-[#f6242f]' : 'bg-gray-300'}`}>
+              2
+            </div>
+            <span className={`mt-2 text-sm ${currentStep === 2 ? 'font-medium' : ''}`}>Targeting</span>
+          </div>
+          
+          <div className={`flex-1 h-1 mx-2 ${currentStep >= 3 ? 'bg-[#f6242f]' : 'bg-gray-300'}`}></div>
+          
+          <div className="flex flex-col items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${currentStep >= 3 ? 'bg-[#f6242f]' : 'bg-gray-300'}`}>
+              3
+            </div>
+            <span className={`mt-2 text-sm ${currentStep === 3 ? 'font-medium' : ''}`}>Launch</span>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
         <div className="lg:w-7/12">
@@ -655,7 +685,7 @@ export default function AdCreator() {
                   disabled={currentStep === 1 && !adData.mediaUrl}
                   className="bg-[#f6242f] hover:opacity-90 text-white"
                 >
-                  Create Ad
+                  {currentStep === 1 ? "Submit" : "Next"}
                 </Button>
               ) : (
                 <Button
