@@ -37,9 +37,7 @@ export default function AdCreator() {
     queryKey: ['/api/ads/draft/latest'],
     enabled: true,
     retry: false, // Don't retry if no draft is found
-    onSuccess: () => {
-      setIsLoadingDraft(false);
-    },
+    staleTime: 60 * 1000, // Cache for 1 minute
     onSettled: () => {
       setIsLoadingDraft(false);
     }
@@ -121,18 +119,27 @@ export default function AdCreator() {
     ]
   });
   
-  // Create ad mutation
+  // Create or update ad mutation
   const createAdMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/ads', adData);
+      // Include current step and additional ad type fields when saving
+      const adDataToSave = {
+        ...adData,
+        adType: adData.adType,
+        adFormat: adData.adFormat,
+        customizePlacements: adData.customizePlacements
+      };
+      
+      const response = await apiRequest('POST', '/api/ads', adDataToSave);
       return await response.json();
     },
     onSuccess: (ad) => {
       toast({
-        title: "Success",
+        title: "Progress Saved",
         description: "Your ad creative has been saved as a draft.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/ads'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ads/draft/latest'] });
       return ad;
     },
     onError: (error) => {
@@ -305,15 +312,31 @@ export default function AdCreator() {
   };
 
   // Handle next step
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
+      // Save current progress before moving to next step
+      try {
+        await createAdMutation.mutateAsync();
+        // After successful save, move to next step
+        setCurrentStep(currentStep + 1);
+      } catch (error) {
+        // Even if save fails, we still move to the next step
+        console.error("Failed to save progress:", error);
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
   // Handle previous step
-  const handlePrevStep = () => {
+  const handlePrevStep = async () => {
     if (currentStep > 1) {
+      // Save current progress before moving to previous step
+      try {
+        await createAdMutation.mutateAsync();
+      } catch (error) {
+        console.error("Failed to save progress:", error);
+      }
+      // Move to previous step regardless of save success
       setCurrentStep(currentStep - 1);
     }
   };
