@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Accordion,
   AccordionContent,
@@ -12,7 +12,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Maximize2, Clock } from "lucide-react";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import { ChevronDown, Maximize2, Clock, Upload, Crop, RefreshCcw, X, Check } from "lucide-react";
 
 interface MediaDimensions {
   width: number;
@@ -39,19 +48,51 @@ export function PlacementCustomizer({
   enabled, 
   onToggleCustomization 
 }: PlacementCustomizerProps) {
+  // References for file upload inputs
+  const fileInputRefs = {
+    feeds: useRef<HTMLInputElement>(null),
+    stories: useRef<HTMLInputElement>(null),
+    rightColumn: useRef<HTMLInputElement>(null)
+  };
+  
   const [placementMedia, setPlacementMedia] = useState({
     feeds: mediaUrl,
     stories: mediaUrl,
     rightColumn: mediaUrl
   });
   
+  const [placementDimensions, setPlacementDimensions] = useState<{
+    [key: string]: MediaDimensions | null
+  }>({
+    feeds: null,
+    stories: null,
+    rightColumn: null
+  });
+  
   const [mediaDimensions, setMediaDimensions] = useState<MediaDimensions | null>(null);
   const [isVideo, setIsVideo] = useState(false);
   const [activeEditPlacement, setActiveEditPlacement] = useState<string | null>(null);
   
+  // States for crop dialog
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [currentCropPlacement, setCurrentCropPlacement] = useState<string | null>(null);
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
+  
   // Always show the toggle, but only show placement options if enabled AND media is uploaded
   
   // Get image/video dimensions when media changes
+  // Update all placement media when main media changes
+  useEffect(() => {
+    if (mediaUrl) {
+      setPlacementMedia({
+        feeds: mediaUrl,
+        stories: mediaUrl,
+        rightColumn: mediaUrl
+      });
+    }
+  }, [mediaUrl]);
+
+  // Get dimensions for the main image/video
   useEffect(() => {
     if (!mediaUrl) {
       setMediaDimensions(null);
@@ -64,24 +105,126 @@ export function PlacementCustomizer({
     if (isVideoFile) {
       const video = document.createElement('video');
       video.onloadedmetadata = () => {
-        setMediaDimensions({
+        const dimensions = {
           width: video.videoWidth,
           height: video.videoHeight,
           duration: video.duration
+        };
+        setMediaDimensions(dimensions);
+        
+        // Also set dimensions for all placements initially
+        setPlacementDimensions({
+          feeds: dimensions,
+          stories: dimensions,
+          rightColumn: dimensions
         });
       };
       video.src = mediaUrl;
     } else {
       const img = new Image();
       img.onload = () => {
-        setMediaDimensions({
+        const dimensions = {
           width: img.width,
           height: img.height
+        };
+        setMediaDimensions(dimensions);
+        
+        // Also set dimensions for all placements initially
+        setPlacementDimensions({
+          feeds: dimensions,
+          stories: dimensions,
+          rightColumn: dimensions
         });
       };
       img.src = mediaUrl;
     }
   }, [mediaUrl]);
+  
+  // Handle file selection for a specific placement
+  const handleFileSelect = (placementId: string, file: File) => {
+    // Only handle image files for now
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        const newMediaUrl = e.target.result as string;
+        
+        // Update the media for the specific placement
+        setPlacementMedia(prev => ({
+          ...prev,
+          [placementId]: newMediaUrl
+        }));
+        
+        // Get dimensions of the new image
+        const img = new Image();
+        img.onload = () => {
+          const dimensions = {
+            width: img.width,
+            height: img.height
+          };
+          
+          // Update dimensions for this placement only
+          setPlacementDimensions(prev => ({
+            ...prev,
+            [placementId]: dimensions
+          }));
+        };
+        img.src = newMediaUrl;
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  // Trigger file upload for the Replace button
+  const handleReplace = (placementId: string) => {
+    const fileInput = fileInputRefs[placementId as keyof typeof fileInputRefs]?.current;
+    if (fileInput) {
+      fileInput.click();
+    }
+  };
+  
+  // Open crop dialog for a specific placement
+  const handleCrop = (placementId: string) => {
+    setCurrentCropPlacement(placementId);
+    setCropDialogOpen(true);
+  };
+  
+  // Handle save cropped image
+  const handleSaveCrop = () => {
+    if (croppedImage && currentCropPlacement) {
+      // Update the media for the specific placement with cropped image
+      setPlacementMedia(prev => ({
+        ...prev,
+        [currentCropPlacement]: croppedImage
+      }));
+      
+      // Get dimensions of the cropped image
+      const img = new Image();
+      img.onload = () => {
+        setPlacementDimensions(prev => ({
+          ...prev,
+          [currentCropPlacement as string]: {
+            width: img.width,
+            height: img.height
+          }
+        }));
+      };
+      img.src = croppedImage;
+      
+      // Close the dialog
+      setCropDialogOpen(false);
+      setCroppedImage(null);
+    }
+  };
+  
+  // Handle reset crop
+  const handleResetCrop = () => {
+    setCroppedImage(null);
+  };
 
   const placements: Placement[] = [
     {
@@ -149,8 +292,74 @@ export function PlacementCustomizer({
     setActiveEditPlacement(activeEditPlacement === placementId ? null : placementId);
   };
 
+  // Modify the placements array to use custom media for each placement
+  placements.forEach(placement => {
+    placement.image = placementMedia[placement.id as keyof typeof placementMedia];
+  });
+
   return (
     <div className="mt-4 border-t pt-4">
+      {/* Crop Dialog */}
+      <Dialog open={cropDialogOpen} onOpenChange={setCropDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Crop Image</DialogTitle>
+            <DialogDescription>
+              Drag and adjust to crop your image for this placement.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-4">
+            <div className="border rounded-md p-1 overflow-hidden bg-gray-50 min-h-[200px] flex items-center justify-center">
+              {currentCropPlacement && (
+                <div className="relative">
+                  <img 
+                    src={placementMedia[currentCropPlacement as keyof typeof placementMedia]} 
+                    alt="Image to crop" 
+                    className="max-w-full max-h-[300px] object-contain"
+                  />
+                  {/* For a real implementation, we would use a library like react-image-crop here */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 text-white">
+                    <p className="text-sm">Cropping interface would be here</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-2 justify-between">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleResetCrop}
+                className="flex items-center gap-1"
+              >
+                <RefreshCcw className="h-3.5 w-3.5" />
+                Reset Crop
+              </Button>
+              
+              <div className="flex gap-2">
+                <DialogClose asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1">
+                    <X className="h-3.5 w-3.5" />
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button 
+                  type="button" 
+                  size="sm"
+                  className="bg-[#f6242f] hover:opacity-90 text-white flex items-center gap-1"
+                  onClick={handleSaveCrop}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  Save Crop
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
       <div className="flex items-center justify-between mb-4">
         <Label htmlFor="customize-placements" className="text-sm font-medium">
           Customize for different placements
@@ -233,17 +442,34 @@ export function PlacementCustomizer({
                         <div className="flex gap-2">
                           <Button 
                             size="sm"
-                            className="text-xs h-8 bg-[#f6242f] hover:opacity-90 text-white"
+                            className="text-xs h-8 bg-[#f6242f] hover:opacity-90 text-white flex items-center gap-1"
+                            onClick={() => handleReplace(placement.id)}
                           >
+                            <Upload className="h-3 w-3" />
                             Replace
                           </Button>
                           <Button 
                             size="sm"
                             variant="outline"
-                            className="text-xs h-8"
+                            className="text-xs h-8 flex items-center gap-1"
+                            onClick={() => handleCrop(placement.id)}
                           >
+                            <Crop className="h-3 w-3" />
                             Crop
                           </Button>
+                          
+                          {/* Hidden file input for Replace button */}
+                          <input
+                            type="file"
+                            ref={fileInputRefs[placement.id as keyof typeof fileInputRefs]}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleFileSelect(placement.id, e.target.files[0]);
+                              }
+                            }}
+                          />
                         </div>
                       </div>
                     </AccordionContent>
