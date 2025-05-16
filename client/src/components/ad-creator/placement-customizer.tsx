@@ -226,14 +226,13 @@ export function PlacementCustomizer({
                         </p>
                         <div className="flex gap-2">
                           <Button 
-                            size="sm" 
-                            variant="outline"
-                            className="text-xs h-8"
+                            size="sm"
+                            className="text-xs h-8 bg-[#f6242f] hover:opacity-90 text-white"
                           >
                             Upload New Media
                           </Button>
                           <Button 
-                            size="sm" 
+                            size="sm"
                             variant="outline"
                             className="text-xs h-8"
                           >

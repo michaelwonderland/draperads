@@ -85,7 +85,7 @@ export function CombinedTypeSelector({
             <RadioGroupItem value="image" id="image" className="sr-only peer" />
             <Label 
               htmlFor="image" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground hover:bg-muted transition-colors"
+              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
             >
               Image/Video
             </Label>
@@ -95,7 +95,7 @@ export function CombinedTypeSelector({
             <RadioGroupItem value="carousel" id="carousel" className="sr-only peer" />
             <Label 
               htmlFor="carousel" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground hover:bg-muted transition-colors"
+              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
             >
               Carousel
             </Label>
@@ -105,7 +105,7 @@ export function CombinedTypeSelector({
             <RadioGroupItem value="collection" id="collection" className="sr-only peer" />
             <Label 
               htmlFor="collection" 
-              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground hover:bg-muted transition-colors"
+              className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:btn-draper hover:bg-muted transition-colors"
             >
               Collection
             </Label>
