@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import metaLogo from "@assets/meta-logo.jpg";
 import {
   Select,
   SelectContent,
@@ -315,10 +316,8 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
         {/* Meta Connection Banner - Always show but change state */}
         {!isConnected ? (
           <div className="flex items-center gap-3 bg-[#F7F8FA] p-4 border border-dashed border-[#E4E6EB] rounded-lg">
-            <div className="flex-shrink-0">
-              <svg width="40" height="40" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#1877F2" d="M96 0a96 96 0 1 0 0 192 96 96 0 0 0 0-192Zm27 96h-17v61H81v-61H64V71h17V58.5C81 40.4 90.9 29 108.1 29c8.2 0 15.3.6 17.4.9v20.1h-11.9c-9.3 0-11.1 4.4-11.1 10.9V71h22.3l-2.8 25Z"/>
-              </svg>
+            <div className="flex-shrink-0 bg-white rounded-full p-1">
+              <img src={metaLogo} alt="Meta logo" width="40" height="40" className="rounded-full" />
             </div>
             <div className="flex-1">
               <h3 className="text-base font-medium">Connect Your Meta Account</h3>
