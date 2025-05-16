@@ -98,15 +98,42 @@ export class DatabaseStorage implements IStorage {
   }
   
   async createAd(insertAd: InsertAd): Promise<Ad> {
-    const [ad] = await db
-      .insert(ads)
-      .values({
-        ...insertAd,
-        status: insertAd.status || "draft",
-        statistics: {}
-      })
-      .returning();
-    return ad;
+    // Implement retry logic with exponential backoff
+    const maxRetries = 3;
+    let retryCount = 0;
+    let lastError: any;
+    
+    while (retryCount < maxRetries) {
+      try {
+        const [ad] = await db
+          .insert(ads)
+          .values({
+            ...insertAd,
+            status: insertAd.status || "draft",
+            statistics: {}
+          })
+          .returning();
+        return ad;
+      } catch (error: any) {
+        lastError = error;
+        // Check if it's a rate limit error
+        const errorMessage = String(error).toLowerCase();
+        if (errorMessage.includes('rate limit') || errorMessage.includes('control plane request failed')) {
+          retryCount++;
+          // Exponential backoff: wait longer between each retry
+          const delay = Math.pow(2, retryCount) * 500; // 1s, 2s, 4s, etc.
+          console.log(`Rate limit hit, retrying in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // If it's not a rate limit error, throw immediately
+          throw error;
+        }
+      }
+    }
+    
+    // If we've exhausted all retries
+    console.error("Failed to create ad after multiple retries:", lastError);
+    throw lastError;
   }
   
   async updateAdStatus(updateData: UpdateAdStatus): Promise<Ad | undefined> {
