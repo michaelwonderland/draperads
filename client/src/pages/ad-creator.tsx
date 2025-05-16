@@ -230,8 +230,8 @@ export default function AdCreator() {
           adSetData: {
             name: adSet.name,
             accountId: targetingData.adAccountId.replace('account_', ''),
-            campaignObjective: targetingData.campaignObjective,
-            placements: targetingData.placements,
+            campaignObjective: targetingData.campaignObjective || 'traffic',
+            placements: targetingData.placements || ['facebook', 'instagram'],
             adId,
           }
         };
@@ -707,7 +707,7 @@ export default function AdCreator() {
                   <div className="text-[#65676B]">Campaign objective:</div>
                   <div className="capitalize">{targetingData.campaignObjective}</div>
                   <div className="text-[#65676B]">Placements:</div>
-                  <div>{targetingData.placements.join(', ')}</div>
+                  <div>{(targetingData.placements || ['facebook', 'instagram']).join(', ')}</div>
                   <div className="text-[#65676B]">Ad Sets:</div>
                   <div>{targetingData.adSets.length}</div>
                 </div>
