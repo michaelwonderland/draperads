@@ -22,7 +22,7 @@ export default function Home() {
           </p>
           <Link href="/create">
             <Button className="bg-[#f6242f] hover:opacity-90 text-white px-6 py-2 text-lg">
-              Try It Now
+              Create An Ad
             </Button>
           </Link>
         </div>

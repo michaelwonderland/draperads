@@ -93,7 +93,7 @@ export default function Header() {
               {!location.startsWith("/ad-creator") && (
                 <Link href="/ad-creator">
                   <button className="bg-[#f6242f] text-white px-4 py-2 rounded-md hover:opacity-90 mr-2">
-                    Create Ad
+                    Try It Now
                   </button>
                 </Link>
               )}
