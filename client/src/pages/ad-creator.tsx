@@ -386,20 +386,21 @@ export default function AdCreator() {
   };
 
   // Handle previous step
-  const handlePrevStep = async () => {
+  const handlePrevStep = () => {
     if (currentStep > 1) {
-      // Save current progress before moving to previous step
-      try {
-        await createAdMutation.mutateAsync();
-      } catch (error) {
-        console.error("Failed to save progress:", error);
-      }
-      // Move to previous step regardless of save success
+      // Immediately move to previous step without waiting
       const newStep = currentStep - 1;
       setCurrentStep(newStep);
       
       // Update localStorage to sync with header
       localStorage.setItem('adCreatorStep', newStep.toString());
+      
+      // Try to save in the background without blocking
+      try {
+        createAdMutation.mutate();
+      } catch (error) {
+        console.log("Background save attempt will continue in the background");
+      }
     }
   };
   
