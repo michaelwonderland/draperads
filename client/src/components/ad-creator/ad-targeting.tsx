@@ -106,7 +106,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   
   const [searchCampaign, setSearchCampaign] = useState('');
   const [searchAdSet, setSearchAdSet] = useState('');
-  const [showActiveCampaignsOnly, setShowActiveCampaignsOnly] = useState(false);
   
   // Account-specific data mapping
   const accountData: Record<string, {
@@ -335,17 +334,23 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     return accountData[formData.adAccountId]?.campaigns || [];
   };
   
-  // Filter campaigns based on search and active filter
+  // Filter and sort campaigns (active first, then paused)
   const getFilteredCampaigns = () => {
     const campaigns = getAccountCampaigns();
-    return campaigns.filter(campaign => {
-      // Text search filter
-      const matchesSearch = campaign.name.toLowerCase().includes(searchCampaign.toLowerCase());
+    
+    // Filter by search text
+    const filteredCampaigns = campaigns.filter(campaign => 
+      campaign.name.toLowerCase().includes(searchCampaign.toLowerCase())
+    );
+    
+    // Sort: Active first, then alphabetically
+    return filteredCampaigns.sort((a, b) => {
+      // First sort by status (Active first)
+      if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1;
+      if (a.status !== 'ACTIVE' && b.status === 'ACTIVE') return 1;
       
-      // Active filter (if enabled)
-      const matchesActive = showActiveCampaignsOnly ? campaign.status === 'ACTIVE' : true;
-      
-      return matchesSearch && matchesActive;
+      // Then sort alphabetically
+      return a.name.localeCompare(b.name);
     });
   };
   
@@ -364,11 +369,31 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     return accountData[formData.adAccountId]?.adSets || [];
   };
   
-  // Filter ad sets based on search
+  // Filter and sort ad sets by status, campaign, and alphabetical order
   const getFilteredAdSets = () => {
-    return getAccountAdSets().filter(adSet => 
+    // Filter by search text
+    const filteredAdSets = getAccountAdSets().filter(adSet => 
       adSet.name.toLowerCase().includes(searchAdSet.toLowerCase())
     );
+    
+    // Sort: 1. Active first, 2. Group by campaign, 3. Alphabetical
+    return filteredAdSets.sort((a, b) => {
+      // Get campaigns for each ad set
+      const campaignA = accountData[formData.adAccountId]?.campaigns.find(c => c.id === a.campaignId);
+      const campaignB = accountData[formData.adAccountId]?.campaigns.find(c => c.id === b.campaignId);
+      
+      // 1. Sort by status (active first) - ad sets inherit campaign status
+      if (campaignA?.status === 'ACTIVE' && campaignB?.status !== 'ACTIVE') return -1;
+      if (campaignA?.status !== 'ACTIVE' && campaignB?.status === 'ACTIVE') return 1;
+      
+      // 2. Sort by campaign
+      if (a.campaignId !== b.campaignId) {
+        return campaignA?.name.localeCompare(campaignB?.name || '') || 0;
+      }
+      
+      // 3. Sort alphabetically by name
+      return a.name.localeCompare(b.name);
+    });
   };
   
   const getAccountFacebookPages = () => {
@@ -467,8 +492,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                 />
               </div>
               
-              {/* Active campaigns filter moved near Select All */}
-              
               {/* Select All */}
               {isConnected && formData.adAccountId && getFilteredCampaigns().length > 0 && (
                 <div className="space-y-2">
@@ -517,20 +540,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                       className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
                     />
                     <Label htmlFor="select-all-campaigns" className="ml-2 text-sm font-medium">
-                      Select All {searchCampaign || showActiveCampaignsOnly ? "Filtered" : ""} ({getFilteredCampaigns().length})
-                    </Label>
-                  </div>
-                  
-                  {/* Active campaigns filter as a checkbox */}
-                  <div className="flex items-center px-1">
-                    <Checkbox 
-                      id="active-campaigns-only"
-                      checked={showActiveCampaignsOnly}
-                      onCheckedChange={setShowActiveCampaignsOnly}
-                      className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
-                    />
-                    <Label htmlFor="active-campaigns-only" className="ml-2 text-sm">
-                      Active campaigns only
+                      Select All {searchCampaign ? "Matching" : ""} ({getFilteredCampaigns().length})
                     </Label>
                   </div>
                 </div>
@@ -544,7 +554,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
               <ScrollArea className="h-48 w-full pr-4">
                 {getFilteredCampaigns().length > 0 ? (
                   <div className="space-y-1">
-                    {getFilteredCampaigns().map(campaign => (
+                    {getFilteredCampaigns().map((campaign) => (
                       <div
                         key={campaign.id}
                         className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer"
@@ -572,7 +582,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                   </div>
                 ) : (
                   <div className="p-4 text-center text-sm text-gray-500">
-                    {searchCampaign || showActiveCampaignsOnly 
+                    {searchCampaign
                       ? "No matching campaigns found" 
                       : !isConnected || !formData.adAccountId
                         ? "Connect to Meta and select an account" 
@@ -664,7 +674,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                     className="h-4 w-4 rounded border-gray-300 text-[#f6242f]"
                   />
                   <Label htmlFor="select-all-adsets" className="ml-2 text-sm font-medium">
-                    Select All {searchAdSet ? "Filtered" : ""} ({getFilteredAdSets().length})
+                    Select All {searchAdSet ? "Matching" : ""} ({getFilteredAdSets().length})
                   </Label>
                 </div>
               )}
@@ -678,7 +688,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
               <ScrollArea className="h-48 w-full pr-4">
                 {getFilteredAdSets().length > 0 ? (
                   <div className="space-y-1">
-                    {getFilteredAdSets().map(adSet => (
+                    {getFilteredAdSets().map((adSet) => (
                       <div
                         key={adSet.id}
                         className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer"
