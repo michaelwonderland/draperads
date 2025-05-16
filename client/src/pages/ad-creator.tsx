@@ -23,6 +23,7 @@ interface AdSetConfig {
   id: string;
   name: string;
   audience?: string;
+  campaignId?: string;
 }
 
 interface AdData {
@@ -748,13 +749,9 @@ export default function AdCreator() {
             />
           )}
 
-          {/* Launch Preview - Step 3 */}
+          {/* Step 3 - Side by side */}
           {currentStep === 3 && (
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Launch Preview</h2>
-              <p className="text-sm text-[#65676B] mb-6">
-                Review your ad creative and distribution settings before launching.
-              </p>
               
               {/* Two-column layout for Summary and Preview */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -772,25 +769,27 @@ export default function AdCreator() {
                       targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
                       targetingData.adAccountId) : 
                       undefined}
-                    campaigns={[
-                      // Extract unique campaigns from ad sets 
-                      ...new Map(targetingData.adSets
-                        .filter(adSet => adSet.campaignId)
-                        .map(adSet => {
-                          // Convert campaign ID to name
-                          let campaignName = "Campaign";
-                          if (adSet.campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
-                          if (adSet.campaignId === "campaign2") campaignName = "Summer Sale 2025";
-                          if (adSet.campaignId === "campaign3") campaignName = "Brand Awareness Q1";
-                          
-                          return { 
-                            id: adSet.campaignId || "", 
-                            name: campaignName
-                          };
-                        })
-                        .map(campaign => [campaign.id, campaign])
-                      ).values()
-                    ]}
+                    campaigns={
+                      // Get unique campaigns
+                      Array.from(
+                        new Set(
+                          targetingData.adSets
+                            .filter(adSet => adSet.campaignId)
+                            .map(adSet => adSet.campaignId)
+                        )
+                      ).map(campaignId => {
+                        // Convert campaign ID to name
+                        let campaignName = "Campaign";
+                        if (campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
+                        if (campaignId === "campaign2") campaignName = "Summer Sale 2025"; 
+                        if (campaignId === "campaign3") campaignName = "Brand Awareness Q1";
+                        
+                        return {
+                          id: campaignId || "",
+                          name: campaignName
+                        };
+                      })
+                    }
                     adSets={targetingData.adSets.map(adSet => ({
                       id: adSet.id,
                       name: adSet.name,
@@ -818,19 +817,22 @@ export default function AdCreator() {
                 
                 {/* Right Column - Ad Preview */}
                 <div>
-                  <AdPreview
-                    brandName={adData.brandName}
-                    facebookPage={adData.facebookPage}
-                    instagramAccount={adData.instagramAccount}
-                    mediaUrl={adData.mediaUrl}
-                    primaryText={adData.primaryText}
-                    headline={adData.headline}
-                    description={adData.description}
-                    cta={adData.cta}
-                    websiteUrl={adData.websiteUrl}
-                    customizedPlacements={adData.customizePlacements}
-                    storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
-                  />
+                  <h3 className="text-lg font-medium mb-4">Ad Creative</h3>
+                  <div className="mb-4">
+                    <AdPreview
+                      brandName={adData.brandName}
+                      facebookPage={adData.facebookPage}
+                      instagramAccount={adData.instagramAccount}
+                      mediaUrl={adData.mediaUrl}
+                      primaryText={adData.primaryText}
+                      headline={adData.headline}
+                      description={adData.description}
+                      cta={adData.cta}
+                      websiteUrl={adData.websiteUrl}
+                      customizedPlacements={adData.customizePlacements}
+                      storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

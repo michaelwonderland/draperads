@@ -56,7 +56,7 @@ export function AdSummary({
   };
   
   // Count enabled enhancements
-  const enabledEnhancementsCount = Object.values(advantagePlusEnhancements).filter(value => value).length;
+  const enabledEnhancementsCount = Object.values(advantagePlusEnhancements || {}).filter(value => value).length;
   const totalEnhancementsCount = 11; // Total number of possible enhancements
   
   // Get list of enabled enhancement names
@@ -75,15 +75,17 @@ export function AdSummary({
       imageAnimation: "Image Animation"
     };
     
-    return Object.entries(advantagePlusEnhancements)
+    return Object.entries(advantagePlusEnhancements || {})
       .filter(([_, isEnabled]) => isEnabled)
-      .map(([key]) => enhancementLabels[key]);
+      .map(([key]) => enhancementLabels[key as keyof typeof enhancementLabels]);
   };
   
   const enabledEnhancements = getEnabledEnhancements();
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      <h3 className="text-lg font-medium mb-2">Distribution Summary</h3>
+      
       {/* Ad Name Input */}
       <div className="bg-gray-100 p-4 rounded-md">
         <label htmlFor="adName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -100,8 +102,6 @@ export function AdSummary({
       
       {/* Distribution Summary */}
       <div>
-        <h3 className="font-medium mb-3">Distribution Settings</h3>
-        
         {adAccountName && (
           <div className="mb-3">
             <div className="text-sm text-gray-500 mb-1">Ad Account</div>
@@ -114,7 +114,11 @@ export function AdSummary({
           <div className="text-sm text-gray-500 mb-1">Campaigns ({campaigns.length})</div>
           <div className="flex flex-wrap gap-2 mt-1">
             {campaigns.map(campaign => (
-              <Badge key={campaign.id} variant="outline" className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-xs">
+              <Badge 
+                key={campaign.id} 
+                variant="outline" 
+                className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-xs flex items-center"
+              >
                 {campaign.name}
                 <X className="ml-1 h-3 w-3 text-gray-500" />
               </Badge>
@@ -127,7 +131,11 @@ export function AdSummary({
           <div className="text-sm text-gray-500 mb-1">Ad Sets ({adSets.length})</div>
           <div className="flex flex-wrap gap-2 mt-1">
             {adSets.map(adSet => (
-              <Badge key={adSet.id} variant="outline" className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-xs">
+              <Badge 
+                key={adSet.id} 
+                variant="outline" 
+                className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-xs flex items-center"
+              >
                 {adSet.name}
                 <X className="ml-1 h-3 w-3 text-gray-500" />
               </Badge>
