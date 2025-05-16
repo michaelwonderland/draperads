@@ -89,21 +89,21 @@ export function PlacementCustomizer({
       name: "Feeds, In-stream ads for videos and reels",
       description: "Appears in Facebook and Instagram feeds, between posts",
       image: mediaUrl,
-      dimensions: "1080 × 1080 px"
+      dimensions: "1:1 (square) - recommended"
     },
     {
       id: "stories",
       name: "Stories and Reels, Apps and sites",
       description: "Full-screen vertical format for Stories and Reels",
       image: mediaUrl,
-      dimensions: "1080 × 1920 px"
+      dimensions: "9:16 (vertical) - recommended"
     },
     {
       id: "rightColumn",
       name: "Right column, Search results",
       description: "Appears in the right column on Facebook desktop",
       image: mediaUrl,
-      dimensions: "1200 × 628 px"
+      dimensions: "4:5 (portrait) - recommended"
     }
   ];
 
@@ -140,17 +140,24 @@ export function PlacementCustomizer({
 
       {/* Media dimensions display - always shown when media is uploaded */}
       {mediaUrl && mediaDimensions && (
-        <div className="mb-4 text-xs text-gray-600 flex items-center">
-          <div className="mr-4 flex items-center">
-            <Maximize2 className="h-3 w-3 mr-1" />
-            {formatDimensions(mediaDimensions.width, mediaDimensions.height)}
-          </div>
-          {isVideo && mediaDimensions.duration && (
-            <div className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {formatDuration(mediaDimensions.duration)}
+        <div className="mb-4 text-xs text-gray-600">
+          <div className="flex items-center mb-1">
+            <div className="mr-4 flex items-center">
+              <Maximize2 className="h-3 w-3 mr-1" />
+              {formatDimensions(mediaDimensions.width, mediaDimensions.height)}
             </div>
-          )}
+            {isVideo && mediaDimensions.duration && (
+              <div className="flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                {formatDuration(mediaDimensions.duration)}
+              </div>
+            )}
+          </div>
+          <div className="text-gray-500 mt-1">
+            <span className="font-medium">Recommended formats:</span> {isVideo ? 
+              "MP4, MOV, GIF (max 4GB, H.264 compression)" : 
+              "JPG, PNG (max 30MB)"}
+          </div>
         </div>
       )}
 
