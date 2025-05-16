@@ -109,9 +109,11 @@ export function AdPreview({
             <p className="text-xs text-[#65676B] uppercase tracking-wide">{brandName.toLowerCase()}.com</p>
             <h3 className="font-medium">{headline}</h3>
             {description && <p className="text-sm text-[#65676B]">{description}</p>}
-            <button className="mt-2 bg-[#f6242f] text-white text-center text-sm font-medium py-1.5 w-full rounded">
-              {getCtaText(cta)}
-            </button>
+            <div className="flex justify-end mt-2">
+              <button className="bg-[#F0F2F5] text-black text-center text-sm font-medium py-1.5 px-4 rounded">
+                {getCtaText(cta)}
+              </button>
+            </div>
           </div>
         </div>
         
@@ -134,42 +136,7 @@ export function AdPreview({
         </div>
       </div>
       
-      {/* Ad Performance Estimate */}
-      <div className="border border-[#E4E6EB] rounded-lg p-4">
-        <h3 className="font-medium mb-3">Estimated Performance</h3>
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm">Quality Score</span>
-              <span className="text-sm font-medium">8/10</span>
-            </div>
-            <div className="h-2 bg-[#F0F2F5] rounded-full overflow-hidden">
-              <div className="h-full bg-[#f6242f] w-4/5 rounded-full"></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm">Engagement Potential</span>
-              <span className="text-sm font-medium">High</span>
-            </div>
-            <div className="h-2 bg-[#F0F2F5] rounded-full overflow-hidden">
-              <div className="h-full bg-[#42B72A] w-3/4 rounded-full"></div>
-            </div>
-          </div>
-          
-          <div className="flex justify-between text-sm">
-            <div>
-              <p className="text-[#65676B]">Est. Reach</p>
-              <p className="font-medium">15,000 - 44,000</p>
-            </div>
-            <div>
-              <p className="text-[#65676B]">Est. Link Clicks</p>
-              <p className="font-medium">400 - 1,600</p>
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
