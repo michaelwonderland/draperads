@@ -116,7 +116,7 @@ export default function AdCreator() {
   const [adData, setAdData] = useState<AdData>({
     templateId: 1,
     adType: "conversions",
-    adFormat: "single-image",
+    adFormat: "image", // Make image selected by default
     mediaUrl: "",
     primaryText: "Transform your social media presence with our AI-powered design tools. No design skills needed!",
     headline: "Create stunning ads in minutes!",

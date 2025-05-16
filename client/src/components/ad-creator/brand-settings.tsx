@@ -18,7 +18,6 @@ export function BrandSettings({ onBrandChange, brandName = "DraperAds" }: BrandS
 
   return (
     <div>
-      <h3 className="text-base font-medium mb-2">Brand Settings</h3>
       <div>
         <Label htmlFor="brand_name" className="text-sm font-medium mb-1">Brand Name</Label>
         <Input
