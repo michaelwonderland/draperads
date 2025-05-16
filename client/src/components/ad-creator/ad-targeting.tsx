@@ -169,26 +169,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     }
   };
 
-  const mockAdSets: AdSet[] = [
-    { id: 'as1', name: 'US - Mobile Users', campaignId: 'c1' },
-    { id: 'as2', name: 'EU - Desktop Users', campaignId: 'c1' },
-    { id: 'as3', name: 'APAC Region', campaignId: 'c2' },
-    { id: 'as4', name: 'Gen Z - 18-25', campaignId: 'c2' },
-    { id: 'as5', name: 'Business Decision Makers', campaignId: 'c3' },
-    { id: 'as6', name: 'Previous Customers', campaignId: 'c4' },
-    { id: 'as7', name: 'Website Visitors - Last 30 Days', campaignId: 'c5' },
-    { id: 'as8', name: 'Social Media Engagers', campaignId: 'c6' },
-  ];
-
-  const mockFacebookPages: FacebookPage[] = [
-    { id: 'fb1', name: 'DraperAds Business' },
-    { id: 'fb2', name: 'Creative Marketing Solutions' },
-  ];
-
-  const mockInstagramAccounts: InstagramAccount[] = [
-    { id: 'ig1', name: '@draperadsbiz' },
-    { id: 'ig2', name: '@creativemarketingsolutions' },
-  ];
+  // We now use account-specific data from accountData
 
   const { data: adAccounts, isLoading: isLoadingAccounts } = useQuery<AdAccount[]>({
     queryKey: ["/api/ad-accounts"],
@@ -261,13 +242,15 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
 
   const handleConnectMeta = () => {
     setIsConnected(true);
+    // Just connect without making any default selections
+    // User will need to select an account first
     setFormData(prev => ({ 
       ...prev, 
-      adAccountId: "account_1",
-      selectedCampaigns: [mockCampaigns[0]], // Select first campaign by default
-      selectedAdSets: [mockAdSets[0]], // Select an ad set from that campaign
-      facebookPageId: mockFacebookPages[0].id,
-      instagramAccountId: mockInstagramAccounts[0].id
+      adAccountId: "",
+      selectedCampaigns: [],
+      selectedAdSets: [],
+      facebookPageId: "",
+      instagramAccountId: ""
     }));
   };
 
@@ -283,7 +266,9 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       // If removing a campaign, also remove its ad sets
       const updatedAdSets = isCampaignSelected
         ? prev.selectedAdSets.filter(adSet => {
-            const matchingAdSet = mockAdSets.find(a => a.id === adSet.id);
+            // Get available adSets for this account
+            const accountAdSets = accountData[prev.adAccountId]?.adSets || [];
+            const matchingAdSet = accountAdSets.find(a => a.id === adSet.id);
             return matchingAdSet && matchingAdSet.campaignId !== campaign.id;
           })
         : prev.selectedAdSets;
@@ -391,14 +376,10 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     campaign.name.toLowerCase().includes(searchCampaign.toLowerCase())
   );
 
-  const filteredAdSets = mockAdSets.filter(adSet => {
-    // Only show ad sets from selected campaigns
-    const campaignSelected = formData.selectedCampaigns.some(c => c.id === adSet.campaignId);
-    if (!campaignSelected) return false;
-    
-    // Filter by search term
-    return adSet.name.toLowerCase().includes(searchAdSet.toLowerCase());
-  });
+  // Filter ad sets based on search 
+  const filteredAdSets = getAccountAdSets().filter(adSet => 
+    adSet.name.toLowerCase().includes(searchAdSet.toLowerCase())
+  );
 
   const getActiveEnhancementsCount = () => {
     return Object.values(formData.advantagePlusEnhancements).filter(Boolean).length;
@@ -658,7 +639,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                 <SelectValue placeholder={isConnected ? "Select a Facebook page" : "DraperAds"} />
               </SelectTrigger>
               <SelectContent>
-                {mockFacebookPages.map(page => (
+                {getAccountFacebookPages().map(page => (
                   <SelectItem key={page.id} value={page.id}>
                     {page.name}
                   </SelectItem>
