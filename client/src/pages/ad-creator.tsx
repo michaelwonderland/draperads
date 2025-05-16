@@ -749,88 +749,84 @@ export default function AdCreator() {
             />
           )}
 
-          {/* Step 3 - Side by side, just Distribution Summary and Ad Preview */}
+          {/* Step 3 - Distribution Summary and Ad Preview only */}
           {currentStep === 3 && (
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex flex-col lg:flex-row gap-8 mb-6">
+              {/* Left Column - Distribution Summary */}
+              <div className="lg:w-1/2">
+                <AdSummary 
+                  adName={`Ad for ${adData.brandName}`}
+                  onAdNameChange={(name) => {
+                    // Update ad name if needed
+                    console.log("Ad name updated:", name);
+                    // Could save this to state/db if needed
+                  }}
+                  adAccountName={targetingData.adAccountId ? 
+                    (targetingData.adAccountId === "account_1" ? "Meta Ads Account (Main)" : 
+                    targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
+                    targetingData.adAccountId) : 
+                    undefined}
+                  campaigns={
+                    // Get unique campaigns
+                    Array.from(
+                      new Set(
+                        targetingData.adSets
+                          .filter(adSet => adSet.campaignId)
+                          .map(adSet => adSet.campaignId)
+                      )
+                    ).map(campaignId => {
+                      // Convert campaign ID to name
+                      let campaignName = "Campaign";
+                      if (campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
+                      if (campaignId === "campaign2") campaignName = "Summer Sale 2025"; 
+                      if (campaignId === "campaign3") campaignName = "Brand Awareness Q1";
+                      
+                      return {
+                        id: campaignId || "",
+                        name: campaignName
+                      };
+                    })
+                  }
+                  adSets={targetingData.adSets.map(adSet => ({
+                    id: adSet.id,
+                    name: adSet.name,
+                    campaignId: adSet.campaignId
+                  }))}
+                  facebookPage={adData.facebookPage}
+                  instagramAccount={adData.instagramAccount}
+                  allowMultiAdvertiserAds={false}
+                  enableFlexibleMedia={false}
+                  advantagePlusEnhancements={{
+                    translateText: targetingData.campaignObjective === "traffic",
+                    addOverlays: false,
+                    addCatalogItems: false,
+                    visualTouchUps: true,
+                    music: false,
+                    animation3d: false,
+                    textImprovements: true,
+                    storeLocations: false,
+                    enhanceCta: true,
+                    addSiteLinks: false,
+                    imageAnimation: false
+                  }}
+                />
+              </div>
               
-              {/* Two-column layout for Summary and Preview */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column - Ad Summary */}
-                <div>
-                  <AdSummary 
-                    adName={`Ad for ${adData.brandName}`}
-                    onAdNameChange={(name) => {
-                      // Update ad name if needed
-                      console.log("Ad name updated:", name);
-                      // Could save this to state/db if needed
-                    }}
-                    adAccountName={targetingData.adAccountId ? 
-                      (targetingData.adAccountId === "account_1" ? "Meta Ads Account (Main)" : 
-                      targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
-                      targetingData.adAccountId) : 
-                      undefined}
-                    campaigns={
-                      // Get unique campaigns
-                      Array.from(
-                        new Set(
-                          targetingData.adSets
-                            .filter(adSet => adSet.campaignId)
-                            .map(adSet => adSet.campaignId)
-                        )
-                      ).map(campaignId => {
-                        // Convert campaign ID to name
-                        let campaignName = "Campaign";
-                        if (campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
-                        if (campaignId === "campaign2") campaignName = "Summer Sale 2025"; 
-                        if (campaignId === "campaign3") campaignName = "Brand Awareness Q1";
-                        
-                        return {
-                          id: campaignId || "",
-                          name: campaignName
-                        };
-                      })
-                    }
-                    adSets={targetingData.adSets.map(adSet => ({
-                      id: adSet.id,
-                      name: adSet.name,
-                      campaignId: adSet.campaignId
-                    }))}
-                    facebookPage={adData.facebookPage}
-                    instagramAccount={adData.instagramAccount}
-                    allowMultiAdvertiserAds={false}
-                    enableFlexibleMedia={false}
-                    advantagePlusEnhancements={{
-                      translateText: targetingData.campaignObjective === "traffic",
-                      addOverlays: false,
-                      addCatalogItems: false,
-                      visualTouchUps: true,
-                      music: false,
-                      animation3d: false,
-                      textImprovements: true,
-                      storeLocations: false,
-                      enhanceCta: true,
-                      addSiteLinks: false,
-                      imageAnimation: false
-                    }}
-                  />
-                </div>
-                
-                {/* Right Column - Ad Preview (no additional title) */}
-                <div>
-                  <AdPreview
-                    brandName={adData.brandName}
-                    facebookPage={adData.facebookPage}
-                    instagramAccount={adData.instagramAccount}
-                    mediaUrl={adData.mediaUrl}
-                    primaryText={adData.primaryText}
-                    headline={adData.headline}
-                    description={adData.description}
-                    cta={adData.cta}
-                    websiteUrl={adData.websiteUrl}
-                    customizedPlacements={adData.customizePlacements}
-                    storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
-                  />
-                </div>
+              {/* Right Column - Ad Preview */}
+              <div className="lg:w-1/2">
+                <AdPreview
+                  brandName={adData.brandName}
+                  facebookPage={adData.facebookPage}
+                  instagramAccount={adData.instagramAccount}
+                  mediaUrl={adData.mediaUrl}
+                  primaryText={adData.primaryText}
+                  headline={adData.headline}
+                  description={adData.description}
+                  cta={adData.cta}
+                  websiteUrl={adData.websiteUrl}
+                  customizedPlacements={adData.customizePlacements}
+                  storiesMediaUrl={placementMedia.stories || adData.mediaUrl}
+                />
               </div>
             </div>
           )}
