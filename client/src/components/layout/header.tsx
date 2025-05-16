@@ -14,21 +14,19 @@ import { AuthDialog } from "@/components/auth/auth-dialog";
 
 export default function Header() {
   const [location] = useLocation();
-  const [step, setStep] = useState(1);
   const { user, isAuthenticated, isLoading } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   
-  // Determine current step based on location
-  const getStepFromLocation = () => {
-    // First step is design
-    if (location.startsWith("/ad-creator")) {
-      return step;
+  // Get the current step from local storage
+  const getCurrentStep = () => {
+    if (typeof window !== 'undefined') {
+      const storedStep = localStorage.getItem('adCreatorStep');
+      return storedStep ? parseInt(storedStep, 10) : 1;
     }
-    // Default to step 1
     return 1;
   };
   
-  const currentStep = getStepFromLocation();
+  const currentStep = getCurrentStep();
   
   // Handle login button click
   const handleLogin = () => {

@@ -398,35 +398,7 @@ export default function AdCreator() {
         message="You need to sign in to publish your ad to Meta Ad Sets"
       />
       
-      {/* Step Indicator */}
-      <div className="mb-8 flex justify-center">
-        <div className="flex items-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${currentStep >= 1 ? 'bg-[#f6242f]' : 'bg-gray-100 text-gray-500'}`}>
-            1
-          </div>
-          <div className="ml-2 mr-4">
-            <span className={`${currentStep === 1 ? 'font-medium' : 'text-gray-500'}`}>Design</span>
-          </div>
-          
-          <div className="mx-1 text-gray-300">→</div>
-          
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ml-4 text-gray-500 font-medium ${currentStep >= 2 ? 'bg-[#f6242f] text-white' : 'bg-gray-100'}`}>
-            2
-          </div>
-          <div className="ml-2 mr-4">
-            <span className={`${currentStep === 2 ? 'font-medium' : 'text-gray-500'}`}>Targeting</span>
-          </div>
-          
-          <div className="mx-1 text-gray-300">→</div>
-          
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ml-4 text-gray-500 font-medium ${currentStep >= 3 ? 'bg-[#f6242f] text-white' : 'bg-gray-100'}`}>
-            3
-          </div>
-          <div className="ml-2">
-            <span className={`${currentStep === 3 ? 'font-medium' : 'text-gray-500'}`}>Launch</span>
-          </div>
-        </div>
-      </div>
+
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
