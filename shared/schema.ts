@@ -73,6 +73,8 @@ export type AdAccount = typeof adAccounts.$inferSelect;
 export const ads = pgTable("ads", {
   id: serial("id").primaryKey(),
   templateId: integer("template_id"),
+  adType: text("ad_type"),
+  adFormat: text("ad_format"),
   mediaUrl: text("media_url"),
   primaryText: text("primary_text").notNull(),
   headline: text("headline").notNull(),
@@ -82,6 +84,7 @@ export const ads = pgTable("ads", {
   brandName: text("brand_name").notNull(),
   brandLogoUrl: text("brand_logo_url"),
   status: text("status").notNull().default("draft"), // draft, published, active, completed
+  customizePlacements: boolean("customize_placements").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   publishedAt: timestamp("published_at"),
   metaAdId: text("meta_ad_id"),

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -30,12 +30,60 @@ export default function AdCreator() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(true);
+  
+  // Fetch latest draft ad when component mounts
+  const { data: latestDraft, isLoading: isDraftLoading } = useQuery({
+    queryKey: ['/api/ads/draft/latest'],
+    enabled: true,
+    retry: false, // Don't retry if no draft is found
+    onSuccess: () => {
+      setIsLoadingDraft(false);
+    },
+    onSettled: () => {
+      setIsLoadingDraft(false);
+    }
+  });
   const [aiSuggestions, setAiSuggestions] = useState<{
     suggestedHeadline: string;
     suggestedPrimaryText: string;
     suggestedDescription: string;
     suggestedCta: string;
   } | null>(null);
+  
+  // Load latest draft when available
+  useEffect(() => {
+    if (latestDraft && !isDraftLoading) {
+      // Update ad data with the latest draft
+      setAdData({
+        templateId: latestDraft.templateId || 1,
+        adType: latestDraft.adType || "conversions",
+        adFormat: latestDraft.adFormat || "image",
+        mediaUrl: latestDraft.mediaUrl || "",
+        primaryText: latestDraft.primaryText || "",
+        headline: latestDraft.headline || "",
+        description: latestDraft.description || "",
+        cta: latestDraft.cta || "sign_up",
+        websiteUrl: latestDraft.websiteUrl || "https://example.com/signup",
+        brandName: latestDraft.brandName || "DraperAds",
+        status: latestDraft.status || "draft",
+        customizePlacements: false,
+        facebookPage: "",
+        instagramAccount: "",
+        hasAppliedAiSuggestions: false
+      });
+      
+      // Show toast notification
+      toast({
+        title: "Draft Loaded",
+        description: "Your previous ad draft has been loaded.",
+      });
+      
+      setIsLoadingDraft(false);
+    } else if (!isDraftLoading) {
+      setIsLoadingDraft(false);
+    }
+  }, [latestDraft, isDraftLoading, toast]);
   
   // Placement-specific media state
   const [placementMedia, setPlacementMedia] = useState({

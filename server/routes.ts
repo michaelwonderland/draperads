@@ -97,6 +97,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get the most recent draft ad
+  app.get("/api/ads/draft/latest", async (req, res) => {
+    try {
+      const ads = await storage.getAds();
+      // Filter for draft ads and sort by most recently created
+      const draftAds = ads
+        .filter(ad => ad.status === 'draft')
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      if (draftAds.length === 0) {
+        return res.status(404).json({ message: "No draft ads found" });
+      }
+      
+      res.json(draftAds[0]);
+    } catch (error) {
+      console.error("Error fetching latest draft ad:", error);
+      res.status(500).json({ message: "Failed to fetch latest draft ad" });
+    }
+  });
+  
   app.get("/api/ads/:id", async (req, res) => {
     try {
       const adId = parseInt(req.params.id);
