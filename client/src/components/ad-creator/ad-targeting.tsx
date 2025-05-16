@@ -85,8 +85,15 @@ interface AdTargetingProps {
   onConnectionChange?: (isConnected: boolean) => void;
 }
 
-export function AdTargeting({ onChange, defaultValues }: AdTargetingProps) {
+export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdTargetingProps) {
   const [isConnected, setIsConnected] = useState(false);
+  
+  // Pass connection state to parent component
+  useEffect(() => {
+    if (onConnectionChange) {
+      onConnectionChange(isConnected);
+    }
+  }, [isConnected, onConnectionChange]);
   const [searchCampaign, setSearchCampaign] = useState('');
   const [searchAdSet, setSearchAdSet] = useState('');
   const [showCampaignDropdown, setShowCampaignDropdown] = useState(false);

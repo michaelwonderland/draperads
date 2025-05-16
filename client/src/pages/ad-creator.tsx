@@ -124,8 +124,13 @@ export default function AdCreator() {
     placements: ["facebook", "instagram"],
     adSets: [
       { id: "set1", name: "Main Audience", audience: "Broad - 25-54 age range" }
-    ]
+    ],
+    facebookPageId: "",
+    instagramAccountId: ""
   });
+  
+  // Meta connection state
+  const [isMetaConnected, setIsMetaConnected] = useState(false);
   
   // Create or update ad mutation
   const createAdMutation = useMutation({
@@ -591,7 +596,11 @@ export default function AdCreator() {
           
           {/* Ad Targeting - Step 2 */}
           {currentStep === 2 && (
-            <AdTargeting onChange={handleTargetingChange} defaultValues={targetingData} />
+            <AdTargeting 
+              onChange={handleTargetingChange} 
+              defaultValues={targetingData} 
+              onConnectionChange={setIsMetaConnected} 
+            />
           )}
 
           {/* Launch Preview - Step 3 */}
@@ -666,6 +675,7 @@ export default function AdCreator() {
                   disabled={
                     (currentStep === 1 && !adData.mediaUrl) || 
                     (currentStep === 2 && (
+                      !isMetaConnected ||
                       !targetingData.adAccountId || 
                       targetingData.adSets.length === 0 || 
                       !targetingData.facebookPageId
@@ -673,6 +683,7 @@ export default function AdCreator() {
                   }
                   className={`${
                     (currentStep === 2 && (
+                      !isMetaConnected ||
                       !targetingData.adAccountId || 
                       targetingData.adSets.length === 0 || 
                       !targetingData.facebookPageId
