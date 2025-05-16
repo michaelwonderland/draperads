@@ -119,15 +119,55 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     };
   }, [showCampaignDropdown, showAdSetDropdown]);
 
-  // Mock data for the display
-  const mockCampaigns: Campaign[] = [
-    { id: 'c1', name: 'Summer Sale 2025' },
-    { id: 'c2', name: 'Product Launch: Eco Series' },
-    { id: 'c3', name: 'Brand Awareness Q2' },
-    { id: 'c4', name: 'Winter Holiday Special' },
-    { id: 'c5', name: 'Lead Generation - Enterprise' },
-    { id: 'c6', name: 'Social Media Contest' },
-  ];
+  // Account-specific data mapping
+  const accountData: Record<string, {
+    campaigns: Campaign[],
+    adSets: AdSet[],
+    facebookPages: FacebookPage[],
+    instagramAccounts: InstagramAccount[]
+  }> = {
+    'account_1': {
+      campaigns: [
+        { id: 'c1_1', name: 'Summer Sale 2025' },
+        { id: 'c1_2', name: 'Product Launch: Eco Series' },
+        { id: 'c1_3', name: 'Brand Awareness Q2' }
+      ],
+      adSets: [
+        { id: 'as1_1', name: 'Young Adults 18-24', campaignId: 'c1_1' },
+        { id: 'as1_2', name: 'Home Owners 35-45', campaignId: 'c1_1' },
+        { id: 'as1_3', name: 'Tech Enthusiasts', campaignId: 'c1_2' },
+        { id: 'as1_4', name: 'Early Adopters', campaignId: 'c1_2' },
+        { id: 'as1_5', name: 'Broad Audience', campaignId: 'c1_3' }
+      ],
+      facebookPages: [
+        { id: 'fb1_1', name: 'DraperAds Official' },
+        { id: 'fb1_2', name: 'DraperAds Partners' }
+      ],
+      instagramAccounts: [
+        { id: 'ig1_1', name: 'draperads' },
+        { id: 'ig1_2', name: 'draper.creative' }
+      ]
+    },
+    'account_2': {
+      campaigns: [
+        { id: 'c2_1', name: 'Winter Holiday Special' },
+        { id: 'c2_2', name: 'Lead Generation - Enterprise' },
+        { id: 'c2_3', name: 'Social Media Contest' }
+      ],
+      adSets: [
+        { id: 'as2_1', name: 'Holiday Shoppers', campaignId: 'c2_1' },
+        { id: 'as2_2', name: 'Gift Givers 25-45', campaignId: 'c2_1' },
+        { id: 'as2_3', name: 'Business Decision Makers', campaignId: 'c2_2' },
+        { id: 'as2_4', name: 'Social Contest Entrants', campaignId: 'c2_3' }
+      ],
+      facebookPages: [
+        { id: 'fb2_1', name: 'Creative Solutions' }
+      ],
+      instagramAccounts: [
+        { id: 'ig2_1', name: 'creativesolutions' }
+      ]
+    }
+  };
 
   const mockAdSets: AdSet[] = [
     { id: 'as1', name: 'US - Mobile Users', campaignId: 'c1' },
@@ -207,8 +247,16 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     onChange
   ]);
 
+  // Reset selections when account changes
   const handleAccountChange = (value: string) => {
-    setFormData(prev => ({ ...prev, adAccountId: value }));
+    setFormData(prev => ({ 
+      ...prev, 
+      adAccountId: value,
+      selectedCampaigns: [],
+      selectedAdSets: [],
+      facebookPageId: "",
+      instagramAccountId: ""
+    }));
   };
 
   const handleConnectMeta = () => {
@@ -307,7 +355,39 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     }));
   };
 
-  const filteredCampaigns = mockCampaigns.filter(campaign => 
+  // Get campaign and ad set data based on the selected account
+  const getAccountCampaigns = () => {
+    if (!formData.adAccountId || !isConnected) return [];
+    return accountData[formData.adAccountId]?.campaigns || [];
+  };
+  
+  const getAccountAdSets = () => {
+    if (!formData.adAccountId || !isConnected) return [];
+    
+    // If campaigns are selected, only show ad sets for those campaigns
+    if (formData.selectedCampaigns.length > 0) {
+      const campaignIds = formData.selectedCampaigns.map(c => c.id);
+      return accountData[formData.adAccountId]?.adSets.filter(adSet => 
+        campaignIds.includes(adSet.campaignId)
+      ) || [];
+    }
+    
+    // Otherwise return all ad sets for the account
+    return accountData[formData.adAccountId]?.adSets || [];
+  };
+  
+  const getAccountFacebookPages = () => {
+    if (!formData.adAccountId || !isConnected) return [];
+    return accountData[formData.adAccountId]?.facebookPages || [];
+  };
+  
+  const getAccountInstagramAccounts = () => {
+    if (!formData.adAccountId || !isConnected) return [];
+    return accountData[formData.adAccountId]?.instagramAccounts || [];
+  };
+  
+  // Filter campaigns based on search
+  const filteredCampaigns = getAccountCampaigns().filter(campaign => 
     campaign.name.toLowerCase().includes(searchCampaign.toLowerCase())
   );
 
@@ -376,7 +456,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
             disabled={!isConnected}
           >
             <SelectTrigger id="ad_account" className={`w-full ${!isConnected ? 'bg-gray-50 text-gray-400' : ''}`}>
-              <SelectValue placeholder={isConnected ? "Select an ad account" : "Connect to view ad accounts"} />
+              <SelectValue placeholder={isConnected ? "Select Account" : "Connect to view ad accounts"} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="account_1">DraperAds Marketing (ID: 1078354229)</SelectItem>
