@@ -360,17 +360,16 @@ export default function AdCreator() {
   };
 
   // Handle next step
-  const handleNextStep = async () => {
+  const handleNextStep = () => {
     if (currentStep < 3) {
-      // Save current progress before moving to next step
+      // Immediately move to the next step
+      setCurrentStep(currentStep + 1);
+      
+      // Try to save in the background without blocking
       try {
-        await createAdMutation.mutateAsync();
-        // After successful save, move to next step
-        setCurrentStep(currentStep + 1);
+        createAdMutation.mutate();
       } catch (error) {
-        // Even if save fails, we still move to the next step
-        console.error("Failed to save progress:", error);
-        setCurrentStep(currentStep + 1);
+        console.log("Background save attempt will continue in the background");
       }
     }
   };
