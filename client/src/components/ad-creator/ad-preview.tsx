@@ -104,8 +104,8 @@ export function AdPreview({
               <div className="flex items-center gap-2">
                 <div className="h-10 w-10 rounded-full bg-[#65676B] overflow-hidden flex items-center justify-center text-white text-sm">
                   {(viewMode === 'feed' && facebookPage) 
-                    ? facebookPage.charAt(0) 
-                    : brandName.charAt(0)}
+                    ? facebookPage.charAt(0).toUpperCase()
+                    : brandName.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p className="text-sm font-medium">
@@ -218,11 +218,11 @@ export function AdPreview({
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-white overflow-hidden flex items-center justify-center border border-gray-300">
                   <div className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center text-white text-xs bg-[#65676B]">
-                    {instagramAccount ? instagramAccount.charAt(0).toUpperCase() : brandName.charAt(0)}
+                    {instagramAccount ? instagramAccount.charAt(0).toUpperCase() : brandName.charAt(0).toUpperCase()}
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-white">{instagramAccount || brandName.toLowerCase()}</p>
+                  <p className="text-xs font-medium text-white">{instagramAccount || brandName}</p>
                   <p className="text-[10px] text-white/80">Sponsored</p>
                 </div>
               </div>
