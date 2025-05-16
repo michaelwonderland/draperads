@@ -783,6 +783,7 @@ export default function AdCreator() {
               onChange={handleTargetingChange} 
               defaultValues={targetingData} 
               onConnectionChange={setIsMetaConnected} 
+              isConnected={isMetaConnected}
             />
           )}
 

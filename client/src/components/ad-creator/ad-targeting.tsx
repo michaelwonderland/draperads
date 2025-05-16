@@ -93,10 +93,11 @@ interface AdTargetingProps {
   onChange: (data: any) => void;
   defaultValues?: Partial<AdTargetingFormData>;
   onConnectionChange?: (isConnected: boolean) => void;
+  isConnected?: boolean;
 }
 
-export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdTargetingProps) {
-  const [isConnected, setIsConnected] = useState(false);
+export function AdTargeting({ onChange, defaultValues, onConnectionChange, isConnected: externalIsConnected }: AdTargetingProps) {
+  const [isConnected, setIsConnected] = useState(externalIsConnected || false);
   
   // Pass connection state to parent component
   useEffect(() => {
