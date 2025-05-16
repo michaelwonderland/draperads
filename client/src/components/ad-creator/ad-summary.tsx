@@ -387,9 +387,10 @@ export function AdSummary({ adData, targetingData, onComplete, onBack }: AdSumma
                 <Button
                   onClick={onBack}
                   variant="outline"
-                  className="w-full py-2 text-sm"
+                  className="w-full py-2 text-sm flex items-center justify-center gap-2 border-gray-300 hover:bg-gray-50"
                 >
-                  Back to targeting
+                  <ChevronLeft className="h-4 w-4" />
+                  Back to distribution
                 </Button>
               </div>
             </div>
