@@ -89,21 +89,21 @@ export function PlacementCustomizer({
       name: "Feeds, In-stream ads for videos and reels",
       description: "Appears in Facebook and Instagram feeds, between posts",
       image: mediaUrl,
-      dimensions: "1:1 (square) - recommended"
+      dimensions: "1x1 or 4x5"
     },
     {
       id: "stories",
       name: "Stories and Reels, Apps and sites",
       description: "Full-screen vertical format for Stories and Reels",
       image: mediaUrl,
-      dimensions: "9:16 (vertical) - recommended"
+      dimensions: "9x16 or 4x5"
     },
     {
       id: "rightColumn",
       name: "Right column, Search results",
       description: "Appears in the right column on Facebook desktop",
       image: mediaUrl,
-      dimensions: "4:5 (portrait) - recommended"
+      dimensions: "1x1 or 4x5"
     }
   ];
 
