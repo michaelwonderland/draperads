@@ -37,6 +37,13 @@ export default function AdCreator() {
     suggestedCta: string;
   } | null>(null);
   
+  // Placement-specific media state
+  const [placementMedia, setPlacementMedia] = useState({
+    feeds: "",
+    stories: "",
+    rightColumn: ""
+  });
+  
   // Ad content state
   const [adData, setAdData] = useState({
     templateId: 1,
@@ -305,6 +312,12 @@ export default function AdCreator() {
                   mediaUrl={adData.mediaUrl}
                   enabled={adData.customizePlacements}
                   onToggleCustomization={(enabled) => setAdData(prev => ({ ...prev, customizePlacements: enabled }))}
+                  onMediaUpdate={(placementId, mediaUrl) => {
+                    setPlacementMedia(prev => ({
+                      ...prev,
+                      [placementId]: mediaUrl
+                    }));
+                  }}
                 />
                 
                 {/* Template Selector - Removed as it's now combined with the Ad Type */}

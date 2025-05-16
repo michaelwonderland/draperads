@@ -41,12 +41,14 @@ interface PlacementCustomizerProps {
   mediaUrl: string;
   enabled: boolean;
   onToggleCustomization: (enabled: boolean) => void;
+  onMediaUpdate?: (placementId: string, mediaUrl: string) => void;
 }
 
 export function PlacementCustomizer({ 
   mediaUrl, 
   enabled, 
-  onToggleCustomization 
+  onToggleCustomization,
+  onMediaUpdate
 }: PlacementCustomizerProps) {
   // References for file upload inputs
   const fileInputRefs = {
@@ -159,6 +161,11 @@ export function PlacementCustomizer({
           [placementId]: newMediaUrl
         }));
         
+        // Notify parent component of the media update
+        if (onMediaUpdate) {
+          onMediaUpdate(placementId, newMediaUrl);
+        }
+        
         // Get dimensions of the new image
         const img = new Image();
         img.onload = () => {
@@ -201,6 +208,11 @@ export function PlacementCustomizer({
         ...prev,
         [currentCropPlacement]: croppedImage
       }));
+      
+      // Notify parent component of the media update
+      if (onMediaUpdate) {
+        onMediaUpdate(currentCropPlacement, croppedImage);
+      }
       
       // Get dimensions of the cropped image
       const img = new Image();
