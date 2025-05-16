@@ -51,16 +51,13 @@ export function AdTypeSelector({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-medium mb-3">Ad Type</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          Select the type of ad you want to create. This will determine the options available.
-        </p>
+        <h3 className="text-lg font-medium mb-2">Ad Type</h3>
         <RadioGroup 
           value={adType} 
           onValueChange={handleAdTypeChange}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="flex flex-wrap gap-3"
         >
           <div>
             <RadioGroupItem 
@@ -72,17 +69,10 @@ export function AdTypeSelector({
               htmlFor="standard_conversion"
               className="cursor-pointer"
             >
-              <Card className={`h-full ${adType === "standard_conversion" ? "border-2 border-[#f6242f]" : ""}`}>
-                <CardHeader className="pb-2">
-                  <Target className="h-8 w-8 text-[#f6242f] mb-2" />
-                  <CardTitle className="text-base">Standard Conversion Ad</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-xs">
-                    Drive conversions like website visits, purchases, and sign-ups.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div className={`px-4 py-2 flex items-center gap-2 rounded-md border ${adType === "standard_conversion" ? "border-[#f6242f] bg-red-50" : "border-gray-200"}`}>
+                <Target className="h-4 w-4 text-[#f6242f]" />
+                <span className="text-sm font-medium">Standard Conversion</span>
+              </div>
             </Label>
           </div>
 
@@ -96,17 +86,10 @@ export function AdTypeSelector({
               htmlFor="lead_generation"
               className="cursor-pointer"
             >
-              <Card className={`h-full ${adType === "lead_generation" ? "border-2 border-[#f6242f]" : ""}`}>
-                <CardHeader className="pb-2">
-                  <Users className="h-8 w-8 text-[#f6242f] mb-2" />
-                  <CardTitle className="text-base">Lead Generation Ad</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-xs">
-                    Collect user information through a form without them leaving Meta platforms.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div className={`px-4 py-2 flex items-center gap-2 rounded-md border ${adType === "lead_generation" ? "border-[#f6242f] bg-red-50" : "border-gray-200"}`}>
+                <Users className="h-4 w-4 text-[#f6242f]" />
+                <span className="text-sm font-medium">Lead Generation</span>
+              </div>
             </Label>
           </div>
 
@@ -120,31 +103,22 @@ export function AdTypeSelector({
               htmlFor="reach"
               className="cursor-pointer"
             >
-              <Card className={`h-full ${adType === "reach" ? "border-2 border-[#f6242f]" : ""}`}>
-                <CardHeader className="pb-2">
-                  <Megaphone className="h-8 w-8 text-[#f6242f] mb-2" />
-                  <CardTitle className="text-base">Reach Ad</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-xs">
-                    Maximize your ad visibility to as many people as possible in your target audience.
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div className={`px-4 py-2 flex items-center gap-2 rounded-md border ${adType === "reach" ? "border-[#f6242f] bg-red-50" : "border-gray-200"}`}>
+                <Megaphone className="h-4 w-4 text-[#f6242f]" />
+                <span className="text-sm font-medium">Reach</span>
+              </div>
             </Label>
           </div>
         </RadioGroup>
       </div>
 
-      <div className="pt-4 border-t">
+      <div className="pt-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium">Placement Asset Customization</h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Create different versions of your ad for different placements (Feed, Stories, etc.)
-            </p>
-          </div>
+          <label htmlFor="customize-placements" className="text-sm font-medium">
+            Customize for different placements
+          </label>
           <Switch 
+            id="customize-placements"
             checked={customizePlacements}
             onCheckedChange={handleCustomizePlacementsChange}
           />
