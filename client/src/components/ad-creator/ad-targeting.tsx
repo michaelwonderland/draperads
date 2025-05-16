@@ -360,10 +360,24 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     return accountData[formData.adAccountId]?.campaigns || [];
   };
   
+  // Filter campaigns based on search and active filter
+  const getFilteredCampaigns = () => {
+    const campaigns = getAccountCampaigns();
+    return campaigns.filter(campaign => {
+      // Text search filter
+      const matchesSearch = campaign.name.toLowerCase().includes(searchCampaign.toLowerCase());
+      
+      // Active filter (if enabled)
+      const matchesActive = showActiveCampaignsOnly ? campaign.status === 'ACTIVE' : true;
+      
+      return matchesSearch && matchesActive;
+    });
+  };
+  
   const getAccountAdSets = () => {
     if (!formData.adAccountId || !isConnected) return [];
     
-    // If campaigns are selected, only show ad sets for those campaigns
+    // Filter ad sets to only include those from selected campaigns
     if (formData.selectedCampaigns.length > 0) {
       const campaignIds = formData.selectedCampaigns.map(c => c.id);
       return accountData[formData.adAccountId]?.adSets.filter(adSet => 
@@ -375,6 +389,13 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     return accountData[formData.adAccountId]?.adSets || [];
   };
   
+  // Filter ad sets based on search
+  const getFilteredAdSets = () => {
+    return getAccountAdSets().filter(adSet => 
+      adSet.name.toLowerCase().includes(searchAdSet.toLowerCase())
+    );
+  };
+  
   const getAccountFacebookPages = () => {
     if (!formData.adAccountId || !isConnected) return [];
     return accountData[formData.adAccountId]?.facebookPages || [];
@@ -384,16 +405,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
     if (!formData.adAccountId || !isConnected) return [];
     return accountData[formData.adAccountId]?.instagramAccounts || [];
   };
-  
-  // Filter campaigns based on search
-  const filteredCampaigns = getAccountCampaigns().filter(campaign => 
-    campaign.name.toLowerCase().includes(searchCampaign.toLowerCase())
-  );
-
-  // Filter ad sets based on search 
-  const filteredAdSets = getAccountAdSets().filter(adSet => 
-    adSet.name.toLowerCase().includes(searchAdSet.toLowerCase())
-  );
 
   const getActiveEnhancementsCount = () => {
     return Object.values(formData.advantagePlusEnhancements).filter(Boolean).length;
@@ -480,6 +491,21 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                   disabled={!isConnected || !formData.adAccountId}
                 />
               </div>
+              
+              {/* Active campaigns filter */}
+              {isConnected && formData.adAccountId && (
+                <div className="flex items-center mb-2">
+                  <Switch
+                    id="active-campaigns-only"
+                    checked={showActiveCampaignsOnly}
+                    onCheckedChange={setShowActiveCampaignsOnly}
+                    className="data-[state=checked]:bg-[#f6242f]"
+                  />
+                  <Label htmlFor="active-campaigns-only" className="ml-2 text-sm">
+                    Show active campaigns only
+                  </Label>
+                </div>
+              )}
               
               {/* Select All */}
               {isConnected && formData.adAccountId && getAccountCampaigns().length > 0 && (
