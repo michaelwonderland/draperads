@@ -353,15 +353,28 @@ export default function AdCreator() {
     const newTargetingData: TargetingData = {
       adAccountId: values.adAccountId,
       campaignObjective: values.campaignObjective,
-      placements: values.placements,
-      adSets: [...values.adSets],
+      placements: values.placements, 
+      adSets: [...values.adSets], // Important to deep clone the array
       facebookPageId: values.facebookPageId,
       facebookPageName: values.facebookPageName,
       instagramAccountId: values.instagramAccountId,
       instagramAccountName: values.instagramAccountName
     };
     
+    // First update the state
     setTargetingData(newTargetingData);
+    
+    // Then trigger immediate save in the background
+    // We'll use setTimeout to run this after the state updates
+    setTimeout(() => {
+      console.log("Auto-saving targeting changes:", newTargetingData);
+      // We don't await this since it's a background save
+      try {
+        createAdMutation.mutate();
+      } catch (error) {
+        console.error("Background save of targeting data failed:", error);
+      }
+    }, 0);
   };
   
   // Handle save draft button

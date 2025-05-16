@@ -205,15 +205,26 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
       instagramAccountName = igAccount?.name || "";
     }
     
+    // Get more detailed mapping of ad sets with their campaign relationships
+    const enhancedAdSets = data.selectedAdSets.map(adSet => {
+      // Find the complete ad set data from the source
+      const adSetDetails = data.adAccountId ?
+        accountData[data.adAccountId]?.adSets.find(a => a.id === adSet.id) : null;
+      
+      return {
+        id: adSet.id,
+        name: adSet.name,
+        campaignId: adSetDetails?.campaignId || "", // Important to include campaign relationship
+        audience: "Broad - 25-54 age range", // default audience
+        status: adSetDetails?.status || "ACTIVE" // Include status too
+      };
+    });
+    
     return {
       adAccountId: data.adAccountId,
       campaignObjective: "traffic", // default
       placements: ["facebook", "instagram"], // default
-      adSets: data.selectedAdSets.map(adSet => ({
-        id: adSet.id,
-        name: adSet.name,
-        audience: "Broad - 25-54 age range" // default audience
-      })),
+      adSets: enhancedAdSets,
       facebookPageId: data.facebookPageId,
       instagramAccountId: data.instagramAccountId,
       facebookPageName,
@@ -225,10 +236,14 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   useEffect(() => {
     const oldFormatData = convertToOldFormat(formData);
     onChange(oldFormatData);
+    
+    // Log what's being sent to parent for debugging
+    console.log("Sending updated targeting data to parent:", oldFormatData);
   }, [
     formData.adAccountId, 
-    formData.selectedCampaigns.length, 
-    formData.selectedAdSets.length, 
+    // Track the full array contents not just length
+    JSON.stringify(formData.selectedCampaigns), 
+    JSON.stringify(formData.selectedAdSets), 
     formData.facebookPageId,
     formData.instagramAccountId,
     formData.allowMultiAdvertiserAds,
