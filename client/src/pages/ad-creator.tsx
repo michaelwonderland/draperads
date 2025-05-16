@@ -430,40 +430,6 @@ export default function AdCreator() {
   
   return (
     <div className="container mx-auto py-8 px-4">
-      {/* Steps Indicator */}
-      <div className="flex justify-between mb-8 relative">
-        <div className="absolute h-1 bg-gray-200 top-4 left-0 right-0 -z-10"></div>
-        
-        <div 
-          className={`flex flex-col items-center cursor-pointer ${currentStep >= 1 ? "font-bold text-[#f6242f]" : ""}`}
-          onClick={() => setCurrentStep(1)}
-        >
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? "bg-[#f6242f] text-white" : "bg-gray-200 text-gray-500"}`}>
-            1
-          </div>
-          <div className="mt-2 text-sm">Design</div>
-        </div>
-        
-        <div 
-          className={`flex flex-col items-center cursor-pointer ${currentStep >= 2 ? "font-bold text-[#f6242f]" : ""}`}
-          onClick={() => currentStep > 1 ? setCurrentStep(2) : null}
-        >
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? "bg-[#f6242f] text-white" : "bg-gray-200 text-gray-500"}`}>
-            2
-          </div>
-          <div className="mt-2 text-sm">Targeting</div>
-        </div>
-        
-        <div 
-          className={`flex flex-col items-center cursor-pointer ${currentStep >= 3 ? "font-bold text-[#f6242f]" : ""}`}
-          onClick={() => currentStep > 2 ? setCurrentStep(3) : null}
-        >
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? "bg-[#f6242f] text-white" : "bg-gray-200 text-gray-500"}`}>
-            3
-          </div>
-          <div className="mt-2 text-sm">Launch</div>
-        </div>
-      </div>
       
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
@@ -624,10 +590,23 @@ export default function AdCreator() {
                   .map(adSet => {
                     // Find unique campaigns from ad sets
                     const campaignId = adSet.campaignId || "";
+                    let campaignName = "";
+                    
+                    // Use actual campaign names
+                    if (campaignId.includes("summer")) {
+                      campaignName = "Summer Sale 2025";
+                    } else if (campaignId.includes("eco")) {
+                      campaignName = "Product Launch: Eco Series";
+                    } else if (campaignId.includes("brand")) {
+                      campaignName = "Brand Awareness Q2";
+                    } else {
+                      campaignName = "Campaign " + campaignId;
+                    }
+                    
                     // Convert to the format AdTargetingFormData expects
                     return { 
                       id: campaignId, 
-                      name: "Campaign " + campaignId,
+                      name: campaignName,
                       status: "ACTIVE" 
                     };
                   }),
@@ -682,10 +661,22 @@ export default function AdCreator() {
                         .map(adSet => {
                           // Find unique campaigns from ad sets
                           const campaignId = adSet.campaignId || "";
-                          // Convert to the format AdTargetingFormData expects
+                          let campaignName = "";
+                          
+                          // Use actual campaign names
+                          if (campaignId.includes("summer")) {
+                            campaignName = "Summer Sale 2025";
+                          } else if (campaignId.includes("eco")) {
+                            campaignName = "Product Launch: Eco Series";
+                          } else if (campaignId.includes("brand")) {
+                            campaignName = "Brand Awareness Q2";
+                          } else {
+                            campaignName = "Campaign " + campaignId;
+                          }
+                          
                           return { 
                             id: campaignId, 
-                            name: "Campaign " + campaignId,
+                            name: campaignName,
                           };
                         })}
                       adSets={targetingData.adSets.map(adSet => ({
