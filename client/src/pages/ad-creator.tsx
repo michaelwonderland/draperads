@@ -671,21 +671,11 @@ export default function AdCreator() {
                   />
                 </div>
                 
-                {/* Brand Settings */}
-                <div className="mb-8">
-                  <BrandSettings 
-                    onBrandChange={(values) => {
-                      setAdData(prev => ({ 
-                        ...prev, 
-                        brandName: values.brandName 
-                      }))
-                    }}
-                    brandName={adData.brandName}
-                  />
-                </div>
-                
-                {/* Ad Text Form */}
-                <div className="mb-8">
+                {/* Ad Copy Section */}
+                <div className="mb-8 border-t pt-6">
+                  <h3 className="text-lg font-medium mb-6">Ad Copy</h3>
+                  
+                  {/* Ad Text Form */}
                   <AdTextForm 
                     onSubmit={handleAdTextChange}
                     defaultValues={{
@@ -698,17 +688,37 @@ export default function AdCreator() {
                   />
                 </div>
                 
+                {/* Brand Settings - At the end */}
+                <div className="mb-8 border-t pt-6">
+                  <h3 className="text-lg font-medium mb-6">Brand Identity</h3>
+                  <BrandSettings 
+                    onBrandChange={(values) => {
+                      setAdData(prev => ({ 
+                        ...prev, 
+                        brandName: values.brandName 
+                      }))
+                    }}
+                    brandName={adData.brandName}
+                  />
+                </div>
+                
                 {/* AI Suggestions */}
                 {adData.mediaUrl && !generatingSuggestions && aiSuggestions && (
-                  <div className="mb-6">
-                    <div className="flex items-start justify-between gap-4 mb-3">
+                  <div className="mb-6 border-t pt-6">
+                    <div className={`flex items-start justify-between gap-4 mb-3 p-4 rounded-md ${adData.hasAppliedAiSuggestions ? 'bg-green-50' : 'bg-yellow-50'}`}>
                       <div className="flex items-start gap-2">
-                        <span className="bg-yellow-50 p-1.5 rounded-md">
-                          <Sparkles className="h-4 w-4 text-amber-600" />
+                        <span className={`p-1.5 rounded-md ${adData.hasAppliedAiSuggestions ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                          <Sparkles className={`h-4 w-4 ${adData.hasAppliedAiSuggestions ? 'text-green-600' : 'text-amber-600'}`} />
                         </span>
                         <div>
-                          <h3 className="text-sm font-medium mb-0.5">AI-Suggested Ad Copy</h3>
-                          <p className="text-xs text-gray-500">Generated based on your image</p>
+                          <h3 className="text-sm font-medium mb-0.5">
+                            {adData.hasAppliedAiSuggestions ? 'AI-Generated Copy Applied' : 'AI-Suggested Ad Copy'}
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            {adData.hasAppliedAiSuggestions 
+                              ? 'Your ad is using AI-generated copy based on your image' 
+                              : 'Generated based on your image'}
+                          </p>
                         </div>
                       </div>
                       
@@ -768,7 +778,7 @@ export default function AdCreator() {
                               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
                                 <path d="M7.5 0.5C3.35786 0.5 0 3.85786 0 8C0 12.1421 3.35786 15.5 7.5 15.5C11.6421 15.5 15 12.1421 15 8C15 3.85786 11.6421 0.5 7.5 0.5ZM8.5 6.5C8.5 5.94772 8.05228 5.5 7.5 5.5C6.94772 5.5 6.5 5.94772 6.5 6.5V10.5C6.5 11.0523 6.94772 11.5 7.5 11.5C8.05228 11.5 8.5 11.0523 8.5 10.5V6.5ZM7.5 3C6.94772 3 6.5 3.44772 6.5 4C6.5 4.55228 6.94772 5 7.5 5C8.05228 5 8.5 4.55228 8.5 4C8.5 3.44772 8.05228 3 7.5 3Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
                               </svg>
-                              Restore AI suggestions
+                              Apply AI suggestions
                             </Button>
                             <Button
                               onClick={() => {
