@@ -142,7 +142,22 @@ export default function AdCreator() {
     facebookPageId: "",
     instagramAccountId: "",
     facebookPageName: "",
-    instagramAccountName: ""
+    instagramAccountName: "",
+    allowMultiAdvertiserAds: false,
+    enableFlexibleMedia: false,
+    advantagePlusEnhancements: {
+      translateText: false,
+      addOverlays: false,
+      addCatalogItems: false,
+      visualTouchUps: false,
+      music: false,
+      animation3d: false,
+      textImprovements: false,
+      storeLocations: false,
+      enhanceCta: false,
+      addSiteLinks: false,
+      imageAnimation: false
+    }
   });
   
   // Meta connection state
@@ -549,21 +564,9 @@ export default function AdCreator() {
                 }))}
                 facebookPage={adData.facebookPage}
                 instagramAccount={adData.instagramAccount}
-                allowMultiAdvertiserAds={false}
-                enableFlexibleMedia={false}
-                advantagePlusEnhancements={{
-                  translateText: targetingData.campaignObjective === "traffic",
-                  addOverlays: false,
-                  addCatalogItems: false,
-                  visualTouchUps: true,
-                  music: false,
-                  animation3d: false,
-                  textImprovements: true,
-                  storeLocations: false,
-                  enhanceCta: true,
-                  addSiteLinks: false,
-                  imageAnimation: false
-                }}
+                allowMultiAdvertiserAds={targetingData.allowMultiAdvertiserAds}
+                enableFlexibleMedia={targetingData.enableFlexibleMedia}
+                advantagePlusEnhancements={targetingData.advantagePlusEnhancements}
               />
             </div>
             
