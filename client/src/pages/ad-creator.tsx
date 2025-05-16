@@ -307,65 +307,12 @@ export default function AdCreator() {
   const handleTargetingChange = (values: any) => {
     setTargetingData(values);
     
-    // Update Facebook page and Instagram account in adData when selected in targeting
-    if (values.facebookPageId || values.instagramAccountId) {
-      // Look up the actual page/account names from the ID
-      let facebookPage = "";
-      let instagramAccount = "";
-      
-      // Find corresponding names from their IDs
-      if (values.facebookPageId && values.adAccountId) {
-        const accountData = {
-          'account_1': {
-            facebookPages: [
-              { id: 'fb1_1', name: 'DraperAds Official' },
-              { id: 'fb1_2', name: 'DraperAds Partners' }
-            ]
-          },
-          'account_2': {
-            facebookPages: [
-              { id: 'fb2_1', name: 'Creative Solutions' }
-            ]
-          }
-        };
-        
-        const selectedPage = accountData[values.adAccountId]?.facebookPages.find(
-          page => page.id === values.facebookPageId
-        );
-        
-        if (selectedPage) {
-          facebookPage = selectedPage.name;
-        }
-      }
-      
-      if (values.instagramAccountId && values.adAccountId) {
-        const accountData = {
-          'account_1': {
-            instagramAccounts: [
-              { id: 'ig1_1', name: 'draperads' },
-              { id: 'ig1_2', name: 'draper.creative' }
-            ]
-          },
-          'account_2': {
-            instagramAccounts: [
-              { id: 'ig2_1', name: 'creativesolutions' }
-            ]
-          }
-        };
-        
-        const selectedAccount = accountData[values.adAccountId]?.instagramAccounts.find(
-          account => account.id === values.instagramAccountId
-        );
-        
-        if (selectedAccount) {
-          instagramAccount = selectedAccount.name;
-        }
-      }
-      
+    // Use the Facebook page and Instagram account names directly from the targeting data
+    if (values.facebookPageName || values.instagramAccountName) {
       setAdData(prev => ({
         ...prev,
-        facebookPage,
-        instagramAccount
+        facebookPage: values.facebookPageName || "",
+        instagramAccount: values.instagramAccountName || ""
       }));
     }
   };

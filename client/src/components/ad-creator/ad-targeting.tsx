@@ -187,6 +187,24 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   
   // For conversion to old format
   const convertToOldFormat = (data: AdTargetingFormData) => {
+    // Get the actual Facebook page and Instagram account names
+    let facebookPageName = "";
+    let instagramAccountName = "";
+    
+    if (data.facebookPageId && data.adAccountId) {
+      const fbPage = accountData[data.adAccountId]?.facebookPages.find(
+        page => page.id === data.facebookPageId
+      );
+      facebookPageName = fbPage?.name || "";
+    }
+    
+    if (data.instagramAccountId && data.adAccountId) {
+      const igAccount = accountData[data.adAccountId]?.instagramAccounts.find(
+        account => account.id === data.instagramAccountId
+      );
+      instagramAccountName = igAccount?.name || "";
+    }
+    
     return {
       adAccountId: data.adAccountId,
       campaignObjective: "traffic", // default
@@ -195,7 +213,11 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
         id: adSet.id,
         name: adSet.name,
         audience: "Broad - 25-54 age range" // default audience
-      }))
+      })),
+      facebookPageId: data.facebookPageId,
+      instagramAccountId: data.instagramAccountId,
+      facebookPageName,
+      instagramAccountName
     };
   };
 
