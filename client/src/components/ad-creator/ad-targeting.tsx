@@ -98,6 +98,26 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
   const [searchAdSet, setSearchAdSet] = useState('');
   const [showCampaignDropdown, setShowCampaignDropdown] = useState(false);
   const [showAdSetDropdown, setShowAdSetDropdown] = useState(false);
+  
+  // Add click outside listener to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if click is outside the campaign dropdown
+      if (showCampaignDropdown && !target.closest('[data-campaign-dropdown]')) {
+        setShowCampaignDropdown(false);
+      }
+      // Check if click is outside the ad set dropdown
+      if (showAdSetDropdown && !target.closest('[data-adset-dropdown]')) {
+        setShowAdSetDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCampaignDropdown, showAdSetDropdown]);
 
   // Mock data for the display
   const mockCampaigns: Campaign[] = [
@@ -376,6 +396,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange }: AdT
                   setShowCampaignDropdown(true);
                 }
               }}
+              data-campaign-dropdown
             >
               {isConnected && formData.selectedCampaigns.length > 0 ? (
                 formData.selectedCampaigns.map(campaign => (
