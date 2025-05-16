@@ -441,7 +441,7 @@ export default function AdCreator() {
   // Determine if we should show the launch button
   const showLaunchButton = currentStep === 3;
 
-  // Render Step 3 layout only with Distribution Summary
+  // Render Step 3 layout with Distribution Summary & Ad Preview
   if (currentStep === 3) {
     return (
       <div className="container mx-auto px-4 py-6">
@@ -453,86 +453,106 @@ export default function AdCreator() {
           message="You need to sign in to publish your ad to Meta Ad Sets"
         />
         
-        {/* Step 3 with only the Distribution Summary */}
-        <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <AdSummary 
-              adName={`Ad for ${adData.brandName}`}
-              onAdNameChange={(name) => {
-                // Update ad name if needed
-                console.log("Ad name updated:", name);
-                // Could save this to state/db if needed
-              }}
-              adAccountName={targetingData.adAccountId ? 
-                (targetingData.adAccountId === "account_1" ? "Meta Ads Account (Main)" : 
-                targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
-                targetingData.adAccountId) : 
-                undefined}
-              campaigns={
-                // Get unique campaigns
-                Array.from(
-                  new Set(
-                    targetingData.adSets
-                      .filter(adSet => adSet.campaignId)
-                      .map(adSet => adSet.campaignId)
-                  )
-                ).map(campaignId => {
-                  // Convert campaign ID to name
-                  let campaignName = "Campaign";
-                  if (campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
-                  if (campaignId === "campaign2") campaignName = "Summer Sale 2025"; 
-                  if (campaignId === "campaign3") campaignName = "Brand Awareness Q1";
-                  
-                  return {
-                    id: campaignId || "",
-                    name: campaignName
-                  };
-                })
-              }
-              adSets={targetingData.adSets.map(adSet => ({
-                id: adSet.id,
-                name: adSet.name,
-                campaignId: adSet.campaignId
-              }))}
-              facebookPage={adData.facebookPage}
-              instagramAccount={adData.instagramAccount}
-              allowMultiAdvertiserAds={false}
-              enableFlexibleMedia={false}
-              advantagePlusEnhancements={{
-                translateText: targetingData.campaignObjective === "traffic",
-                addOverlays: false,
-                addCatalogItems: false,
-                visualTouchUps: true,
-                music: false,
-                animation3d: false,
-                textImprovements: true,
-                storeLocations: false,
-                enhanceCta: true,
-                addSiteLinks: false,
-                imageAnimation: false
-              }}
-            />
+        {/* Step 3 with Distribution Summary and Ad Preview */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column - Distribution Summary */}
+          <div className="lg:w-1/2">
+            <div className="bg-gray-100 rounded-lg p-6 mb-6">
+              <AdSummary 
+                adName={`Ad for ${adData.brandName}`}
+                onAdNameChange={(name) => {
+                  // Update ad name if needed
+                  console.log("Ad name updated:", name);
+                  // Could save this to state/db if needed
+                }}
+                adAccountName={targetingData.adAccountId ? 
+                  (targetingData.adAccountId === "account_1" ? "Meta Ads Account (Main)" : 
+                  targetingData.adAccountId === "account_2" ? "Meta Ads Account (Secondary)" : 
+                  targetingData.adAccountId) : 
+                  undefined}
+                campaigns={
+                  // Get unique campaigns
+                  Array.from(
+                    new Set(
+                      targetingData.adSets
+                        .filter(adSet => adSet.campaignId)
+                        .map(adSet => adSet.campaignId)
+                    )
+                  ).map(campaignId => {
+                    // Convert campaign ID to name
+                    let campaignName = "Campaign";
+                    if (campaignId === "campaign1") campaignName = "Product Launch: Eco Series";
+                    if (campaignId === "campaign2") campaignName = "Summer Sale 2025"; 
+                    if (campaignId === "campaign3") campaignName = "Brand Awareness Q1";
+                    
+                    return {
+                      id: campaignId || "",
+                      name: campaignName
+                    };
+                  })
+                }
+                adSets={targetingData.adSets.map(adSet => ({
+                  id: adSet.id,
+                  name: adSet.name,
+                  campaignId: adSet.campaignId
+                }))}
+                facebookPage={adData.facebookPage}
+                instagramAccount={adData.instagramAccount}
+                allowMultiAdvertiserAds={false}
+                enableFlexibleMedia={false}
+                advantagePlusEnhancements={{
+                  translateText: targetingData.campaignObjective === "traffic",
+                  addOverlays: false,
+                  addCatalogItems: false,
+                  visualTouchUps: true,
+                  music: false,
+                  animation3d: false,
+                  textImprovements: true,
+                  storeLocations: false,
+                  enhanceCta: true,
+                  addSiteLinks: false,
+                  imageAnimation: false
+                }}
+              />
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={handlePrevStep}
+              >
+                Back
+              </Button>
+              
+              <Button
+                onClick={handlePublish}
+                disabled={publishAdMutation.isPending || !adData.mediaUrl || targetingData.adSets.length === 0}
+                className="bg-[#f6242f] hover:opacity-90 text-white"
+              >
+                {publishAdMutation.isPending ? 
+                  "Launching..." : 
+                  `Launch to ${targetingData.adSets.length} Ad Set${targetingData.adSets.length !== 1 ? 's' : ''}`
+                }
+              </Button>
+            </div>
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevStep}
-            >
-              Back
-            </Button>
-            
-            <Button
-              onClick={handlePublish}
-              disabled={publishAdMutation.isPending || !adData.mediaUrl || targetingData.adSets.length === 0}
-              className="bg-[#f6242f] hover:opacity-90 text-white"
-            >
-              {publishAdMutation.isPending ? 
-                "Launching..." : 
-                `Launch to ${targetingData.adSets.length} Ad Set${targetingData.adSets.length !== 1 ? 's' : ''}`
-              }
-            </Button>
+          {/* Right Column - Ad Preview */}
+          <div className="lg:w-1/2">
+            <AdPreview
+              brandName={adData.brandName}
+              mediaUrl={adData.mediaUrl}
+              primaryText={adData.primaryText}
+              websiteUrl={adData.websiteUrl}
+              headline={adData.headline}
+              description={adData.description}
+              cta={adData.cta}
+              storiesMediaUrl={placementMedia.stories}
+              customizedPlacements={adData.customizePlacements}
+              facebookPage={adData.facebookPage}
+              instagramAccount={adData.instagramAccount}
+            />
           </div>
         </div>
       </div>

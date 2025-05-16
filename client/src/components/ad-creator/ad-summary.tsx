@@ -87,7 +87,7 @@ export function AdSummary({
       <h3 className="text-lg font-medium mb-2">Distribution Summary</h3>
       
       {/* Ad Name Input */}
-      <div className="bg-gray-100 p-4 rounded-md">
+      <div className="mb-4">
         <label htmlFor="adName" className="block text-sm font-medium text-gray-700 mb-1">
           Ad Name
         </label>
