@@ -12,6 +12,7 @@ import {
   publishAdRequestSchema,
 } from "@shared/schema";
 import { z } from "zod";
+import metaRoutes from "./api/meta";
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -48,6 +49,9 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   await setupAuth(app);
+  
+  // Register Meta API routes
+  app.use('/api/meta', metaRoutes);
   
   // Auth user endpoint
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

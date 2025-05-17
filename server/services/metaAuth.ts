@@ -1,8 +1,8 @@
 import { BusinessAdAccount, FacebookAdsApi, APIRequest } from 'facebook-nodejs-business-sdk';
 import type { Response } from 'express';
 
-// Initialize the Facebook Ads API
-const api = FacebookAdsApi.init(process.env.META_APP_SECRET);
+// We'll initialize the Facebook Ads API when needed with an access token
+// Not initializing it here to avoid the "Access token required" error
 
 // Login URL configuration constants
 const REDIRECT_URI = process.env.NODE_ENV === 'production'
@@ -62,6 +62,7 @@ export async function handleMetaCallback(code: string, state: string): Promise<a
  */
 export async function getAdAccounts(accessToken: string): Promise<any[]> {
   try {
+    // Initialize the Facebook API with the user's access token
     FacebookAdsApi.init(accessToken);
     
     // Create a request to fetch the user's ad accounts
@@ -75,7 +76,9 @@ export async function getAdAccounts(accessToken: string): Promise<any[]> {
     const response = await fetch(`${url}?${queryParams}`);
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch ad accounts: ${response.statusText}`);
+      const errorData = await response.json();
+      console.error('Meta API error:', errorData);
+      throw new Error(`Failed to fetch ad accounts: ${errorData.error?.message || response.statusText}`);
     }
     
     const data = await response.json();

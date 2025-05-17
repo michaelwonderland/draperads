@@ -15,6 +15,7 @@ import { CombinedTypeSelector } from "@/components/ad-creator/combined-type-sele
 import { PlacementCustomizer } from "@/components/ad-creator/placement-customizer";
 import type { PlacementMediaData } from "@/components/ad-creator/placement-customizer";
 import { AuthDialog } from "@/components/auth/auth-dialog";
+import { MetaAuthDialog } from "@/components/auth/meta-auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle2, Sparkles } from "lucide-react";
@@ -84,6 +85,21 @@ export default function AdCreator() {
   const [_, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+  
+  // Meta Auth state
+  const [metaAuthOpen, setMetaAuthOpen] = useState(false);
+  const [isMetaConnected, setIsMetaConnected] = useState(false);
+  
+  // Check for Meta connection on mount
+  useEffect(() => {
+    // Check if we've returned from Meta auth flow (indicated by URL parameter)
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('meta_connected') && params.get('meta_connected') === 'true') {
+      setIsMetaConnected(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
   
   // Step state (1: Create, 2: Target, 3: Launch)
   const [currentStep, setCurrentStep] = useState(1);
@@ -160,8 +176,7 @@ export default function AdCreator() {
     }
   });
   
-  // Meta connection state
-  const [isMetaConnected, setIsMetaConnected] = useState(false);
+  // Meta connection state - already defined above
   
   // Create or update ad mutation
   const createAdMutation = useMutation({
