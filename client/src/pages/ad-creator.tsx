@@ -822,10 +822,11 @@ export default function AdCreator() {
         </div>
       </div>
       
-      {/* Auth Dialog */}
-      <AuthDialog 
-        open={showAuthDialog} 
-        onOpenChange={setShowAuthDialog}
+      {/* Meta Auth Dialog */}
+      <MetaAuthDialog 
+        open={metaAuthOpen} 
+        onOpenChange={setMetaAuthOpen}
+        onAuthComplete={() => setIsMetaConnected(true)}
       />
     </div>
   );
