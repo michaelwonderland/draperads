@@ -94,9 +94,10 @@ interface AdTargetingProps {
   defaultValues?: Partial<AdTargetingFormData>;
   onConnectionChange?: (isConnected: boolean) => void;
   isConnected?: boolean;
+  onConnectMeta?: () => void;
 }
 
-export function AdTargeting({ onChange, defaultValues, onConnectionChange, isConnected: externalIsConnected }: AdTargetingProps) {
+export function AdTargeting({ onChange, defaultValues, onConnectionChange, isConnected: externalIsConnected, onConnectMeta }: AdTargetingProps) {
   const [isConnected, setIsConnected] = useState(externalIsConnected || false);
   
   // Sync with external isConnected state

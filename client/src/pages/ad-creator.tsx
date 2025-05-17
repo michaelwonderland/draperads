@@ -617,7 +617,9 @@ export default function AdCreator() {
           {/* Targeting - Step 2 */}
           {currentStep === 2 && (
             <AdTargeting 
-              onChange={handleTargetingChange} 
+              onChange={handleTargetingChange}
+              isConnected={isMetaConnected}
+              onConnectMeta={() => setMetaAuthOpen(true)}
               defaultValues={{
                 adAccountId: targetingData.adAccountId,
                 selectedCampaigns: targetingData.adSets
