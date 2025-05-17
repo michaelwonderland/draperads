@@ -657,7 +657,7 @@ export default function AdCreator() {
                   {/* Ad Summary */}
                   <div className="bg-gray-50 p-6 rounded-md">
                     <AdSummary 
-                      adName="New Conversion Ad"
+                      adName={adData.headline ? `${adData.headline} - ${new Date().toLocaleDateString()}` : "New Conversion Ad"}
                       onAdNameChange={(name) => {
                         console.log("Ad name changed:", name);
                       }}
