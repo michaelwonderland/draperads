@@ -529,11 +529,31 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
   
   const getAccountFacebookPages = () => {
     if (!formData.adAccountId || !isConnected) return [];
+    
+    // Use real Meta Facebook Pages data when available
+    if (metaFacebookPages && Array.isArray(metaFacebookPages)) {
+      return metaFacebookPages.map(page => ({
+        id: page.id,
+        name: page.name
+      }));
+    }
+    
+    // Fallback to sample data for development
     return accountData[formData.adAccountId]?.facebookPages || [];
   };
   
   const getAccountInstagramAccounts = () => {
-    if (!formData.adAccountId || !isConnected) return [];
+    if (!formData.adAccountId || !formData.facebookPageId || !isConnected) return [];
+    
+    // Use real Meta Instagram Accounts data when available
+    if (metaInstagramAccounts && Array.isArray(metaInstagramAccounts)) {
+      return metaInstagramAccounts.map(account => ({
+        id: account.id,
+        name: account.username || account.name || 'Unknown'
+      }));
+    }
+    
+    // Fallback to sample data for development
     return accountData[formData.adAccountId]?.instagramAccounts || [];
   };
 
@@ -924,9 +944,22 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
                     <SelectValue placeholder="Select Facebook Page" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getAccountFacebookPages().map(page => (
-                      <SelectItem key={page.id} value={page.id}>{page.name}</SelectItem>
-                    ))}
+                    {isLoadingFacebookPages ? (
+                      <div className="flex items-center justify-center py-2">
+                        <div className="animate-spin h-4 w-4 border-2 border-[#f6242f] border-t-transparent rounded-full"></div>
+                        <span className="ml-2 text-sm">Loading pages...</span>
+                      </div>
+                    ) : getAccountFacebookPages().length > 0 ? (
+                      getAccountFacebookPages().map(page => (
+                        <SelectItem key={page.id} value={page.id}>{page.name}</SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-1 text-sm text-gray-500">
+                        {!isConnected ? "Connect to Meta first" : 
+                         !formData.adAccountId ? "Select an ad account first" :
+                         "No Facebook pages found"}
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -945,9 +978,23 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
                     <SelectValue placeholder="Select Instagram Account" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getAccountInstagramAccounts().map(account => (
-                      <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
-                    ))}
+                    {isLoadingInstagramAccounts ? (
+                      <div className="flex items-center justify-center py-2">
+                        <div className="animate-spin h-4 w-4 border-2 border-[#f6242f] border-t-transparent rounded-full"></div>
+                        <span className="ml-2 text-sm">Loading accounts...</span>
+                      </div>
+                    ) : getAccountInstagramAccounts().length > 0 ? (
+                      getAccountInstagramAccounts().map(account => (
+                        <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-1 text-sm text-gray-500">
+                        {!isConnected ? "Connect to Meta first" : 
+                         !formData.adAccountId ? "Select an ad account first" :
+                         !formData.facebookPageId ? "Select a Facebook page first" :
+                         "No Instagram accounts found for this page"}
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
