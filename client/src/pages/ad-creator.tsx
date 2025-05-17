@@ -677,10 +677,9 @@ export default function AdCreator() {
                   imageAnimation: false
                 }
               }}
-              onConnectionChange={(isConnected) => {
-                setIsMetaConnected(isConnected);
+              onConnectionChange={(connected) => {
+                setIsMetaConnected(connected);
               }}
-              isConnected={isMetaConnected}
             />
           )}
           
