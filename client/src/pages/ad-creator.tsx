@@ -592,13 +592,19 @@ export default function AdCreator() {
                     const campaignId = adSet.campaignId || "";
                     let campaignName = "";
                     
-                    // Use actual campaign names
-                    if (campaignId.includes("summer")) {
+                    // Use actual campaign names based on IDs
+                    if (campaignId === "c1_1") {
                       campaignName = "Summer Sale 2025";
-                    } else if (campaignId.includes("eco")) {
+                    } else if (campaignId === "c1_2") {
                       campaignName = "Product Launch: Eco Series";
-                    } else if (campaignId.includes("brand")) {
+                    } else if (campaignId === "c1_3") {
                       campaignName = "Brand Awareness Q2";
+                    } else if (campaignId === "c2_1") {
+                      campaignName = "Winter Holiday Special";
+                    } else if (campaignId === "c2_2") {
+                      campaignName = "Lead Generation - Enterprise";
+                    } else if (campaignId === "c2_3") {
+                      campaignName = "Social Media Contest";
                     } else {
                       campaignName = "Campaign " + campaignId;
                     }
@@ -663,13 +669,19 @@ export default function AdCreator() {
                           const campaignId = adSet.campaignId || "";
                           let campaignName = "";
                           
-                          // Use actual campaign names
-                          if (campaignId.includes("summer")) {
+                          // Use actual campaign names based on IDs
+                          if (campaignId === "c1_1") {
                             campaignName = "Summer Sale 2025";
-                          } else if (campaignId.includes("eco")) {
+                          } else if (campaignId === "c1_2") {
                             campaignName = "Product Launch: Eco Series";
-                          } else if (campaignId.includes("brand")) {
+                          } else if (campaignId === "c1_3") {
                             campaignName = "Brand Awareness Q2";
+                          } else if (campaignId === "c2_1") {
+                            campaignName = "Winter Holiday Special";
+                          } else if (campaignId === "c2_2") {
+                            campaignName = "Lead Generation - Enterprise";
+                          } else if (campaignId === "c2_3") {
+                            campaignName = "Social Media Contest";
                           } else {
                             campaignName = "Campaign " + campaignId;
                           }
