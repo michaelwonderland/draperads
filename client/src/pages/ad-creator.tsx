@@ -661,7 +661,7 @@ export default function AdCreator() {
                       onAdNameChange={(name) => {
                         console.log("Ad name changed:", name);
                       }}
-                      adAccountName={targetingData.adAccountId === "account_1" ? "DraperAds Marketing" : targetingData.adAccountId === "account_2" ? "Creative Solutions Agency" : `${targetingData.adAccountId}`}
+                      adAccountName={targetingData.adAccountId === "account_1" ? "DraperAds Marketing (1234567890)" : targetingData.adAccountId === "account_2" ? "Creative Solutions Agency (9876543210)" : `${targetingData.adAccountId}`}
                       campaigns={targetingData.adSets
                         .filter(adSet => adSet.campaignId)
                         .map(adSet => {
