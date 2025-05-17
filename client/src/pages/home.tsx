@@ -20,7 +20,7 @@ export default function Home() {
             fundamental workflow issue, we built DraperAds to do it for you.
           </p>
           <Link href="/ad-creator">
-            <Button className="bg-[#f6242f] hover:bg-[#F5DEB3] hover:text-[#333] text-white px-6 py-2 text-lg">
+            <Button className="bg-[#f6242f] hover:bg-[#F5DEB3] hover:text-[#f6242f] text-white px-6 py-2 text-lg">
               Create An Ad
             </Button>
           </Link>
@@ -67,7 +67,7 @@ export default function Home() {
         </p>
         <div className="flex justify-center">
           <Link href="/ad-creator">
-            <Button className="bg-[#f6242f] hover:bg-[#F5DEB3] hover:text-[#333] text-white">
+            <Button className="bg-[#f6242f] hover:bg-[#F5DEB3] hover:text-[#f6242f] text-white">
               Try DraperAds Now
             </Button>
           </Link>
