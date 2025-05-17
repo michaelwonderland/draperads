@@ -388,12 +388,32 @@ export default function AdCreator() {
   // Function to publish ad when Meta is connected
   const handlePublishAd = async () => {
     if (!isAuthenticated) {
-      setShowAuthDialog(true);
+      toast({
+        title: "Login Required",
+        description: "Please login to your DraperAds account first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Check if user has connected to Meta
+    if (!isMetaConnected) {
+      toast({
+        title: "Meta Connection Required",
+        description: "Please connect your Meta account to publish ads.",
+      });
+      setMetaAuthOpen(true);
       return;
     }
     
     // Create temporary ad first
     await createAdMutation.mutateAsync();
+    
+    // Show publishing toast
+    toast({
+      title: "Publishing to Meta...",
+      description: "Your ad is being sent to Meta.",
+    });
     
     // Call publish endpoint
     try {
