@@ -167,24 +167,6 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
     }
   };
 
-  // Query Meta ad accounts
-  const { data: metaAdAccounts, isLoading: isLoadingAdAccounts } = useQuery<any[]>({
-    queryKey: ["/api/meta/ad-accounts"],
-    enabled: isConnected,
-  });
-  
-  // Query Facebook pages when connected
-  const { data: metaFacebookPages, isLoading: isLoadingFacebookPages } = useQuery<any[]>({
-    queryKey: ["/api/meta/facebook-pages"],
-    enabled: isConnected,
-  });
-  
-  // Query Instagram accounts connected to selected Facebook page
-  const { data: metaInstagramAccounts, isLoading: isLoadingInstagramAccounts } = useQuery<any[]>({
-    queryKey: ["/api/meta/instagram-accounts", formData.facebookPageId],
-    enabled: isConnected && !!formData.facebookPageId,
-  });
-  
   // Legacy query for backward compatibility
   const { data: adAccounts, isLoading: isLoadingAccounts } = useQuery<AdAccount[]>({
     queryKey: ["/api/ad-accounts"],
@@ -266,6 +248,24 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
 
   // Use a ref to debounce changes
   const changeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Query Meta ad accounts when connected
+  const { data: metaAdAccounts, isLoading: isLoadingMetaAdAccounts } = useQuery<any[]>({
+    queryKey: ["/api/meta/ad-accounts"],
+    enabled: isConnected,
+  });
+  
+  // Query Facebook pages when connected
+  const { data: metaFacebookPages, isLoading: isLoadingFacebookPages } = useQuery<any[]>({
+    queryKey: ["/api/meta/facebook-pages"],
+    enabled: isConnected,
+  });
+  
+  // Query Instagram accounts connected to selected Facebook page
+  const { data: metaInstagramAccounts, isLoading: isLoadingInstagramAccounts } = useQuery<any[]>({
+    queryKey: ["/api/meta/instagram-accounts", formData.facebookPageId],
+    enabled: isConnected && !!formData.facebookPageId,
+  });
   
   // Sync changes to parent component with memoized data to avoid infinite renders
   useEffect(() => {
@@ -510,32 +510,7 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
         Choose where to deploy the ad you just created.
       </p>
       
-      {/* Meta Connection Status */}
-      <div className="bg-gray-50 p-4 rounded-lg mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-            <span className="font-medium">{isConnected ? 'Connected to Meta' : 'Not connected to Meta'}</span>
-          </div>
-          
-          {!isConnected && onConnectMeta && (
-            <button 
-              onClick={onConnectMeta}
-              className="text-sm bg-[#1877F2] text-white px-3 py-1.5 rounded-md hover:bg-[#1877F2]/90 flex items-center gap-1.5"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Connect Meta Account
-            </button>
-          )}
-        </div>
-        {!isConnected && (
-          <p className="text-xs text-gray-500 mt-2">
-            Connect your Meta account to access your real ad accounts, campaigns, and ad sets.
-          </p>
-        )}
-      </div>
+
       
       <div className="space-y-6">
         {/* Meta Connection Banner - Always show but change state */}
@@ -585,8 +560,28 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
               <SelectValue placeholder={isConnected ? "Select Account" : "Connect to view ad accounts"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="account_1">DraperAds Marketing (ID: 1078354229)</SelectItem>
-              <SelectItem value="account_2">Creative Solutions (ID: 897216453)</SelectItem>
+              {isLoadingMetaAdAccounts ? (
+                <div className="flex items-center justify-center py-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-[#f6242f] border-t-transparent rounded-full"></div>
+                  <span className="ml-2 text-sm">Loading accounts...</span>
+                </div>
+              ) : metaAdAccounts && metaAdAccounts.length > 0 ? (
+                // Show real Meta ad accounts when connected
+                metaAdAccounts.map(account => (
+                  <SelectItem key={account.id} value={account.id}>
+                    {account.name} (ID: {account.account_id})
+                  </SelectItem>
+                ))
+              ) : isConnected ? (
+                // Connected but no accounts found
+                <div className="px-2 py-1 text-sm text-gray-500">No ad accounts found</div>
+              ) : (
+                // Fallback to mock data when not connected (for development)
+                <>
+                  <SelectItem value="account_1">DraperAds Marketing (ID: 1078354229)</SelectItem>
+                  <SelectItem value="account_2">Creative Solutions (ID: 897216453)</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>
