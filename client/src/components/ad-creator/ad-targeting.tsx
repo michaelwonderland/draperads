@@ -417,9 +417,26 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
     }));
   };
 
-  // Get campaign and ad set data based on the selected account
+  // Add a query for Meta campaigns when an account is selected
+  const { data: metaCampaigns, isLoading: isLoadingCampaigns } = useQuery<any[]>({
+    queryKey: ["/api/meta/campaigns", formData.adAccountId],
+    enabled: isConnected && !!formData.adAccountId,
+  });
+  
+  // Get campaign data based on the selected account - use real Meta data when available
   const getAccountCampaigns = () => {
     if (!formData.adAccountId || !isConnected) return [];
+    
+    // Use real Meta campaigns data when available
+    if (metaCampaigns && Array.isArray(metaCampaigns)) {
+      return metaCampaigns.map(campaign => ({
+        id: campaign.id,
+        name: campaign.name,
+        status: campaign.status || 'ACTIVE'
+      }));
+    }
+    
+    // Fallback to sample data for development
     return accountData[formData.adAccountId]?.campaigns || [];
   };
   
@@ -443,18 +460,39 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
     });
   };
   
+  // Add a query for Meta ad sets when campaigns are selected
+  const { data: metaAdSets, isLoading: isLoadingAdSets } = useQuery<any[]>({
+    queryKey: ["/api/meta/ad-sets", formData.adAccountId, 
+               formData.selectedCampaigns.map(c => c.id).join(',')],
+    enabled: isConnected && !!formData.adAccountId && formData.selectedCampaigns.length > 0,
+  });
+  
   const getAccountAdSets = () => {
     if (!formData.adAccountId || !isConnected) return [];
     
     // Filter ad sets to only include those from selected campaigns
     if (formData.selectedCampaigns.length > 0) {
       const campaignIds = formData.selectedCampaigns.map(c => c.id);
+      
+      // Use real Meta ad sets data when available
+      if (metaAdSets && Array.isArray(metaAdSets)) {
+        return metaAdSets
+          .filter(adSet => campaignIds.includes(adSet.campaign_id))
+          .map(adSet => ({
+            id: adSet.id,
+            name: adSet.name,
+            campaignId: adSet.campaign_id,
+            status: adSet.status || 'ACTIVE'
+          }));
+      }
+      
+      // Fallback to sample data for development
       return accountData[formData.adAccountId]?.adSets.filter(adSet => 
         campaignIds.includes(adSet.campaignId)
       ) || [];
     }
     
-    // Otherwise return all ad sets for the account
+    // Otherwise return all ad sets for the account (for development only)
     return accountData[formData.adAccountId]?.adSets || [];
   };
   
