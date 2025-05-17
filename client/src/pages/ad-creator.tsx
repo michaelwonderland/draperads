@@ -540,7 +540,7 @@ export default function AdCreator() {
                           }}
                           type="button"
                           variant="outline"
-                          className="bg-yellow-50 text-[#f6242f] hover:bg-[#d81f29] hover:text-white border-yellow-200 h-7 ml-2"
+                          className="bg-yellow-50 text-[#f6242f] hover:opacity-90 border-yellow-200 h-7 ml-2"
                           size="sm"
                         >
                           Apply
@@ -714,7 +714,7 @@ export default function AdCreator() {
                   <Button
                     onClick={handlePublishAd}
                     disabled={!isMetaConnected || createAdMutation.isPending}
-                    className={`w-full sm:w-auto ${!isMetaConnected ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : 'bg-[#f6242f] hover:bg-[#d81f29]'}`}
+                    className={`w-full sm:w-auto ${!isMetaConnected ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : 'bg-[#f6242f] hover:opacity-90'}`}
                   >
                     Publish to Meta
                   </Button>
@@ -743,7 +743,7 @@ export default function AdCreator() {
             {currentStep < 3 ? (
               <Button
                 onClick={handleNextStep}
-                className="flex gap-2 items-center bg-[#f6242f] hover:bg-[#d81f29] text-white"
+                className="flex gap-2 items-center bg-[#f6242f] hover:opacity-90 text-white"
               >
                 {currentStep === 1 ? "Continue to Targeting" : "Continue to Launch"}
                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
