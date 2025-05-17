@@ -743,7 +743,7 @@ export default function AdCreator() {
             {currentStep < 3 ? (
               <Button
                 onClick={handleNextStep}
-                className="flex gap-2 items-center bg-[#f6242f] hover:bg-[#D4AF37] text-white"
+                className="flex gap-2 items-center bg-[#f6242f] hover:opacity-90 text-white"
               >
                 {currentStep === 1 ? "Continue to Targeting" : "Continue to Launch"}
                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
