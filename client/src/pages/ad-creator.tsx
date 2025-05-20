@@ -475,6 +475,29 @@ export default function AdCreator() {
   
   return (
     <div className="container mx-auto py-8 px-4">
+      {/* Meta Auth Dialog */}
+      <MetaAuthDialog 
+        open={metaAuthOpen} 
+        onOpenChange={setMetaAuthOpen}
+        onAuthComplete={() => {
+          // When Meta authentication is successful, update the connection status
+          setIsMetaConnected(true);
+          toast({
+            title: "Connected to Meta",
+            description: "Your Meta account has been successfully connected to DraperAds."
+          });
+        }}
+      />
+      
+      {/* Regular Auth Dialog */}
+      <AuthDialog 
+        isOpen={showAuthDialog}
+        onClose={() => setShowAuthDialog(false)}
+        onLoginSuccess={() => {
+          // Handle login success
+        }}
+        message="You need to be logged in to publish ads"
+      />
       
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Editor Panel */}
@@ -689,10 +712,6 @@ export default function AdCreator() {
               }}
               onConnectionChange={(connected) => {
                 setIsMetaConnected(connected);
-              }}
-              onConnectMeta={() => {
-                // Open the Meta authentication dialog when "Connect to Meta" is clicked
-                setMetaAuthOpen(true);
               }}
             />
           )}
