@@ -7,7 +7,7 @@ import type { Response } from 'express';
 // Login URL configuration constants
 const REDIRECT_URI = process.env.NODE_ENV === 'production'
   ? `${process.env.BASE_URL}/api/meta/callback`
-  : 'https://localhost:5000/api/meta/callback';
+  : `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}/api/meta/callback`;
 
 const SCOPES = [
   'ads_management',
