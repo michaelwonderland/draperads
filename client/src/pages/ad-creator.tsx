@@ -124,9 +124,8 @@ export default function AdCreator() {
     }
   }, []);
   
-  // Auth dialog states
+  // Auth dialog state
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [showMetaAuthDialog, setShowMetaAuthDialog] = useState(false);
   
   // State for AI suggestions
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestions | null>(null);
@@ -693,9 +692,8 @@ export default function AdCreator() {
               }}
               onConnectMeta={() => {
                 // Open the Meta authentication dialog when "Connect to Meta" is clicked
-                setShowMetaAuthDialog(true);
+                setMetaAuthOpen(true);
               }}
-              isConnected={isMetaConnected}
             />
           )}
           
