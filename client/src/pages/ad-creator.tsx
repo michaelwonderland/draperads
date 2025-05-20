@@ -106,11 +106,21 @@ export default function AdCreator() {
   
   // Get step from localStorage on initial load
   useEffect(() => {
-    const storedStep = localStorage.getItem('adCreatorStep');
-    if (storedStep) {
-      setCurrentStep(parseInt(storedStep));
-    } else {
+    // Reset to step 1 if coming from home page links
+    const fromHome = document.referrer.includes('/home') || 
+                    !document.referrer.includes('/ad-creator');
+    
+    if (fromHome) {
+      setCurrentStep(1);
       localStorage.setItem('adCreatorStep', '1');
+    } else {
+      // Only restore previous step if navigating within the ad creator flow
+      const storedStep = localStorage.getItem('adCreatorStep');
+      if (storedStep) {
+        setCurrentStep(parseInt(storedStep));
+      } else {
+        localStorage.setItem('adCreatorStep', '1');
+      }
     }
   }, []);
   
