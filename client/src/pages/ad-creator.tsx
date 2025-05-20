@@ -124,8 +124,9 @@ export default function AdCreator() {
     }
   }, []);
   
-  // Auth dialog state
+  // Auth dialog states
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showMetaAuthDialog, setShowMetaAuthDialog] = useState(false);
   
   // State for AI suggestions
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestions | null>(null);

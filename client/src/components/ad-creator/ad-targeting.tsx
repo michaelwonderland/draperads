@@ -316,17 +316,12 @@ export function AdTargeting({ onChange, defaultValues, onConnectionChange, isCon
   };
 
   const handleConnectMeta = () => {
-    setIsConnected(true);
-    // Just connect without making any default selections
-    // User will need to select an account first
-    setFormData(prev => ({ 
-      ...prev, 
-      adAccountId: "",
-      selectedCampaigns: [],
-      selectedAdSets: [],
-      facebookPageId: "",
-      instagramAccountId: ""
-    }));
+    // Use the onConnectMeta prop to trigger the Meta authentication dialog
+    if (onConnectMeta) {
+      onConnectMeta();
+    } else {
+      console.warn("Meta connect function not provided");
+    }
   };
 
   const handleToggleCampaign = (campaign: Campaign) => {
