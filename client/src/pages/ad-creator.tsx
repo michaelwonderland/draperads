@@ -691,6 +691,11 @@ export default function AdCreator() {
               onConnectionChange={(connected) => {
                 setIsMetaConnected(connected);
               }}
+              onConnectMeta={() => {
+                // Open the Meta authentication dialog when "Connect to Meta" is clicked
+                setShowMetaAuthDialog(true);
+              }}
+              isConnected={isMetaConnected}
             />
           )}
           
